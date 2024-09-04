@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>鑑賞履歴タイムライン</title>
+</head>
+<body>
+    <h1>鑑賞履歴タイムライン</h1>
+    <ul>
+        {% for entry in watch_history %}
+            <li>
+                {{ entry.watched_on }}: {{ entry.movie.title }} ({{ entry.movie.director }})
+            </li>
+        {% empty %}
+            <li>鑑賞履歴がありません。</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

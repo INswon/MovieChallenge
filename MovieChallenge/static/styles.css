@@ -1,0 +1,115 @@
+/* 全体のレイアウト設定 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* コンテナのスタイル */
+.container {
+    display: flex;
+    justify-content: center; /* コンテンツを中央に配置 */
+    align-items: center;
+    height: 100vh;
+}
+
+/* フォームのスタイル */
+form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 350px; /* 親コンテナの幅を制限 */
+    max-width: 90%; /* レスポンシブデザインを考慮 */
+    margin: 0 auto; /* 中央に配置 */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* フォーム内の要素を中央揃え */
+}
+
+form div {
+    width: 100%; /* 全幅を使用 */
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px; /* 各フィールドの間隔を設定 */
+}
+
+/* ラベルのスタイル */
+form div label {
+    width: 120px; /* ラベルの幅を設定 */
+    text-align: right;
+    margin-right: 10px; /* ラベルと入力フィールドの間にスペースを設定 */
+}
+
+/* 入力フィールドのスタイル */
+form div input {
+    flex: 1; /* 入力フィールドが残りのスペースを占有 */
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* パディングとボーダーを含めた幅を設定 */
+}
+
+/* ボタンコンテナのスタイル */
+.button-container {
+    display: flex;
+    gap: 30px; 
+    justify-content:space-between;
+    width: 100%; 
+    max-width: 300px; 
+    margin-top: 20px; 
+}
+
+/* ボタンのスタイル */
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+/* ボタンのホバー時のスタイル */
+button:hover {
+    background-color: #45a049;
+}
+
+/* リンクボタンのスタイル */
+.button-container a.btn-link {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* リンクボタンのホバー時のスタイル */
+.button-container a.btn-link:hover {
+    background-color: #45a049;
+}
+
+/* 通常のリンクのスタイル（フォーム内では使用しないが、一般的なスタイルとして） */
+a {
+    display: block;
+    text-align: center;
+    margin-top: 15px;
+    color: #4CAF50;
+    text-decoration: none;
+    font-size: 0.9em;
+}
+
+/* リンクのホバー時のスタイル */
+a:hover {
+    text-decoration: underline;
+}
