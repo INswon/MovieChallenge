@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィール</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>{{user.name}}さんのプロフィールページ</h1>
+        </header>
+
+        <section class="profile-info">
+            <div class="profile-picture">
+                <!-- プロフィール写真がアップロードされている場合は表示 -->
+                {% if user.profile.picture %}
+                    <img src="{{ user.profile.picture.url }}" alt="プロフィール写真">
+                {% else %}
+                    <img src="{% static 'default-profile.png' %}" alt="プロフィール写真">
+                {% endif %}
+            </div>
+
+            <div class="profile-details">
+                <h2>{{ user.username }}</h2>
+                <p>メール: {{ user.email }}</p>
+                <p>映画鑑賞数: {{ user.profile.movies_watched_count }} 本</p>
+                <p>好きな映画ジャンル: {{ user.profile.favorite_genre }}</p>
+            </div>
+        </section>
+
+         <!-- プロフィール編集ボタン -->
+         <section class="edit-profile">
+            <button type="button" onclick="location.href='{% url 'edit_profile' %}'">プロフィールを編集</button>
+        </section>
+
+        <section class="actions">
+            <form action="{% url 'logout' %}" method="post">
+                {% csrf_token %}
+                <div class="button-container">
+                    <button type="submit">ログアウト</button>
+                    <button type="button" onclick="location.href='{% url 'home' %}'">ホームに戻る</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+</html>

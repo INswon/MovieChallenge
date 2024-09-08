@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="home-container">
+    <section class="welcome-section">
+        <h1>ようこそ！{{ user.username }}さん</h1>
+        <p>好きな映画を記録し、映画鑑賞の旅を共有しよう！</p>
+    </section>
+
+    <!-- 映画鑑賞記録 -->
+    <section class="movie-records">
+      <div class="movie-list">
+          {% for record in records %}
+            <div class="movie-item">
+                <img src="{{ record.poster.url }}" alt="{{ record.title }} ポスター">
+                <div class="movie-info">
+                    <h3>{{ record.title }}</h3>
+                    <p>鑑賞日: {{ record.date_watched }}</p>
+                    <p>評価: {% if record.rating == 1 %}★☆☆☆☆{% elif record.rating == 2 %}★★☆☆☆{% elif record.rating == 3 %}★★★☆☆{% elif record.rating == 4 %}★★★★☆{% else %}★★★★★{% endif %}</p>
+                </div>
+            </div>
+          {% empty %}
+            <p>まだ映画を鑑賞していません。</p>
+          {% endfor %}
+      </div>
+    </section>
+</div>
+{% endblock %}
+

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}映画鑑賞チャレンジアプリ{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+    <header>
+        <div class="header-title">
+            <h1>映画鑑賞チャレンジアプリ</h1>
+        </div>
+
+        <div class="header-nav">
+            <nav>
+              <ul>
+                <li><a href="{% url 'home' %}">ホーム</a></li>
+                <li><a href="{% url 'profile' %}">プロフィール</a></li>
+              </ul>
+            </nav>
+          </div>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2024 サイト名. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
