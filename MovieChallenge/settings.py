@@ -13,9 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
-
-DEBUG=True
+DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -29,9 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "challenges",
     "movies",
-    "social",
     "users",
 ]
 
@@ -113,6 +109,10 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_VERSION = '3.0'
+
+# Media files
+# https://docs.djangoproject.com/en/5.0/topics/files/
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
