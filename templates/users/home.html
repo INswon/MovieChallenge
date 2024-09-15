@@ -1,29 +1,42 @@
 {% extends 'base.html' %}
 
-{% block content %}
-<div class="home-container">
-    <section class="welcome-section">
-        <h1>ようこそ！{{ user.username }}さん</h1>
-        <p>好きな映画を記録し、映画鑑賞の旅を共有しよう！</p>
-    </section>
+{% load static %} 
 
-    <!-- 映画鑑賞記録 -->
-    <section class="movie-records">
-      <div class="movie-list">
-          {% for record in records %}
-            <div class="movie-item">
-                <img src="{{ record.poster.url }}" alt="{{ record.title }} ポスター">
-                <div class="movie-info">
-                    <h3>{{ record.title }}</h3>
-                    <p>鑑賞日: {{ record.date_watched }}</p>
-                    <p>評価: {% if record.rating == 1 %}★☆☆☆☆{% elif record.rating == 2 %}★★☆☆☆{% elif record.rating == 3 %}★★★☆☆{% elif record.rating == 4 %}★★★★☆{% else %}★★★★★{% endif %}</p>
+{% block content %}
+
+    <div class="container my-1">
+        <section class="jumbotron text-center">
+            <h1 class="jumbotron-heading">ようこそ！{{ user.username }}さん</h1>
+            <p class="lead text-muted">好きな映画を記録し、映画鑑賞の旅を共有しよう！</p>
+        </section>
+    </div>
+
+    <!-- 映画鑑賞記録セクション -->
+    <h2 class="text-center mb-4">映画鑑賞記録</h2>
+
+        {% for record in records %}
+            <div class="card mb-3 mx-auto" style="width: 1000px;">
+                <div class="row g-0">
+                    <div class="col-md-5">
+                        <img src="{{ record.poster.url }}" alt="{{ record.title }}">
+                    </div>
+
+                    <div class="col-md-7">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ record.title }}</h5>
+                            <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
+                            <p class="card-text">評価: 
+                                {% if record.rating == 1 %}★☆☆☆☆
+                                {% elif record.rating == 2 %}★★☆☆☆
+                                {% elif record.rating == 3 %}★★★☆☆
+                                {% elif record.rating == 4 %}★★★★☆
+                                {% else %}★★★★★
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
-          {% empty %}
-            <p>まだ映画を鑑賞していません。</p>
-          {% endfor %}
-      </div>
-    </section>
-</div>
-{% endblock %}
+        {% endfor %}
 
+{% endblock %}
