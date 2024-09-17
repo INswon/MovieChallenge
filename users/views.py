@@ -6,11 +6,28 @@ from django.views import View
 from movies.models import UserMovieRecord
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.generic import CreateView
+from .forms import MovieRecordForm
+
 
 @login_required
 def home(request):
     records = UserMovieRecord.objects.filter(user=request.user)
     return render(request, 'users/home.html', {'records': records}) 
+
+class MovieRecordCreateView(CreateView):
+    model = UserMovieRecord
+    form_class = MovieRecordForm  
+    template_name = 'users/movie_record_create.html'
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        print(form.errors)
+        return super().form_invalid(form)
 
 class SignupView(View):
     def get(self, request):
