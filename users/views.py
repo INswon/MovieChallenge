@@ -6,7 +6,8 @@ from django.views import View
 from movies.models import UserMovieRecord
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.generic import CreateView
+from django.views.generic import ListView, CreateView 
+from django.views.generic.edit import DeleteView 
 from .forms import MovieRecordForm
 
 
@@ -14,6 +15,15 @@ from .forms import MovieRecordForm
 def home(request):
     records = UserMovieRecord.objects.filter(user=request.user)
     return render(request, 'users/home.html', {'records': records}) 
+
+
+class MovieRecordListView(ListView):
+    model = UserMovieRecord
+    template_name = 'users/movie_record_list.html'
+    context_object_name = 'records'
+
+    def get_queryset(self):
+        return UserMovieRecord.objects.filter(user=self.request.user)
 
 class MovieRecordCreateView(CreateView):
     model = UserMovieRecord
@@ -28,6 +38,11 @@ class MovieRecordCreateView(CreateView):
     def form_invalid(self, form):
         print(form.errors)
         return super().form_invalid(form)
+    
+class MovieRecordDeleteView(DeleteView):
+    model = UserMovieRecord
+    template_name = 'users/movie_record_delete.html'
+    success_url = reverse_lazy('home') 
 
 class SignupView(View):
     def get(self, request):
