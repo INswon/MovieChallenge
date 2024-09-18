@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container my-1">
+    <section class="jumbotron text-center">
+        <h1 class="jumbotron-heading">映画鑑賞記録の削除</h1>
+    </section>
+</div>
+
+<div class="container">
+    <p class="lead text-muted">以下の映画鑑賞記録を削除します。よろしいですか？</p>
+
+    <div class="alert alert-warning">
+        <h4>{{ object.title }}</h4>
+        <p><strong>鑑賞日:</strong> {{ object.date_watched }}</p>
+        <p><strong>評価:</strong> {{ object.rating }}</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">削除する</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+    </form>
+</div>
+
+{% endblock %}
