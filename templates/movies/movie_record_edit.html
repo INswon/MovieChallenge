@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container my-1">
+    <section class="jumbotron text-center">
+        <h1 class="jumbotron-heading">映画鑑賞記録の編集</h1>
+        <p class="lead text-muted">ここで映画の新しい記録を編集できます。</p>
+    </section>
+</div>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data" class="bg-light p-4 rounded shadow-sm">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        
+        <div class="mb-3">
+          {{ form.title.label_tag }} {{ form.title }}
+          {{ form.title.errors }}
+        </div>
+      
+        <div class="mb-3">
+            {{ form.poster.label_tag }} {{ form.poster }}
+            {{ form.poster.errors }}
+        </div>
+      
+        <div class="mb-3">
+            {{ form.rating.label_tag }} {{ form.rating }}
+            {{ form.rating.errors }}
+        </div>
+      
+        <div class="mb-3">
+            {{ form.date_watched.label_tag }} {{ form.date_watched }}
+            {{ form.date_watched.errors }}
+        </div>
+      
+        <button type="submit" class="btn-save">保存</button>
+        <a href="{% url 'home' %}" class="btn btn-secondary">キャンセル</a>
+    </form>
+</div>
+
+{% endblock %}
