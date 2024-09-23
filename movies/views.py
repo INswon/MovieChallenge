@@ -7,7 +7,7 @@ from django.urls import reverse_lazy
 
 class MovieRecordListView(ListView):
     model = UserMovieRecord
-    template_name = 'users/movie_record_list.html'
+    template_name = 'movies/movie_record_list.html'
     context_object_name = 'records'
 
     def get_queryset(self):
@@ -16,7 +16,7 @@ class MovieRecordListView(ListView):
 class MovieRecordCreateView(CreateView):
     model = UserMovieRecord
     form_class = MovieRecordForm  
-    template_name = 'users/movie_record_create.html'
+    template_name = 'movies/movie_record_create.html'
     success_url = reverse_lazy('home')
 
     def form_valid(self, form):
@@ -29,7 +29,7 @@ class MovieRecordCreateView(CreateView):
     
 class MovieRecordDeleteView(DeleteView):
     model = UserMovieRecord
-    template_name = 'users/movie_record_delete.html'
+    template_name = 'movies/movie_record_delete.html'
     success_url = reverse_lazy('home') 
 
 class MovieRecordEditView(UpdateView):
