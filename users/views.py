@@ -1,16 +1,18 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView
 from django.views import View
 from movies.models import UserMovieRecord
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
-
-@login_required
-def home(request):
-    records = UserMovieRecord.objects.filter(user=request.user)
-    return render(request, 'users/home.html', {'records': records}) 
+class UserMovieListview(LoginRequiredMixin, ListView):
+    model = UserMovieRecord
+    template_name = 'users/home.html'
+    context_object_name = 'records'
+    login_url = '/login/'  
 
 class SignupView(View):
     def get(self, request):
