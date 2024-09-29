@@ -1,6 +1,8 @@
 from django.urls import path
 from .views import MovieRecordListView, MovieRecordCreateView, MovieRecordDeleteView,MovieRecordEditView
 
+app_name = 'movies'
+
 urlpatterns = [
     path('list/',MovieRecordListView.as_view(), name='list'),
     path('create/',MovieRecordCreateView.as_view(), name="create"),
