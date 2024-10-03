@@ -37,3 +37,28 @@ class MovieRecordCreateTestCase(TestCase):
         # 成功の確認
         self.assertEqual(response.status_code, 302)  # リダイレクトを確認
         self.assertTrue(UserMovieRecord.objects.filter(title='New Movie').exists())  # データベースにレコードが存在するか確認
+
+
+    def test_create_movie_record_invalid_data(self):
+        invalid_cases = [
+            {'title': '', 'poster': '', 'date_watched': '2024-10-03', 'rating': 5},  # titleとposterが空
+            {'title': 'New Movie', 'poster': '', 'date_watched': '2024-10-03', 'rating': 0},  # posterが空、ratingが無効
+            {'title': 'New Movie', 'poster': '', 'date_watched': '2024-10-03', 'rating': 'five'},  # posterが空、ratingが文字列
+        ]
+
+        for data in invalid_cases:
+            response = self.client.post(reverse('movies:create'), data)
+
+            form = response.context['form']  # フォームを取得
+            self.assertTrue(form.errors)  # フォームにエラーが存在するか確認
+
+            # エラーメッセージの確認
+            if 'title' in form.errors:
+                self.assertIn('このフィールドは必須です。', form.errors['title'])
+            if 'poster' in form.errors:
+                self.assertIn('このフィールドは必須です。', form.errors['poster'])
+            if 'rating' in form.errors:
+                if data['rating'] == 0:
+                    self.assertIn('評価は1から5の間で選択してください。', form.errors['rating'])
+                if data['rating'] == 'five':
+                    self.assertIn('整数を入力してください。', form.errors['rating'])
