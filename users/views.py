@@ -32,3 +32,21 @@ class CustomLogoutView(View):
         logout(request)
         messages.success(request, 'ログアウトしました')
         return render(request, 'users/logout.html')
+
+class ProgressGoalCreateView(CreateView):
+    model = ProgressGoal
+    fields = ['goal_title', 'target_date', 'current_progress']
+    template_name = 'users/progressgoal_form.html'
+    success_url = reverse_lazy('progress_goal_list')  # 成功時のリダイレクト先
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user  # 現在のユーザーを設定
+        return super().form_valid(form)
+    
+class ProgressGoalUpdateView(UpdateView):
+    model = ProgressGoal
+    fields = ['progress']
+    template_name = 'progressgoal_update_form.html'
+    success_url = reverse_lazy('progress_goal_list')  # 成功時のリダイレクト先
+    
+
