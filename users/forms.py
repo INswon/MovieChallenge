@@ -14,3 +14,13 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].widget = forms.PasswordInput(attrs={'placeholder': 'Confirm Password'})
         for fieldname in ['username', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
+
+class ProgressGoalForm(forms.ModelForm):
+    class Meta:
+        model = ProgressGoal
+        fields = ['goal_title', 'target_date', 'current_progress', 'total_movies', 'genre_preferences', 'status', 'movies_watched', 'movie_ratings']
+        widgets = {
+            'target_date': forms.DateInput(attrs={'type': 'date'}),  # 日付入力を適切に設定
+            'movies_watched': forms.Textarea(attrs={'rows': 4}),  # 映画リストを入力するテキストエリア
+            'movie_ratings': forms.Textarea(attrs={'rows': 4}),  # 評価や感想を入力するテキストエリア
+        }
