@@ -15,12 +15,50 @@ class CustomUserCreationForm(UserCreationForm):
         for fieldname in ['username', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
 
+
 class ProgressGoalForm(forms.ModelForm):
     class Meta:
         model = ProgressGoal
         fields = ['goal_title', 'target_date', 'current_progress', 'total_movies', 'genre_preferences', 'status', 'movies_watched', 'movie_ratings']
         widgets = {
-            'target_date': forms.DateInput(attrs={'type': 'date'}),  # 日付入力を適切に設定
-            'movies_watched': forms.Textarea(attrs={'rows': 4}),  # 映画リストを入力するテキストエリア
-            'movie_ratings': forms.Textarea(attrs={'rows': 4}),  # 評価や感想を入力するテキストエリア
+            'goal_title': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '例: 週に5本の映画を見る'
+            }),
+            'target_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control'
+            }),
+            'current_progress': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'placeholder': '0'
+            }),
+            'total_movies': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 1,
+                'placeholder': '例: 10'
+            }),
+            'genre_preferences': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': '例: アクション, コメディ'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'movies_watched': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': '例: タイトル1, タイトル2'
+            }),
+            'movie_ratings': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': '例: タイトル1 - 評価: 4/5, 感想: 面白かった'
+            }),
+        }
+        help_texts = {
+            'goal_title': '目標のタイトルを入力してください。',
+            'target_date': '目標を達成したい日付を選択してください。',
+            'total_movies': '達成したい映画の本数を入力してください。',
         }
