@@ -1,16 +1,91 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>目標設定</title>
-</head>
-<body>
-    <h2>目標を設定する</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">目標を設定</button>
-    </form>
-</body>
-</html>
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}目標の設定{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">映画鑑賞目標の設定</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form.non_field_errors }}
+                        
+                        <!-- 目標タイトル -->
+                        <div class="form-group">
+                            {{ form.goal_title.label_tag }}
+                            {{ form.goal_title|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.goal_title.help_text }}</small>
+                            {{ form.goal_title.errors }}
+                        </div>
+
+                        <!-- 目標達成日 -->
+                        <div class="form-group">
+                            {{ form.target_date.label_tag }}
+                            {{ form.target_date|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.target_date.help_text }}</small>
+                            {{ form.target_date.errors }}
+                        </div>
+
+                        <!-- 現在の進捗 -->
+                        <div class="form-group">
+                            {{ form.current_progress.label_tag }}
+                            {{ form.current_progress|add_class:"form-control" }}
+                            {{ form.current_progress.errors }}
+                        </div>
+
+                        <!-- 目標映画数 -->
+                        <div class="form-group">
+                            {{ form.total_movies.label_tag }}
+                            {{ form.total_movies|add_class:"form-control" }}
+                            <small class="form-text text-muted">{{ form.total_movies.help_text }}</small>
+                            {{ form.total_movies.errors }}
+                        </div>
+
+                        <!-- ジャンルの好み -->
+                        <div class="form-group">
+                            {{ form.genre_preferences.label_tag }}
+                            {{ form.genre_preferences|add_class:"form-control" }}
+                            <small class="form-text text-muted">複数選択可。例: アクション, コメディ</small>
+                            {{ form.genre_preferences.errors }}
+                        </div>
+
+                        <!-- 目標の状態 -->
+                        <div class="form-group">
+                            {{ form.status.label_tag }}
+                            {{ form.status|add_class:"form-control" }}
+                            {{ form.status.errors }}
+                        </div>
+
+                        <!-- 鑑賞した映画リスト -->
+                        <div class="form-group">
+                            {{ form.movies_watched.label_tag }}
+                            {{ form.movies_watched|add_class:"form-control" }}
+                            <small class="form-text text-muted">複数行で入力してください。例: タイトル1, タイトル2</small>
+                            {{ form.movies_watched.errors }}
+                        </div>
+
+                        <!-- 評価や感想 -->
+                        <div class="form-group">
+                            {{ form.movie_ratings.label_tag }}
+                            {{ form.movie_ratings|add_class:"form-control" }}
+                            <small class="form-text text-muted">複数行で入力してください。例: タイトル1 - 評価: 4/5, 感想: 面白かった</small>
+                            {{ form.movie_ratings.errors }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block">目標を設定</button>
+                    </form>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'users:home' %}" class="btn btn-link">一覧画面に戻る</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
