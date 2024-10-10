@@ -1,19 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>進捗目標表示</title>
-</head>
-<body>
-    <h2>進捗目標の一覧</h2>
-    <ul>
-        {% for goal in goals %}
-            <li>{{ goal.title }} - 進捗: {{ goal.progress }}/{{ goal.target_movies }} <a href="{% url 'progress_goal_update' goal.pk %}">更新</a></li>
-        {% empty %}
-            <li>設定された目標はありません。</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'progress_goal_create' %}">新しい目標を設定</a>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}進捗目標の一覧{% endblock %}
+
+{% block content %}
+<h2>進捗目標の一覧</h2>
+<ul class="list-group">
+    {% for goal in goals %}
+    <li class="list-group-item d-flex justify-content-between align-items-center">
+        <div>
+            <strong>{{ goal.goal_title }}</strong><br>
+            進捗: {{ goal.current_progress }}/{{ goal.total_movies }} 映画<br>
+            状態: {{ goal.get_status_display }}<br>
+            ジャンル: {{ goal.genre_preferences }}
+        </div>
+    </li>
+
+    <li class="list-group-item">
+        <h5>獲得したバッジ:</h5>
+        {% if goal.badges %}
+            <ul>
+                {% for badge in goal.badges %}
+                    <li>{{ badge.name }} - {{ badge.description }}</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>まだ獲得したバッジはありません。</p>
+        {% endif %}
+    </li>
+    {% empty %}
+    <li class="list-group-item">設定された目標はありません。</li>
+    {% endfor %}
+</ul>
+<div>
+  <a href="{% url 'progress_goal_detail' goal.id %}" class="btn btn-sm btn-info">詳細</a>
+  <a href="{% url 'progress_goal_update' goal.id %}" class="btn btn-sm btn-secondary">更新</a>
+  <a href="{% url 'progress_goal_delete' goal.id %}" class="btn btn-sm btn-danger">削除</a>
+  <a href="{% url 'progress_goal_create' %}" class="btn btn-primary mt-3">新しい目標を設定</a>
+</div>
+{% endblock %}
