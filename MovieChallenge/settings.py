@@ -17,7 +17,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -29,6 +28,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "movies",
     "users",
+    "missions",
     "widget_tweaks",
 ]
 
