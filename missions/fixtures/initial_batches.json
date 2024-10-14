@@ -1,0 +1,193 @@
+[
+    {
+        "model": "mission.mission",
+        "pk": 1,
+        "fields": {
+            "title": "映画10本達成",
+            "description": "10本の映画を視聴する。",
+            "criteria": {"min_watch_count": 10}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 1,
+        "fields": {
+            "name": "映画10本達成バッチ",
+            "description": "10本の映画を視聴しました！",
+            "mission": 1,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 2,
+        "fields": {
+            "title": "ジャンルマスター",
+            "description": "5つの異なるジャンルの映画を視聴する。",
+            "criteria": {"min_genres": 5}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 2,
+        "fields": {
+            "name": "ジャンルマスター",
+            "description": "5つの異なるジャンルをマスターしました！",
+            "mission": 2,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 3,
+        "fields": {
+            "title": "ディレクターメイト",
+            "description": "10人の異なる監督の映画を視聴する。",
+            "criteria": {"min_directors": 10}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 3,
+        "fields": {
+            "name": "ディレクターメイト",
+            "description": "10人の異なる監督の映画を視聴しました！",
+            "mission": 3,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 4,
+        "fields": {
+            "title": "継続視聴バッチ",
+            "description": "6ヶ月連続で毎月最低1本の映画を視聴する。",
+            "criteria": {"consecutive_months": 6},
+            "created_at": "2024-04-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 4,
+        "fields": {
+            "name": "継続視聴バッチ",
+            "description": "6ヶ月連続で映画を視聴しました！",
+            "mission": 4,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 5,
+        "fields": {
+            "title": "クラシックエンスージアスト",
+            "description": "5本のクラシック映画を視聴する。",
+            "criteria": {"min_classic": 5}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 5,
+        "fields": {
+            "name": "クラシックエンスージアスト",
+            "description": "5本のクラシック映画を視聴しました！",
+            "mission": 5,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 6,
+        "fields": {
+            "title": "外国語ファン",
+            "description": "3本の外国語映画を視聴する。",
+            "criteria": {"min_foreign": 3}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 6,
+        "fields": {
+            "name": "外国語ファン",
+            "description": "3本の外国語映画を視聴しました！",
+            "mission": 6,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 7,
+        "fields": {
+            "title": "最新作ウォッチャー",
+            "description": "過去1年以内に公開された映画を5本視聴する。",
+            "criteria": {"min_recent": 5}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 7,
+        "fields": {
+            "name": "最新作ウォッチャー",
+            "description": "過去1年以内に公開された映画を5本視聴しました！",
+            "mission": 7,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 8,
+        "fields": {
+            "title": "ハイレーティングファン",
+            "description": "評価が8以上の映画を5本視聴する。",
+            "criteria": {"min_high_rating": 8}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 8,
+        "fields": {
+            "name": "ハイレーティングファン",
+            "description": "評価が8以上の映画を5本視聴しました！",
+            "mission": 8,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 9,
+        "fields": {
+            "title": "ソーシャルシネマ",
+            "description": "友人と一緒に映画を3本視聴する。",
+            "criteria": {"min_watched_with_friends": 3}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 9,
+        "fields": {
+            "name": "ソーシャルシネマ",
+            "description": "友人と一緒に映画を3本視聴しました！",
+            "mission": 9,
+            "condition": {}
+        }
+    },
+    {
+        "model": "mission.mission",
+        "pk": 10,
+        "fields": {
+            "title": "マラソンビューアー",
+            "description": "1日に3本の映画を視聴する。",
+            "criteria": {"min_movie_per_day": 3}
+        }
+    },
+    {
+        "model": "mission.batch",
+        "pk": 10,
+        "fields": {
+            "name": "マラソンビューアー",
+            "description": "1日に3本の映画を視聴しました！",
+            "mission": 10,
+            "condition": {}
+        }
+    }
+]
