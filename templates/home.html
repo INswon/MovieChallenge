@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% load static %} 
+
+{% block content %}
+
+    <div class="container my-1">
+        <section class="jumbotron text-center">
+            <h1 class="jumbotron-heading">ようこそ！{{ user.username }}さん</h1>
+            <p class="lead text-muted">好きな映画を記録し、映画鑑賞の旅を共有しよう！</p>
+        </section>
+    </div>
+
+    <!-- 映画鑑賞記録セクション -->
+    <h2 class="text-center mb-4">映画鑑賞記録</h2>
+
+        {% for record in records %}
+        <div class="card mb-3 mx-auto" style="width: 1000px;">
+            <div class="d-flex align-items-stretch">
+                <div class="col-md-5">
+                    {% if record.poster %}
+                        <img src="{{ record.poster.url }}" alt="{{ record.title }}" class="img-fluid">
+                    {% else %}
+                        <img src="{% static 'images/default_poster.jpg' %}" alt="No image available" class="img-fluid">
+                    {% endif %}
+                </div>
+                <div class="col-md-7 d-flex flex-column">
+                    <div class="card-body flex-fill">
+                        <h5 class="card-title">{{ record.title }}</h5>
+                        <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
+                        <p class="card-text">評価: 
+                            {% if record.rating == 1 %}★☆☆☆☆
+                            {% elif record.rating == 2 %}★★☆☆☆
+                            {% elif record.rating == 3 %}★★★☆☆
+                            {% elif record.rating == 4 %}★★★★☆
+                            {% else %}★★★★★
+                            {% endif %}
+                        </p>
+                        <div class="text-center mt-auto">
+                            <button type="button" class="btn-list" onclick="location.href='{% url 'movies:detail' record.pk %}'">詳細</button>
+                            <button type="button" class="btn-edit" onclick="location.href='{% url 'movies:edit' record.pk %}'">編集</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="container text-center mb-4">
+            <button type="button" class="btn-new" onclick="location.href='{% url 'movies:create' %}'">新規作成</button>
+        </div>     
+
+{% endblock %}
