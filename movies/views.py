@@ -69,4 +69,4 @@ class MovieRecordEditView(LoginRequiredMixin, UpdateView):
     model = UserMovieRecord
     form_class = MovieRecordForm
     template_name = 'movies/movie_record_edit.html'
-    success_url = reverse_lazy('users:home')
+    success_url = reverse_lazy('movies:home')
