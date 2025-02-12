@@ -42,7 +42,7 @@ class MovieEditIntegrationTest(TestCase):
         self.client.login(username="testuser", password="testpass")
 
     def tearDown(self):
-        """テスト終了時にMEDIA_ROOTの内容を削除"""
+        #テスト終了時にMEDIA_ROOTの内容を削除"""
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
 
     #タイトル・評価・視聴日・画像の編集が正しく更新されるか検証"""
@@ -75,7 +75,7 @@ class MovieEditIntegrationTest(TestCase):
             "title": "Updated Movie",
             "date_watched": "2024-02-01",
             "rating": 5,
-            "poster": ""  #画像を削除
+            "delete_poster": "on" 
         })
 
         self.assertRedirects(response, reverse("movies:home"))
@@ -85,14 +85,11 @@ class MovieEditIntegrationTest(TestCase):
         self.assertEqual(self.movie.rating, 5)
         self.assertEqual(self.movie.date_watched.strftime("%Y-%m-%d"), "2024-02-01")
 
-        print(f"DEBUG: movie.poster = {self.movie.poster}")
-        print(f"DEBUG: movie.poster.name = {self.movie.poster.name if self.movie.poster else 'None'}")
-
         self.assertFalse(bool(self.movie.poster))  # poster が空になっているか
 
     #画像を変更せずにタイトルだけ編集した場合の動作を検証
     def test_edit_movie_without_changing_poster(self):
-        """✅"""
+        
         old_poster_name = self.movie.poster.name  # 変更前の画像名を保存
         response = self.client.post(reverse('movies:edit', args=[self.movie.id]), {
             "title": "Updated Movie",
