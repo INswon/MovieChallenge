@@ -33,8 +33,15 @@ class MovieRecordCreateView(CreateView):
         form.instance.user = self.request.user
         response = super().form_valid(form)
 
-        MissionCompletionHandler.assign_batch(self.request.user)
+        try:
+            print("バッジ処理開始")
+            MissionCompletionHandler.assign_batch(self.request.user)
+            print("バッジ処理完了")
+        except Exception as e:
+            print("バッジ処理エラー:", e)
+
         return response
+
 
 # 映画鑑賞記録削除機能
 class MovieRecordDeleteView(LoginRequiredMixin, DeleteView):
@@ -70,3 +77,15 @@ class MovieRecordEditView(LoginRequiredMixin, UpdateView):
     form_class = MovieRecordForm
     template_name = 'movies/movie_record_edit.html'
     success_url = reverse_lazy('movies:home')
+
+    def save(self, commit=True):
+          instance = super().save(commit=False)
+          
+          if self.cleaned_data.get("delete_poster"):
+            if instance.poster:
+                instance.poster.delete(save=False)
+            instance.poster = None
+
+          if commit:
+              instance.save()
+          return instance
