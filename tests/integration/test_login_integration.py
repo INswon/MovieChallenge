@@ -50,3 +50,11 @@ class UserLoginIntegrationTest(TestCase):
             'password': "testpass"
         })
         self.assertRedirects(response, reverse("movies:home")) 
+
+    #未ログイン時、映画鑑賞一覧画面にアクセスしたらログインページにリダイレクトされることの検証
+    def test_redirect_if_not_logged_in(self):
+        response = self.client.get("movies:home")
+        self.assertRedirects(response, reverse("users":"login") + "?next=" + reverse("movies:home"))
+
+
+
