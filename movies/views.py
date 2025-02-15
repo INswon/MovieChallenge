@@ -23,7 +23,7 @@ class MovieRecordDetailView(DetailView):
     context_object_name = 'record'
 
 #映画鑑賞記録新規作成機能
-class MovieRecordCreateView(CreateView):
+class MovieRecordCreateView(LoginRequiredMixin, CreateView):
     model = UserMovieRecord
     form_class = MovieRecordForm
     template_name = 'movies/movie_record_create.html'
