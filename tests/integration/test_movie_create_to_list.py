@@ -1,8 +1,20 @@
 from django.test import TestCase
 from django.urls import reverse
+from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
 from movies.models import UserMovieRecord
 from django.utils import timezone
+from PIL import Image
+import io
+
+#JPEG画像テストデータ作成
+def create_dummy_image():
+    image = Image.new("RGB", (1,1), color="white")
+    img_io = io.BytesIO()
+    image.save(img_io, format="JPEG")
+    img_io.seek(0)
+    return ContentFile(img_io.getvalue(), name="test_poster.jpg")
+
 
 class MovieCreateToListIntegrationTest(TestCase):
 
@@ -15,9 +27,12 @@ class MovieCreateToListIntegrationTest(TestCase):
         
         self.client.login(username='testuser', password='testpass') 
 
+        poster_file = create_dummy_image()
+
         response = self.client.post(reverse('movies:create'), {
             'title': 'Test Movie',
-            'rating': 5,
+            'poster': poster_file,
+            'rating': '5',
             'date_watched': timezone.now().date(),
         })
 
@@ -28,23 +43,20 @@ class MovieCreateToListIntegrationTest(TestCase):
         
         self.client.login(username='testuser', password='testpass')  
 
+        poster_file = create_dummy_image()
+
         # 映画を作成
         self.client.post(reverse('movies:create'), {
             'title': 'Test Movie',
+            'poster': poster_file,
             'rating': 5,
             'date_watched': timezone.now().date(),
         })
-
-        print("📌 DB内の映画データ:", UserMovieRecord.objects.all())  
-
         response = self.client.get(reverse('movies:home'))
 
-        print("📌 レスポンスのHTML:", response.content.decode())
-
         self.assertEqual(response.status_code, 200)
-
         self.assertContains(response, 'Test Movie')
-
+        
 
     #未ログインユーザーは映画を作成できず、ログインページにリダイレクトされるか確認
     def test_unauthenticated_user_cannot_create_movie(self):
