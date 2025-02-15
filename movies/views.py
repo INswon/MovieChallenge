@@ -17,7 +17,7 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     context_object_name = 'records'
 
 #映画鑑賞記録詳細表示機能
-class MovieRecordDetailView(DetailView):
+class MovieRecordDetailView(LoginRequiredMixin,DetailView):
     model = UserMovieRecord
     template_name = 'movies/movie_record_detail.html'  
     context_object_name = 'record'
