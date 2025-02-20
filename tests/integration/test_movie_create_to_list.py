@@ -15,7 +15,6 @@ def create_dummy_image():
     img_io.seek(0)
     return ContentFile(img_io.getvalue(), name="test_poster.jpg")
 
-
 class MovieCreateToListIntegrationTest(TestCase):
 
     #事前準備: ユーザー作成 & ログイン
@@ -56,15 +55,16 @@ class MovieCreateToListIntegrationTest(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Test Movie')
-        
 
     #未ログインユーザーは映画を作成できず、ログインページにリダイレクトされるか確認
     def test_unauthenticated_user_cannot_create_movie(self):
     
         self.client.logout()  
 
+        poster_file = create_dummy_image()
         response = self.client.post(reverse('movies:create'), {
             'title': 'Unauthorized Movie',
+            "poster": poster_file, 
             'rating': 3,
             'date_watched': timezone.now().date(),
         })
@@ -72,3 +72,15 @@ class MovieCreateToListIntegrationTest(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn(reverse('users:login'), response.url)
 
+    #最大文字２０文字以内なら正常に登録できる
+    def test_create_movie_title_max_length(self):
+        self.client.login(username = "testuser", password="testpass")
+        max_length_title = "A" * 20
+        poster_file = create_dummy_image()
+        response = self.client.post(reverse("movies:create"),{
+            "title": max_length_title,
+            "poster": poster_file, 
+            "rating": 5,
+            "date_watched": timezone.now().date(),
+        })
+        self.assertEqual(response.status_code, 302)
