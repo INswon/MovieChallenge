@@ -54,6 +54,11 @@ class MovieDeleteIntegrationTest(TestCase):
          response = self.client.get(reverse('movies:delete', args=[self.movie.id]))
          self.assertEqual(response.status_code, 200)
 
+    #データベースから実際に削除されていることの検証
+     def test_movie_is_deleted_from_database(self):
+         self.client.post(reverse("movies:delete", args=[self.movie.id]))
+         self.assertFalse(UserMovieRecord.objects.filter(id=self.movie.id).exists())
+
      # 削除対象の映画鑑賞記録が存在しない場合、404エラーになることの検証
      def test_delete_nonexistent_movie_returns_404(self):
         response = self.client.post(reverse('movies:delete', args=[99999]))
