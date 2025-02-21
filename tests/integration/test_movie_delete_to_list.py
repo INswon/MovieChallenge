@@ -64,6 +64,15 @@ class MovieDeleteIntegrationTest(TestCase):
         response = self.client.post(reverse('movies:delete', args=[99999]))
         self.assertEqual(response.status_code, 404)
 
+    #未ログインユーザーが削除ページにアクセスした場合、ログインページにリダイレクトされるか確認
+     def test_anon_delete_redirect_to_login(self):
+         self.client.logout()
+         response = self.client.get(reverse("movies:delete", args=[self.movie.id]))
+
+         self.assertEqual(response.status_code, 302)
+         self.assertIn(reverse("users:login"), response.url)
+
+
      #他のユーザーが映画鑑賞記録を削除できないことの検証
      def test_other_user_cannot_delete_movie(self):
         self.client.logout()
