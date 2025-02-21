@@ -34,8 +34,15 @@ class MovieDeleteIntegrationTest(TestCase):
             )
           
           self.client.login(username='testuser', password='testpass')
+         
 
+     #削除確認画面が正しく表示されることの検証
+     def test_delete_confirmation_page(self):
+         response = self.client.get(reverse('movies:delete', args=[self.movie.id]))
+         self.assertEqual(response.status_code, 200)
+         self.assertTemplateUsed(response,"movies/movie_confirm_delete.html")
 
+    
      #削除ボタン押下で削除確認画面が表示されるか検証
      def test_delete_movie_and_redirect(self):
         response = self.client.post(reverse('movies:delete', args=[self.movie.id]))
