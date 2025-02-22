@@ -49,7 +49,7 @@ class MovieRecordForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(MovieRecordForm, self).__init__(*args, **kwargs)
         self.fields['title'].required = True
-        self.fields['poster'].required = True
+        self.fields['poster'].required = False
         self.fields['date_watched'].required = True
         self.fields['rating'].required = True
    
