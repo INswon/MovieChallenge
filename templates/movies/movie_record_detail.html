@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %} 
 
 {% block content %}
 
@@ -15,7 +16,7 @@
                 {% if record.poster %}
                     <img src="{{ record.poster.url }}" alt="{{ record.title }}" class="img-fluid">
                 {% else %}
-                    <p>No poster available</p>
+                    <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid">
                 {% endif %}
             </div>
 
