@@ -31,6 +31,10 @@ class MovieRecordCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
+        
+        if not form.cleaned_data.get("poster"):
+            form.instance.poster = None
+        
         response = super().form_valid(form)
 
         try:
