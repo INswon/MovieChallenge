@@ -37,6 +37,26 @@ class MovieCreateToListIntegrationTest(TestCase):
 
         self.assertEqual(response.status_code, 302)  
 
+
+    #画像なしの場合デフォルトの画像がデータとして反映されるか確認
+    def test_default_image_displayed_when_no_poster(self):
+        self.client.login(username='testuser', password='testpass')
+
+        UserMovieRecord.objects.create(
+            user=self.user,
+            title='No Poster Movie',
+            poster=None,
+            rating=4,
+            date_watched=timezone.now().date(),
+        )
+
+        response = self.client.get(reverse('movies:home'))
+        self.assertEqual(response.status_code, 200)
+
+        expected_img_src = 'src="/static/images/default_poster.jpg?v=1.0.0"'
+        self.assertContains(response, expected_img_src, html=False)
+        
+
     #映画記録を作成後、一覧ページに表示されるか確認
     def test_create_movie_and_check_list(self):
         
