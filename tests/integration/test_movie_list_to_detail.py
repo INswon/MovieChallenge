@@ -57,14 +57,25 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.assertTemplateUsed(response, 'movies/movie_record_edit.html')
 
 
-    #一覧ページに詳細ページへのリンクがあるか検証
-    def test_list_page_has_detail_link(self):
-        
-        response = self.client.get(reverse('movies:home'))
-        self.assertEqual(response.status_code, 200)
 
+    # 一覧ページに詳細ページへのリンクがあるか検証
+    def test_detail_button_redirects_to_detail_page(self):
+        response = self.client.get(reverse('movies:home'))
+
+        # 一覧ページへのアクセス確認
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "movies/home.html")
+
+        # 詳細ページのURLを動的に生成
         detail_url = reverse('movies:detail', args=[self.movie.id])
-        self.assertContains(response, f'<a href="{detail_url}">')
+
+        # ボタンタグ内の onclick 属性を確認
+        self.assertContains(response,f"location.href='/movies/detail/{self.movie.id}/")
+
+        # 正しいページへの遷移を確認
+        response = self.client.get(detail_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/movie_record_detail.html')
 
 
     #一覧ページ → 詳細ページに遷移し、映画情報が正しく表示されるか検証
