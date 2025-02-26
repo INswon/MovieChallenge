@@ -15,6 +15,9 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = 'movies/home.html'
     context_object_name = 'records'
+    
+    def get_queryset(self):
+        return UserMovieRecord.objects.filter(user=self.request.user)
 
 #映画鑑賞記録詳細表示機能
 class MovieRecordDetailView(LoginRequiredMixin,DetailView):
