@@ -19,6 +19,25 @@ class MovieListToDetailIntegrationTest(TestCase):
             date_watched=self.fixed_date
         )
 
+     #一覧ページに新規作成ページのリンクがあるか確認
+    def test_create_button_redirects_to_create_page(self):
+        response = self.client.get(reverse("movies:home"))
+
+        # 一覧ページへのアクセス確認
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "movies/home.html")
+        
+        create_url = reverse('movies:create')
+
+        # ボタンタグ内の onclick 属性を確認
+        self.assertContains(response, f"location.href='/movies/create/'")
+
+        # 正しいページへの遷移を確認
+        response = self.client.get(create_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/movie_record_create.html')
+
+
     #一覧ページに詳細ページへのリンクがあるか検証
     def test_list_page_has_detail_link(self):
         
