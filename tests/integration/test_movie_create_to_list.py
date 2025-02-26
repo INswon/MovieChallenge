@@ -55,7 +55,25 @@ class MovieCreateToListIntegrationTest(TestCase):
 
         expected_img_src = 'src="/static/images/default_poster.jpg?v=1.0.0"'
         self.assertContains(response, expected_img_src, html=False)
+
+
+    #一覧ページに新規作成ページのリンクがあるか確認
+    def test_create_button_redirects_to_create_page(self):
+        response = self.client.get(reverse("movies:home"))
+
+        # 一覧ページへのアクセス確認
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "movies/home.html")
         
+        create_url = reverse('movies:create')
+
+        # ボタンタグ内の onclick 属性を確認
+        self.assertContains(response, f"location.href='/movies/create/'")
+
+        # 正しいページへの遷移を確認
+        response = self.client.get(create_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/movie_record_create.html')
 
     #映画記録を作成後、一覧ページに表示されるか確認
     def test_create_movie_and_check_list(self):
