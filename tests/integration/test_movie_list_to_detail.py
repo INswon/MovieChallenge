@@ -2,7 +2,19 @@ from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth.models import User
 from movies.models import UserMovieRecord
+from django.core.files.base import ContentFile
 from django.utils import timezone
+from PIL import Image
+import io
+
+#JPEG画像テストデータ作成
+def create_dummy_image():
+    image = Image.new("RGB", (1,1), color="white")
+    img_io = io.BytesIO()
+    image.save(img_io, format="JPEG")
+    img_io.seek(0)
+    return ContentFile(img_io.getvalue(), name="test_poster.jpg")
+
 
 class MovieListToDetailIntegrationTest(TestCase):
 
@@ -11,11 +23,14 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.user = User.objects.create_user(username='testuser', password='testpass')
         self.client.login(username='testuser', password='testpass')
 
+        poster_file = create_dummy_image()
+
         # ユーザーの映画鑑賞記録を作成（固定日付を使用）
         self.fixed_date = timezone.datetime(2025, 1, 1).date()
         self.movie = UserMovieRecord.objects.create(
             user=self.user,
             title="Test Movie",
+            poster=poster_file,
             rating=5,
             date_watched=self.fixed_date
         )
@@ -25,9 +40,11 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.other_movie = UserMovieRecord.objects.create(
             user=self.other_user,
             title="Other User Movie",
+            poster=poster_file,
             rating=3,
             date_watched=timezone.now().date()
         )
+
 
     #ログイン済みユーザーが一覧画面にアクセスできるか(その他のログインユーザー情報は閲覧できない）ことの検証
     def test_list_page_accessible_by_logged_in_user(self):
