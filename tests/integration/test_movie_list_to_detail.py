@@ -37,6 +37,25 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'movies/movie_record_create.html')
 
+     
+    #一覧ページに編集ページへのリンクがあるか検証
+    def test_create_button_redirects_to_edit_page(self):
+        response = self.client.get(reverse("movies:home"))
+
+        # 一覧ページへのアクセス確認
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "movies/home.html")
+
+        edit_url = reverse("movies:edit", args=[self.movie.id])
+
+        # ボタンタグ内の onclick 属性を確認
+        self.assertContains(response, f"location.href='/movies/edit/{self.movie.id}/'")
+
+        # 正しいページへの遷移を確認
+        response = self.client.get(edit_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'movies/movie_record_edit.html')
+
 
     #一覧ページに詳細ページへのリンクがあるか検証
     def test_list_page_has_detail_link(self):
