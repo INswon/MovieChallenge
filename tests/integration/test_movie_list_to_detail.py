@@ -52,7 +52,6 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.assertContains(response, "Test Movie")
         self.assertNotContains(response, "Other User Movie")
 
-
     #2人目のユーザー（ユーザーB: otheruser）の情報を検証
     def test_list_page_accessible_by_user_b(self):
         self.client.login(username='otheruser', password='otherpass')
@@ -61,47 +60,29 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.assertTemplateUsed(response, "movies/home.html")
         self.assertContains(response, "Other User Movie")
 
-
-
-    # 映画記録が一覧画面で確認できるか検証(映画ポスターを登録したケース)
+    
+  # 映画記録が一覧画面で確認できるか検証(映画ポスターを登録したケース)
     def test_movie_with_poster_image_is_displayed_on_list_page(self):
-        
-        movie_with_poster = UserMovieRecord.objects.create(
-            user=self.user,
-            title="Test Movie Poster",
-            poster=self.poster_file,  
-            rating=5,
-            date_watched=self.fixed_date,
-        )
-
         response = self.client.get(reverse('movies:home'))
         self.assertEqual(response.status_code, 200)
-        
-        self.assertContains(response, "Test Movie Poster")
+        self.assertContains(response, "Test Movie")
         self.assertContains(response, "5")
         formatted_date = self.fixed_date.strftime("%Y年%-m月%-d日")  
         self.assertContains(response, f"鑑賞日: {formatted_date}")
-        self.assertContains(response, f' src="/media/{movie_with_poster.poster.name}"')
+        self.assertContains(response, f' src="/media/{self.movie_with_poster.poster.name}"') 
 
     # 映画記録が一覧画面で確認できるか検証(映画ポスターを登録しなかったケース)
     def test_movie_with_noneposter_image_is_displayed_on_list_page(self):
-
-        movie_with_poster = UserMovieRecord.objects.create(
-            user=self.user,
-            title="Test Movie Poster",
-            poster=None,
-            rating=5,
-            date_watched=self.fixed_date,
-        )
-
         response = self.client.get(reverse('movies:home'))
         self.assertEqual(response.status_code, 200)
-
-        self.assertContains(response, "Test Movie Poster")
+        self.assertContains(response, "Test Movie Without Poster")
         self.assertContains(response, "5")
         formatted_date = self.fixed_date.strftime("%Y年%-m月%-d日")  
         self.assertContains(response, f"鑑賞日: {formatted_date}")
-        self.assertContains(response, 'src="/static/images/default_poster.jpg?v=1.0.0"')
+        self.assertContains(response, 'src="/static/images/default_poster.jpg?v=1.0.0"') 
+
+
+    
 
      #一覧ページに新規作成ページのリンクがあるか確認
     def test_create_button_redirects_to_create_page(self):
