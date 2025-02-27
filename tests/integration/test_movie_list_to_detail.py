@@ -43,14 +43,24 @@ class MovieListToDetailIntegrationTest(TestCase):
             date_watched=self.fixed_date,
         )
 
-        
-    #ログイン済みユーザーが一覧画面にアクセスできるか(その他のログインユーザー情報は閲覧できない）ことの検証
-    def test_list_page_accessible_by_logged_in_user(self):
+    #1人目のユーザー（ユーザーA: testuser）の情報を検証
+    def test_list_page_accessible_by_user_a(self):
+        self.client.login(username='testuser', password='testpass')
         response = self.client.get(reverse("movies:home"))
         self.assertEqual(response.status_code,200)
         self.assertTemplateUsed(response, "movies/home.html")
         self.assertContains(response, "Test Movie")
         self.assertNotContains(response, "Other User Movie")
+
+
+    #2人目のユーザー（ユーザーB: otheruser）の情報を検証
+    def test_list_page_accessible_by_user_b(self):
+        self.client.login(username='otheruser', password='otherpass')
+        response = self.client.get(reverse("movies:home"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "movies/home.html")
+        self.assertContains(response, "Other User Movie")
+
 
 
     # 映画記録が一覧画面で確認できるか検証(映画ポスターを登録したケース)
