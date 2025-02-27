@@ -7,7 +7,7 @@ from django.utils import timezone
 from PIL import Image
 import io
 
-#JPEG画像テストデータ作成
+# JPEG画像テストデータ作成
 def create_dummy_image():
     image = Image.new("RGB", (1,1), color="white")
     img_io = io.BytesIO()
@@ -15,24 +15,22 @@ def create_dummy_image():
     img_io.seek(0)
     return ContentFile(img_io.getvalue(), name="test_poster.jpg")
 
-
 class MovieListToDetailIntegrationTest(TestCase):
 
     def setUp(self):
-        #テスト用ユーザーの作成とログイン
         self.user = User.objects.create_user(username='testuser', password='testpass')
         self.client.login(username='testuser', password='testpass')
 
-        poster_file = create_dummy_image()
+        self.poster_file = create_dummy_image()  
+        self.fixed_date = timezone.datetime(2025, 2, 3).date()  
 
-        # ユーザーの映画鑑賞記録を作成（固定日付を使用）
-        self.fixed_date = timezone.datetime(2025, 1, 1).date()
+        # 映画記録を作成（ポスター画像あり）
         self.movie = UserMovieRecord.objects.create(
             user=self.user,
             title="Test Movie",
-            poster=poster_file,
+            poster=self.poster_file, 
             rating=5,
-            date_watched=self.fixed_date
+            date_watched=self.fixed_date,
         )
 
         # 他のユーザーとその映画データを作成
@@ -40,12 +38,12 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.other_movie = UserMovieRecord.objects.create(
             user=self.other_user,
             title="Other User Movie",
-            poster=poster_file,
+            poster=self.poster_file, 
             rating=3,
-            date_watched=timezone.now().date()
+            date_watched=self.fixed_date,
         )
 
-
+        
     #ログイン済みユーザーが一覧画面にアクセスできるか(その他のログインユーザー情報は閲覧できない）ことの検証
     def test_list_page_accessible_by_logged_in_user(self):
         response = self.client.get(reverse("movies:home"))
@@ -53,6 +51,27 @@ class MovieListToDetailIntegrationTest(TestCase):
         self.assertTemplateUsed(response, "movies/home.html")
         self.assertContains(response, "Test Movie")
         self.assertNotContains(response, "Other User Movie")
+
+
+    # 映画記録が一覧画面で確認できるか検証(映画ポスターを登録したケース)
+    def test_movie_with_poster_image_is_displayed_on_list_page(self):
+        
+        movie_with_poster = UserMovieRecord.objects.create(
+            user=self.user,
+            title="Test Movie Poster",
+            poster=self.poster_file,  
+            rating=5,
+            date_watched=self.fixed_date,
+        )
+
+        response = self.client.get(reverse('movies:home'))
+        self.assertEqual(response.status_code, 200)
+        
+        self.assertContains(response, "Test Movie Poster")
+        self.assertContains(response, "5")
+        formatted_date = self.fixed_date.strftime("%Y年%-m月%-d日")  
+        self.assertContains(response, f"鑑賞日: {formatted_date}")
+        self.assertContains(response, f' src="/media/{movie_with_poster.poster.name}"')
 
      #一覧ページに新規作成ページのリンクがあるか確認
     def test_create_button_redirects_to_create_page(self):
