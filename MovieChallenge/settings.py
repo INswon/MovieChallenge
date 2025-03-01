@@ -17,6 +17,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -26,7 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "movies",
+    "movies.apps.MoviesConfig",
     "users",
     "missions",
     "widget_tweaks",
@@ -55,6 +56,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "movies.context_processors.static_version",
             ],
         },
     },
@@ -110,7 +112,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_VERSION = '3.0'
+STATIC_VERSION = "1.0.0"
 
 # Media files
 # https://docs.djangoproject.com/en/5.0/topics/files/
@@ -123,8 +125,29 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-LOGIN_REDIRECT_URL = '/users/home/'
+LOGIN_REDIRECT_URL = '/movies/home/'
 
 LOGIN_URL = '/users/login/'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = ['*']
+
+
+DEBUG = True
+
+# 不要なログを非表示にする設定
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',  # 'DEBUG' から 'INFO' に変更
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+    },
+}
