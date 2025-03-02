@@ -134,20 +134,33 @@ ALLOWED_HOSTS = ['*']
 
 DEBUG = True
 
-# 不要なログを非表示にする設定
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'console': {
-            'level': 'INFO',  # 'DEBUG' から 'INFO' に変更
-            'class': 'logging.StreamHandler',
+        'file': {
+            'level': 'DEBUG', 
+            'class': 'logging.FileHandler',
+            'filename': 'debug.log',
+            'formatter': 'verbose',
+        },
+    },
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
         },
     },
     'loggers': {
         'django': {
-            'handlers': ['console'],
+            'handlers': ['file'],
             'level': 'INFO',
+            'propagate': True,
+        },
+        'missions': {  
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
         },
     },
 }
