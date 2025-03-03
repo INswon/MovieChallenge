@@ -42,13 +42,19 @@ class UserMissionProgressView(LoginRequiredMixin, ListView):
 
 #ユーザーが取得したバッチを一覧表示するビュー
 class UserBatchListView(LoginRequiredMixin, ListView):
-    
-    model = UserBatch
-    template_name = 'mission/user_batches.html'
-    context_object_name = 'user_batches'
+    model = Batch
+    template_name = 'missions/batch_list.html'
+    context_object_name = 'batches'
 
-    def get_queryset(self):
-        return UserBatch.objects.filter(user=self.request.user).select_related('batch')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+
+        obtained_batch_ids = UserBatch.objects.filter(user=user).values_list('batch', flat=True)
+        context['obtained_batches'] = Batch.objects.filter(id__in=obtained_batch_ids)
+        context['unobtained_batches'] = Batch.objects.exclude(id__in=obtained_batch_ids)
+
+        return context
 
 
 #ユーザーがミッションを達成した際に、ミッションを完了し、対応するバッチを付与するビュー
