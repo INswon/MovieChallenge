@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
 from django.contrib import messages
-from missions.services import MissionCompletionHandler
+from missions.services import MissionService
 from .models import Mission, UserMission, Batch, UserBatch
 from django.utils.timezone import now
 
@@ -55,48 +55,4 @@ class BatchListView(LoginRequiredMixin, ListView):
         context['unobtained_batches'] = Batch.objects.exclude(id__in=obtained_batches)
         return context
     
-#　ミッション完了とバッチ付与を管理するクラス
-class MissionCompletionHandler:
-    @classmethod
-    def assign_batch(cls, user):
-        mission = Mission.objects.get(title="3本の映画達成")
-        watched_movies_count = UserMovieRecord.objects.filter(user=user, is_deleted=False).count()
-
-        if watched_movies_count >= 3:
-            user_mission, created = UserMission.objects.get_or_create(user=user, mission=mission)
-            if not user_mission.is_completed:
-                user_mission.is_completed = True
-                user_mission.completed_at = now()
-                user_mission.save()
-                for batch in mission.batches.all():
-                    UserBatch.objects.get_or_create(user=user, batch=batch)
-        return f"{user.username} にバッチを付与"
-
-    def complete_mission(user, mission):
-        user_mission, created = UserMission.objects.get_or_create(user=user, mission=mission)
-        if user_mission.is_completed:
-            return False, "このミッションはすでに完了しています。"
-        
-        user_mission.is_completed = True
-        user_mission.completed_at = now()
-        user_mission.save()
-
-        if mission.batches.exists():
-            for batch in mission.batches.all():
-                UserBatch.objects.get_or_create(user=user, batch=batch)
-
-        return True, f'ミッション「{mission.title}」を完了しました！バッチが付与されました。'
-        
-#ユーザーがミッションを達成した際に、ミッションを完了し、対応するバッチを付与するビュー
-class CompleteMissionView(LoginRequiredMixin, View):
-    def post(self, request, mission_id):
-        mission = get_object_or_404(Mission, id=mission_id)
-        success, message = MissionCompletionHandler.complete_mission(request.user, mission)
-
-        if success:
-            messages.success(request, message)
-        else:
-            messages.info(request, message)
-
-        return redirect('missions:mission_list')
 
