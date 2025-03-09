@@ -1,11 +1,10 @@
 from django.urls import path
-from .views import MissionListView, UserMissionProgressView, UserBatchListView, CompleteMissionView
+from .views import MissionListView, UserMissionProgressView, BatchListView
 
-app_name = 'mission'
+app_name = 'missions'
 
 urlpatterns = [
     path('', MissionListView.as_view(), name='mission_list'),
+    path("user_batches/", BatchListView.as_view(), name="user_batch_list"),
     path('progress/', UserMissionProgressView.as_view(), name='user_mission_progress'),
-    path('batches/', UserBatchListView.as_view(), name='user_batches'),
-    path('complete/<int:mission_id>/', CompleteMissionView.as_view(), name='complete_mission'),
 ]
