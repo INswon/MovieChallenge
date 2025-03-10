@@ -21,20 +21,21 @@ def create_dummy_image():
 
 class TestMissionService(TestCase):
     def setUp(self):
-        """各テストの前に実行されるセットアップメソッド"""
         self.user = User.objects.create_user(username="testuser", password="password")
+
+        # 「3本の映画達成」バッジ & ミッション
         self.batch_3_movies = Batch.objects.create(name="3本の映画達成バッジ", description="3本の映画を視聴達成")
-        self.batch_3_movies_day = Batch.objects.create(name="1日3本の映画達成バッジ", description="1日に3本の映画を視聴達成")
-        
         self.mission_3_movies = Mission.objects.create(
             title="3本の映画達成",
             description="3本の映画を視聴する。",
             criteria={"min_watch_count": 3},
             batch=self.batch_3_movies
         )
-        
+
+        # 「1日3本の映画視聴達成」バッジ & ミッション
+        self.batch_3_movies_day = Batch.objects.create(name="1日3本の映画視聴達成バッジ", description="1日に3本の映画を視聴達成")
         self.mission_3_movies_day = Mission.objects.create(
-            title="1日3本の映画達成",
+            title="1日3本の映画視聴達成",
             description="1日で3本の映画を視聴する。",
             criteria={"min_watch_count": 3, "same_day": True},
             batch=self.batch_3_movies_day
@@ -58,7 +59,7 @@ class TestMissionService(TestCase):
             self.assertTrue(UserBatch.objects.filter(user=self.user, batch=self.batch_3_movies).exists(), "ミッション達成後にバッジが正しく付与されていることを確認してください")
 
     #「1日３本の映画視聴達成」ミッションを満たした時の検証
-    def test_mission_is_completed_when_3_movies_watched_on_same_day(self):
+    def test_mission_created_after_watching_3_movies_in_one_day(self):
         with transaction.atomic():
             self.assertFalse(UserMission.objects.filter(user=self.user, mission=self.mission_3_movies_day).exists(), "事前に UserMission が作成されていないことを確認してください")
             success, message = MissionService.check_and_complete_mission(self.user, self.mission_3_movies_day.title)
