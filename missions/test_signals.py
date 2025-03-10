@@ -39,8 +39,7 @@ class TestMissionSignals(TestCase):
             batch=self.batch_3_movies_day
         )
 
-
-    #映画を3本登録したときにシグナルが発火し、ミッションが自動達成されるかを確認
+    #「3本の映画達成」ミッションを満たした時の検証
     def test_mission_created_after_3_movies(self):
         today = now().date()
         def check_mission_created():
@@ -48,9 +47,25 @@ class TestMissionSignals(TestCase):
                 UserMission.objects.filter(user=self.user, mission=self.mission_3_movies_day).exists(),
                 "映画3本視聴でミッションが作成されることを確認"
             )
-            
+
         #トランザクション完了後にシグナルの発火を待ち、ミッションが作成されることを確認
         transaction.on_commit(check_mission_created)
         UserMovieRecord.objects.create(user=self.user, title="Movie 1", date_watched=today, rating="5")
         UserMovieRecord.objects.create(user=self.user, title="Movie 2", date_watched=today, rating="5")
         UserMovieRecord.objects.create(user=self.user, title="Movie 3", date_watched=today, rating="5")
+
+    #「1日３本の映画視聴達成」ミッションを満たした時の検証
+    def test_mission_created_after_watching_3_movies_in_one_day(self):
+        today = now().date()
+        
+        def check_mission_created():
+            self.assertTrue(
+                UserMission.objects.filter(user=self.user, mission=self.mission_3_movies_day).exists(),
+                "1日3本視聴でミッションが作成されることを確認"
+            )
+        
+        # トランザクション完了後にミッション作成を確認
+        transaction.on_commit(check_mission_created)
+        UserMovieRecord.objects.create(user=self.user, title="Movie A", date_watched=today, rating="5")
+        UserMovieRecord.objects.create(user=self.user, title="Movie B", date_watched=today, rating="5")
+        UserMovieRecord.objects.create(user=self.user, title="Movie C", date_watched=today, rating="5")
