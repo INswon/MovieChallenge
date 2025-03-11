@@ -65,3 +65,19 @@ class TestMissionView(TestCase):
         response = self.client.get(reverse("missions:user_batch_list"))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response["Content-Type"], "application/json") 
+    
+    #「3本の映画達成」ミッションを満たした時の検証
+    def test_mission_completed_after_3_movies(self):
+        today = now().date()
+        self.client.login(username="testuser", password="password")
+        UserMovieRecord.objects.create(user=self.user, title="Movie 4", date_watched=today, rating="5", poster=create_dummy_image())
+        response = self.client.get(reverse("missions:user_batch_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response["Content-Type"], "application/json") 
+        data = response.json()
+        expected_badge = {
+            "id": self.batch_3_movies.id,
+            "name": self.batch_3_movies.name,
+            "description": self.batch_3_movies.description,
+        }
+        self.assertIn(expected_badge, data["obtained_batches"], "3本の映画を視聴後、`obtained_batches` に  `3本の映画達成バッジ` が正しく取得されているかを確認")
