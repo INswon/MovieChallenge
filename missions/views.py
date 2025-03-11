@@ -6,6 +6,7 @@ from django.contrib import messages
 from missions.services import MissionService
 from .models import Mission, UserMission, Batch, UserBatch
 from django.utils.timezone import now
+from django.http import JsonResponse
 
 # ミッション一覧を表示するビュー
 class MissionListView(LoginRequiredMixin, ListView):
@@ -33,7 +34,6 @@ class MissionListView(LoginRequiredMixin, ListView):
 
 #　ユーザーのミッション進捗状況を表示するビュー
 class UserMissionProgressView(LoginRequiredMixin, ListView):
-
     model = UserMission
     template_name = 'missions/user_mission_progress.html'
     context_object_name = 'user_missions'
@@ -41,18 +41,19 @@ class UserMissionProgressView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return UserMission.objects.filter(user=self.request.user).select_related('mission')
 
+
 #　バッチ一覧表示リストビュー
-class BatchListView(LoginRequiredMixin, ListView):
-    model = Batch
-    template_name = 'missions/batch_list.html'
-    context_object_name = 'batches'
+class BatchListView(View):
+    def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return JsonResponse({"error": "Unauthorized"}, status=401)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        user = self.request.user
+        user = request.user
         obtained_batches = UserBatch.objects.filter(user=user).values_list('batch', flat=True)
-        context['obtained_batches'] = Batch.objects.filter(id__in=obtained_batches)
-        context['unobtained_batches'] = Batch.objects.exclude(id__in=obtained_batches)
-        return context
-    
+        obtained_batches_list = Batch.objects.filter(id__in=obtained_batches).values("id", "name", "description")
+        unobtained_batches_list = Batch.objects.exclude(id__in=obtained_batches).values("id", "name", "description")
 
+        return JsonResponse({
+            "obtained_batches": list(obtained_batches_list),
+            "unobtained_batches": list(unobtained_batches_list),
+        })
