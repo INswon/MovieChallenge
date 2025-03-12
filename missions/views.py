@@ -7,6 +7,7 @@ from missions.services import MissionService
 from .models import Mission, UserMission, Batch, UserBatch
 from django.utils.timezone import now
 from django.http import JsonResponse
+import json
 
 # ミッション一覧を表示するビュー
 class MissionListView(LoginRequiredMixin, ListView):
@@ -50,10 +51,11 @@ class BatchListView(View):
 
         user = request.user
         obtained_batches = UserBatch.objects.filter(user=user).values_list('batch', flat=True)
-        obtained_batches_list = Batch.objects.filter(id__in=obtained_batches).values("id", "name", "description")
-        unobtained_batches_list = Batch.objects.exclude(id__in=obtained_batches).values("id", "name", "description")
+        obtained_batches_list = Batch.objects.filter(id__in=obtained_batches).values("id", "name", "description", "icon")
+        unobtained_batches_list = Batch.objects.exclude(id__in=obtained_batches).values("id", "name", "description", "icon")
 
-        return JsonResponse({
+        response_data = {
             "obtained_batches": list(obtained_batches_list),
             "unobtained_batches": list(unobtained_batches_list),
-        })
+        }
+        return JsonResponse(json.loads(json.dumps(response_data, ensure_ascii=False)), safe=False)
