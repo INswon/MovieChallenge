@@ -1,46 +1,22 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}バッチ一覧{% endblock %}
+{% block title %}バッジ一覧{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="text-center">バッチ一覧</h2>
+    <h2 class="text-center">バッジ一覧</h2>
 
-    <!-- 取得済みバッチ -->
-    <h3 class="mt-4">取得済みバッチ</h3>
-    <div class="row justify-content-center">
-        {% for batch in obtained_batches %}
-        <div class="col-md-3">
-            <div class="card text-center">
-                <img src="{{ batch.icon.url }}" class="card-img-top" alt="{{ batch.name }}">
-                <div class="card-body">
-                    <h6 class="card-title">{{ batch.name }}</h6>
-                    <p class="card-text">{{ batch.description }}</p>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <p>まだ取得済みのバッチはありません。</p>
-        {% endfor %}
+    <h3 class="mt-4">取得済みバッジ</h3>
+    <div class="badge-grid" id="obtained-badges">
+        <p class="text-center">読み込み中...</p>
     </div>
 
-    <!-- 未取得バッチ -->
-    <h3 class="mt-4">未取得バッチ</h3>
-    <div class="row justify-content-center">
-        {% for batch in unobtained_batches %}
-        <div class="col-md-3">
-            <div class="card text-center">
-                <img src="{{ batch.icon.url }}" class="card-img-top" alt="{{ batch.name }}">
-                <div class="card-body">
-                    <h6 class="card-title">{{ batch.name }}</h6>
-                    <p class="card-text">{{ batch.description }}</p>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <p>まだバッチは取得できてません。</p>
-        {% endfor %}
+    <h3 class="mt-4">未取得バッジ</h3>
+    <div class="badge-grid" id="unobtained-badges">
+        <p class="text-center">読み込み中...</p>
     </div>
 </div>
+
+<script src="{% static 'js/missions/batch_list.js' %}" type="text/javascript" defer></script>
 {% endblock %}
