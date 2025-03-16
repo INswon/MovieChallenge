@@ -1,4 +1,5 @@
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
+from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, DetailView, View
 from django.utils import timezone
@@ -42,20 +43,40 @@ class UserMissionProgressView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return UserMission.objects.filter(user=self.request.user).select_related('mission')
 
-
-#　バッチ一覧表示リストビュー
+# バッチ一覧表示リストビュー
+class BatchListTemplateView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        return render(request, "missions/batch_list.html")
+    
+# バッチ一覧表示リストビュー
 class BatchListView(View):
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return JsonResponse({"error": "Unauthorized"}, status=401)
-
         user = request.user
-        obtained_batches = UserBatch.objects.filter(user=user).values_list('batch', flat=True)
-        obtained_batches_list = Batch.objects.filter(id__in=obtained_batches).values("id", "name", "description", "icon")
-        unobtained_batches_list = Batch.objects.exclude(id__in=obtained_batches).values("id", "name", "description", "icon")
+        obtained_batches = UserBatch.objects.filter(user=user)
+        
+        obtained_list = []
+        for user_batch in obtained_batches:
+            batch = user_batch.batch
+            obtained_list.append({
+                "id": batch.id,
+                "name": batch.name,
+                "description": batch.description,
+                "icon": batch.icon.url if batch.icon else ""  
+            })
+
+        all_batch_ids = Batch.objects.values_list('id', flat=True)
+        user_batch_ids = obtained_batches.values_list('batch_id', flat=True)
+        unobtained_list = []
+        for b in Batch.objects.filter(id__in=all_batch_ids.difference(user_batch_ids)):
+            unobtained_list.append({
+                "id": b.id,
+                "name": b.name,
+                "description": b.description,
+                "icon": b.icon.url if b.icon else ""
+            })
 
         response_data = {
-            "obtained_batches": list(obtained_batches_list),
-            "unobtained_batches": list(unobtained_batches_list),
+            "obtained_batches": obtained_list,
+            "unobtained_batches": unobtained_list,
         }
-        return JsonResponse(json.loads(json.dumps(response_data, ensure_ascii=False)), safe=False)
+        return JsonResponse(response_data)
