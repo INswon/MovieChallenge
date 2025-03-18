@@ -6,7 +6,7 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
-        
+    
 class UserMovieRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     title = models.CharField(max_length=20)
@@ -19,5 +19,11 @@ class UserMovieRecord(models.Model):
     def __str__(self):
         return f"{self.title} - {self.user.username}"
 
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
+    content = models.TextField()  
+    created_at = models.DateTimeField(auto_now_add=True)
 
-
+    def __str__(self):
+        return f"{self.user} - {self.movie}"
