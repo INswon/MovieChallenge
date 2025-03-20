@@ -2,6 +2,8 @@ from pathlib import Path
 from decouple import config
 import os
 
+DEFAULT_CHARSET = 'utf-8'
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,12 +101,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
 LANGUAGE_CODE = 'ja'
-
 TIME_ZONE = 'Asia/Tokyo'
-
 USE_I18N = True
-
 USE_TZ = True
+
+
+# TMDb API設定
+TMDB_API_KEY = config('TMDB_API_KEY')  # .envファイルからAPIキーを取得
+TMDB_ACCESS_TOKEN = config('TMDB_ACCESS_TOKEN')  # .envファイルからアクセストークンを取得
 
 
 # Static files (CSS, JavaScript, Images)
@@ -124,43 +128,30 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
 LOGIN_REDIRECT_URL = '/movies/home/'
-
 LOGIN_URL = '/users/login/'
-
 ALLOWED_HOSTS = ['*']
-
 
 DEBUG = True
 
 LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'file': {
-            'level': 'DEBUG', 
-            'class': 'logging.FileHandler',
-            'filename': 'debug.log',
-            'formatter': 'verbose',
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "{levelname} {asctime} {module} {message}",
+            "style": "{",
         },
     },
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+    "handlers": {
+        "console": { 
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    'loggers': {
-        'django': {
-            'handlers': ['file'],
-            'level': 'INFO',
-            'propagate': True,
-        },
-        'missions': {  
-            'handlers': ['file'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
+    "root": {
+        "handlers": ["console"],  
+        "level": "DEBUG",
     },
 }
