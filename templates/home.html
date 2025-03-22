@@ -3,6 +3,13 @@
 {% load static %} 
 
 {% block content %}
+    
+    <!-- 検索フォームセクション -->
+    <form method="get" action="{% url 'movies:movie_search' %}">
+        <input type="text" name="query" placeholder="映画タイトルを入力">
+        <button type="submit">検索</button>
+    </form>
+
 
     <div class="container my-1">
         <section class="jumbotron text-center">
@@ -21,7 +28,7 @@
                     {% if record.poster %}
                         <img src="{{ record.poster.url }}" alt="{{ record.title }}" class="img-fluid">
                     {% else %}
-                        <img src="{% static 'images/default_poster.jpg' %}" alt="No image available" class="img-fluid">
+                        <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid">
                     {% endif %}
                 </div>
                 <div class="col-md-7 d-flex flex-column">
