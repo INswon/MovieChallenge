@@ -4,10 +4,12 @@ from django.http import HttpResponseForbidden
 from django.urls import reverse_lazy
 from movies.models import UserMovieRecord
 from missions.models import Batch, UserBatch
-from .forms import MovieRecordForm
+from .forms import MovieRecordForm, MovieSearchForm
 from django.views import View
 from django.shortcuts import render
+from django.views.generic import TemplateView
 from missions.models import Mission
+from .services import TmdbMovieService
 
 # 映画鑑賞記録一覧表示機能
 class UserMovieListView(LoginRequiredMixin, ListView):
@@ -17,12 +19,41 @@ class UserMovieListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return UserMovieRecord.objects.filter(user=self.request.user)
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # 検索フォームの追加
+        form = MovieSearchForm(self.request.GET or None)
+        context["form"] = form  
+        
+        if form.is_valid():
+            query = form.cleaned_data["movie_title"]
+            print(f"検索クエリ: {query}")  
+            context["movies"] = TmdbMovieService.search(query) if query else []
+            print(f"検索結果: {context['movies']}") 
+        else:
+            print(f"フォームエラー: {form.errors}")  
+        
+        return context
 
 # 映画鑑賞記録詳細表示機能
 class MovieRecordDetailView(LoginRequiredMixin, DetailView):
     model = UserMovieRecord
     template_name = 'movies/movie_record_detail.html'  
     context_object_name = 'record'
+
+
+# 映画情報の取得検索
+class MovieSearchView(TemplateView):
+    template_name = "movies/movie_search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get("query")
+        context["movies"] = TmdbMovieService.search(query) if query else []
+        return context
+
 
 # 映画鑑賞記録新規作成機能
 class MovieRecordCreateView(LoginRequiredMixin, CreateView):
@@ -73,3 +104,4 @@ class MovieRecordEditView(LoginRequiredMixin, UpdateView):
         if commit:
             instance.save()
         return instance
+
