@@ -13,6 +13,8 @@ class UserMovieRecord(models.Model):
     poster = models.ImageField(upload_to='posters/', null=True, blank=True)  #　映画ポスター画像（任意）
     date_watched = models.DateField()  
     is_deleted = models.BooleanField(default=False)  # 論理削除フラグ（True: 非表示 / データはDBに残る）
+    director = models.CharField(max_length=255, blank=True)
+    comment =  models.TextField(blank=True)  # 感想（任意）
     rating = models.IntegerField(default=3)
     genres = models.ManyToManyField(Genre)  #　ユーザーが登録した映画のジャンル（複数可 / 事前登録済みのリストから選択）
 
