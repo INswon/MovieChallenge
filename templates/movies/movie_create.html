@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}映画を記録する{% endblock %}
+
+{% block content %}
+<h2>この映画を記録する</h2>
+
+<div class="movie-summary">
+  <p>{{ title }}</p>
+  <p><img src="{{ poster }}" width="150"></p>
+  <p>{{ director }}</p>
+  <p>{{ genres }}</p>
+</div>
+
+
+<form method="post">
+  {% csrf_token %}
+
+  <input type="hidden" name="title" value="{{ title }}">
+  <input type="hidden" name="poster" value="{{ poster }}"> 
+  <input type="hidden" name="director" value="{{ director }}"> 
+  <input type="hidden" name="genres" value="{{ genres }}">
+
+  
+  <!-- 評価 -->
+  <label for="rating">評価（1〜5）</label><br>
+  <select name="rating" id="rating" required>
+    <option value="">選択してください</option>
+    {% for i in rating_choices %}
+      <option value="{{ i }}">{{ i }}</option>
+    {% endfor %}
+  </select>
+
+  <br></br>
+
+  <!-- 感想 -->
+  <label for="comment">感想</label><br>
+  <textarea name="comment" id="comment" rows="5" cols="40" placeholder="感想を入力してください"></textarea><br><br>
+
+  <button type="submit">記録する</button>
+</form>
+
+<a href="{% url 'movies:home' %}">検索に戻る</a>
+{% endblock %}
