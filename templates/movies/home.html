@@ -3,6 +3,13 @@
 {% load static %} 
 
 {% block content %}
+    
+    <!-- 検索フォームセクション -->
+    <form method="get" action="{% url 'movies:movie_search' %}">
+        <input type="text" name="query" placeholder="映画タイトルを入力">
+        <button type="submit">検索</button>
+    </form>
+
 
     <div class="container my-1">
         <section class="jumbotron text-center">
@@ -27,6 +34,8 @@
                 <div class="col-md-7 d-flex flex-column">
                     <div class="card-body flex-fill">
                         <h5 class="card-title">{{ record.title }}</h5>
+                        <p class="card-text">ジャンル: {{ record.genre }}</p>
+                        <p class="card-text">監督: {{ record.director }}</p>
                         <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
                         <p class="card-text">評価: 
                             {% if record.rating == 1 %}★☆☆☆☆
@@ -36,6 +45,7 @@
                             {% else %}★★★★★
                             {% endif %}
                         </p>
+                        <p class="card-text">感想: {{ record.comment }}</p>
                         <div class="text-center mt-auto">
                             <button type="button" class="btn-list" onclick="location.href='{% url 'movies:detail' record.pk %}'">詳細</button>
                             <button type="button" class="btn-edit" onclick="location.href='{% url 'movies:edit' record.pk %}'">編集</button>
