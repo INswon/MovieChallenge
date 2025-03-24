@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}映画検索{% endblock %}
+
+{% block content %}
+
+
+{% if movies %}
+  <h3>検索結果</h3>
+  <ul>
+    {% for movie in movies %}
+      <li>
+        <strong>{{ movie.title }}</strong>（{{ movie.release_date }}）
+        <br>
+        <a href="{% url 'movies:movie_create' %}?title={{ movie.title|urlencode }}&poster=https://image.tmdb.org/t/p/w200{{ movie.poster_path|urlencode }}&release_date={{ movie.release_date }}&genre_ids={{ movie.genre_ids|join:',' }}">
+          <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" width="100">
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>検索結果がありません</p>
+{% endif %}
+{% endblock %}
