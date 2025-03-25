@@ -5,10 +5,10 @@
 <h2>この映画を記録する</h2>
 
 <div class="movie-summary">
-  <p>{{ title }}</p>
-  <p><img src="{{ poster }}" width="150"></p>
-  <p>{{ director }}</p>
-  <p>{{ genres }}</p>
+  <p>タイトル :  {{ title }}</p>
+  <p><img src="{{ poster }}" width="150" class="poster"></p>
+  <p>監督 : {{ director }}</p>
+  <p>ジャンル : {{ genres }}</p>
 </div>
 
 
@@ -19,7 +19,6 @@
   <input type="hidden" name="poster" value="{{ poster }}"> 
   <input type="hidden" name="director" value="{{ director }}"> 
   <input type="hidden" name="genres" value="{{ genres }}">
-
   
   <!-- 評価 -->
   <label for="rating">評価（1〜5）</label><br>
@@ -39,5 +38,5 @@
   <button type="submit">記録する</button>
 </form>
 
-<a href="{% url 'movies:home' %}">検索に戻る</a>
+<a href="{% url 'movies:movie_search' %}">検索に戻る</a>
 {% endblock %}

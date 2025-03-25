@@ -3,7 +3,11 @@
 {% block title %}映画検索{% endblock %}
 
 {% block content %}
-
+    <!-- 検索フォームセクション -->
+    <form method="get" action="{% url 'movies:movie_search' %}">
+        <input type="text" name="query" placeholder="映画タイトルを入力">
+        <button type="submit">検索</button>
+    </form>
 
 {% if movies %}
   <h3>検索結果</h3>
@@ -12,7 +16,7 @@
       <li>
         <strong>{{ movie.title }}</strong>（{{ movie.release_date }}）
         <br>
-        <a href="{% url 'movies:movie_create' %}?title={{ movie.title|urlencode }}&poster=https://image.tmdb.org/t/p/w200{{ movie.poster_path|urlencode }}&release_date={{ movie.release_date }}&genre_ids={{ movie.genre_ids|join:',' }}">
+        <a href="{% url 'movies:movie_create' %}?movie_id={{ movie.id }}&lang=en-US">
           <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" width="100">
         </a>
       </li>
