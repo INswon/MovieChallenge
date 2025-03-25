@@ -27,6 +27,8 @@
                 <div class="col-md-5">
                     {% if record.poster %}
                         <img src="{{ record.poster.url }}" alt="{{ record.title }}" class="img-fluid">
+                    {% elif record.poster_url %}
+                        <img src="{{ record.poster_url }}" alt="{{ record.title }}" class="img-fluid">
                     {% else %}
                         <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid">
                     {% endif %}
@@ -34,7 +36,11 @@
                 <div class="col-md-7 d-flex flex-column">
                     <div class="card-body flex-fill">
                         <h5 class="card-title">{{ record.title }}</h5>
-                        <p class="card-text">ジャンル: {{ record.genre }}</p>
+                        <p class="card-text">ジャンル: 
+                          {% for genre in record.genres.all %}
+                            {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                          {% endfor %}
+                        </p>
                         <p class="card-text">監督: {{ record.director }}</p>
                         <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
                         <p class="card-text">評価: 
