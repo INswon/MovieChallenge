@@ -90,7 +90,7 @@ class TestMissionService(TestCase):
 
 
     # 「3ジャンル制覇」ミッションを満たした時の検証 
-    # 1.異なる3ジャンルでバッジが付与されることを検証するテスト
+    # 1.異なる3ジャンルでバッジが付与されることを検証
     def test_check_and_assign_genre_batch(self):
         with transaction.atomic():
             genre_names = ["アクション", "コメディ", "恋愛"]
@@ -111,3 +111,26 @@ class TestMissionService(TestCase):
             self.assertEqual(message, "ミッションを達成しました！")
             self.assertTrue(UserMission.objects.filter(user=self.user, mission=self.mission_3_genres).exists())
             self.assertTrue(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists())
+
+    # 2.同じ3ジャンルで登録した時はバッジが付与されないことの検証
+    def test_no_batch_when_same_genre_movies(self):
+        with transaction.atomic():
+            genre = Genre.objects.create(name="アクション")
+            for i in range(3):
+                record = UserMovieRecord.objects.create(
+                user=self.user,
+                title=f"Same Genre Movie {i+1}",
+                rating="5",
+                date_watched=now(),
+                poster=create_dummy_image()
+            )
+            record.genres.add(genre)
+
+        success, message = MissionService.check_and_assign_genre_batch(self.user)
+
+        self.assertFalse(success)
+        self.assertEqual(message, "まだ対象ジャンルが3種類に到達していません")
+        self.assertFalse(UserMission.objects.filter(user=self.user, mission=self.mission_3_genres).exists())
+        self.assertFalse(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists())
+
+
