@@ -133,6 +133,28 @@ class TestMissionService(TestCase):
         self.assertFalse(UserMission.objects.filter(user=self.user, mission=self.mission_3_genres).exists())
         self.assertFalse(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists())
 
+    # 3.すでにバッジが付与されている場合、再配布されないことの検証
+    def test_no_duplicate_batch_assignment(self):
+        with transaction.atomic():
+            genres = ["アクション", "コメディ", "恋愛"]
+            for i, name in enumerate(genres):
+                genre = Genre.objects.create(name=name)
+                record = UserMovieRecord.objects.create(
+                    user=self.user,
+                    title=f"Movie {i+1}",
+                    rating="5",
+                    date_watched=now(),
+                    poster=create_dummy_image()
+                )
+                record.genres.add(genre)
+
+            success1, _ = MissionService.check_and_assign_genre_batch(self.user)
+            self.assertTrue(success1)
+
+            success2, message = MissionService.check_and_assign_genre_batch(self.user)
+            self.assertFalse(success2)
+            self.assertEqual(message, "すでにこのミッションを達成済みです")
+            self.assertEqual(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).count(), 1)
 
     # 4.ジャンルデータが含まれてないデータ登録の時バッチデータは含まれない
     def test_no_batch_when_movies_have_no_genre(self):
