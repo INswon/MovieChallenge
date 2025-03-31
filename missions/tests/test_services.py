@@ -176,3 +176,26 @@ class TestMissionService(TestCase):
             self.assertFalse(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists(), "UserBatch も作成されていないこと")
 
 
+    # 5.2種類のジャンルデータの時バッジデータが含まれない検証
+    def test_no_batch_when_only_two_genres(self):
+        with transaction.atomic():
+            genre1 = Genre.objects.create(name="アクション")
+            genre2 = Genre.objects.create(name="コメディ")
+            genres = [genre1, genre1, genre2]
+
+            for i, genre in enumerate(genres):
+                record = UserMovieRecord.objects.create(
+                    user=self.user,
+                    title=f"Movie {i+1}",
+                    rating="5",
+                    date_watched=now(),
+                    poster=create_dummy_image()
+                )
+                record.genres.add(genre)
+
+            success, message = MissionService.check_and_assign_genre_batch(self.user)
+
+            self.assertFalse(success)
+            self.assertEqual(message, "まだ対象ジャンルが3種類に到達していません")
+            self.assertFalse(UserMission.objects.filter(user=self.user, mission=self.mission_3_genres).exists())
+            self.assertFalse(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists())
