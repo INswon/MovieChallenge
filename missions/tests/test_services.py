@@ -134,3 +134,23 @@ class TestMissionService(TestCase):
         self.assertFalse(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists())
 
 
+    # 4.ジャンルデータが含まれてないデータ登録の時バッチデータは含まれない
+    def test_no_batch_when_movies_have_no_genre(self):
+        with transaction.atomic():
+            for i in range(3):
+                UserMovieRecord.objects.create(
+                    user=self.user,
+                    title=f"Movie No Genre {i+1}",
+                    rating="5",
+                    date_watched=now(),
+                    poster=create_dummy_image()
+                )
+
+            success, message = MissionService.check_and_assign_genre_batch(self.user)
+
+            self.assertFalse(success, "ジャンルなしでもバッジが付与されないことを確認")
+            self.assertEqual(message, "まだ対象ジャンルが3種類に到達していません", "適切なメッセージが返ること")
+            self.assertFalse(UserMission.objects.filter(user=self.user, mission=self.mission_3_genres).exists(), "UserMission が作成されていないこと")
+            self.assertFalse(UserBatch.objects.filter(user=self.user, batch=self.batch_3_genres).exists(), "UserBatch も作成されていないこと")
+
+
