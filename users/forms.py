@@ -62,3 +62,15 @@ class ProgressGoalForm(forms.ModelForm):
             'target_date': '目標を達成したい日付を選択してください。',
             'total_movies': '達成したい映画の本数を入力してください。',
         }
+
+class UserReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ["content"]
+
+    def clean_content(self):
+        content = self.cleaned_content.get("content")
+        if (len(content) <= 5):
+            raise forms.ValidationError("5文字以上で入力してください")
+        return content
+
