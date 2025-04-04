@@ -76,6 +76,22 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
     model = UserMovieRecord
     template_name = 'movies/movie_record_detail.html'  
     context_object_name = 'record'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        record = self.object
+
+        api_data = TmdbMovieService.get_movie_info(record.tmdb_id) if record.tmdb_id else None
+
+        movie_data ={
+            "title": api_data.get("title") if api_data else record.title,
+            "poster_url": api_data.get("poster_url") if api_data else record.poster_url,
+            "director": api_data.get("director") if api_data else record.director,
+            "genres": api_data.get("genres") if api_data else record.genres.all(),
+        }
+
+        context["movie_data"] = movie_data
+        return context
 
 
 # 映画情報の取得検索
