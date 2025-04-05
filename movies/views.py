@@ -6,11 +6,12 @@ from movies.models import UserMovieRecord, Genre
 from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm
 from django.views import View
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.views.generic import TemplateView
 from missions.models import Mission
 from .services import TmdbMovieService
 from datetime import date
+import requests
 
 # タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
 def create_movie_record(request):
@@ -51,11 +52,13 @@ def create_movie_record(request):
 
         return render(request, "movies/movie_create.html", context)
 
+
 # 映画鑑賞記録一覧表示機能
 class UserMovieListView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = 'movies/home.html'
     context_object_name = 'records'
+    
 
     def get_queryset(self):
         return UserMovieRecord.objects.filter(user=self.request.user)
@@ -92,7 +95,10 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
 
         context["movie_data"] = movie_data
         return context
-
+    
+# レビュー作成機能
+class ReviewPageView(LoginRequiredMixin, TemplateView):
+    template_name = 'movies/movie_review.html'
 
 # 映画情報の取得検索
 class MovieSearchView(TemplateView):
