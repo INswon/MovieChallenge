@@ -2,9 +2,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.http import HttpResponseForbidden
 from django.urls import reverse_lazy
-from movies.models import UserMovieRecord, Genre 
+from movies.models import UserMovieRecord, Genre, Review
 from missions.models import Batch, UserBatch
-from .forms import MovieRecordForm, MovieSearchForm
+from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
 from django.shortcuts import render,redirect, get_object_or_404
 from django.views.generic import TemplateView
@@ -95,10 +95,19 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
 
         context["movie_data"] = movie_data
         return context
+
+# ユーザーによる映画レビューの投稿ビュー
+class ReviewPageView(CreateView):
+    model = Review
+    form_class = UserReviewForm
+    template_name = "movies/movie_review.html"
+    success_url = "/thanks/"
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.movie = get_object_or_404(UserMovieRecord, pk=self.kwargs["movie_pk"])
+        return super().form_valid(form)
     
-# レビュー作成機能
-class ReviewPageView(LoginRequiredMixin, TemplateView):
-    template_name = 'movies/movie_review.html'
 
 # 映画情報の取得検索
 class MovieSearchView(TemplateView):
