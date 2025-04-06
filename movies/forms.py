@@ -1,5 +1,5 @@
 from django import forms
-from .models import UserMovieRecord
+from .models import UserMovieRecord, Review
 
 # 映画検索フォームの作成
 class MovieSearchForm(forms.Form):
@@ -7,7 +7,6 @@ class MovieSearchForm(forms.Form):
 
 # 映画記録フォームの作成
 class MovieRecordForm(forms.ModelForm):
-
     delete_poster = forms.BooleanField(required=False, label="ポスター画像を削除") 
     
     class Meta:
@@ -53,6 +52,7 @@ class MovieRecordForm(forms.ModelForm):
             instance.save()
         return instance
     
+        
     # 必須項目の明示的な指定
     def __init__(self, *args, **kwargs):
         super(MovieRecordForm, self).__init__(*args, **kwargs)
@@ -61,3 +61,19 @@ class MovieRecordForm(forms.ModelForm):
         self.fields['date_watched'].required = True
         self.fields['rating'].required = True
    
+
+# 映画レビューフォームの作成
+class UserReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ["content"]
+
+    def clean_content(self):
+        content = self.cleaned_content.get("content")
+        if (len(content) <= 5):
+            raise forms.ValidationError("5文字以上で入力してください")
+        return content
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs) 
+
