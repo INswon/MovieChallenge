@@ -6,9 +6,9 @@ from django.views.generic import ListView, DetailView, DeleteView
 from django.views import View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
-from .forms import QuestForm, UserReviewForm
+from .forms import QuestForm
 from movies.models import UserMovieRecord
-from .models import ProgressGoal, Quest, Review
+from .models import ProgressGoal, Quest
 from missions.models import Batch, UserBatch
 
 
@@ -36,18 +36,6 @@ class CustomLogoutView(View):
         logout(request)
         messages.success(request, 'ログアウトしました')
         return render(request, 'users/logout.html')
-    
-# ユーザーによる映画レビューの投稿ビュー
-class UserReviewView(CreateView):
-    model = Review
-    form_class = UserReviewForm
-    template_name = "users/review_form.html"
-    success_url = "/thanks/"
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        form.instance.movie = get_object_or_404(UserMovieRecord, pk=self.kwargs["movie_pk"])
-        return super().form_valid(form)
     
     
 # 進捗目標（モデル作成)
