@@ -1,0 +1,7 @@
+<h1>レビューを投稿する</h1>
+
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">送信</button>
+</form>

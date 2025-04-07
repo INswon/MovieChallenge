@@ -21,47 +21,25 @@ class ProgressGoal(models.Model):
     def __str__(self):
         return f"{self.goal_title} - {self.user.username}"
 
-# アプリ作成者が設定するミッションとバッジ
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
-class Mission(models.Model):
-    title = models.CharField(max_length=200)  # ミッションタイトル
-    description = models.TextField(blank=True)  # ミッションの詳細説明
-    created_at = models.DateTimeField(auto_now_add=True)  # 作成日時
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies' 
+    )
 
-    def __str__(self):
-        return self.title
-
-class Badge(models.Model):
-    mission = models.OneToOneField(Mission, on_delete=models.CASCADE, related_name='badge')  # Missionとの1対1の関係
-    name = models.CharField(max_length=100)  # バッジ名
-    description = models.TextField()  # バッジの説明
-    icon = models.ImageField(upload_to='badges/')  # アイコン画像
-
-    def __str__(self):
-        return self.name
-
-class UserBadge(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_badges')
-    badge = models.ForeignKey(Badge, on_delete=models.CASCADE)
-    awarded_at = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        unique_together = ('user', 'badge')  # ユーザーとバッジの組み合わせを一意にする
+    def is_reply(self):
+        return self.parent is not None
 
     def __str__(self):
-        return f"{self.user.username} - {self.badge.name}"
+        return f"{self.user} - {self.movie} - {'Reply' if self.is_reply() else 'Review'}"
 
-# ユーザーごとのミッション完了状況を追跡するモデルの追加
 
-class UserMission(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_missions')
-    mission = models.ForeignKey(Mission, on_delete=models.CASCADE, related_name='user_missions')
-    is_completed = models.BooleanField(default=False)
-    completed_at = models.DateTimeField(null=True, blank=True)
 
-    class Meta:
-        unique_together = ('user', 'mission')  # ユーザーとミッションの組み合わせを一意にする
-
-    def __str__(self):
-        status = "Completed" if self.is_completed else "Incomplete"
-        return f"{self.user.username} - {self.mission.title} ({status})"

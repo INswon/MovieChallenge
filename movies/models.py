@@ -18,15 +18,7 @@ class UserMovieRecord(models.Model):
     comment =  models.TextField(blank=True)  # 感想（任意）
     rating = models.IntegerField(default=3)
     genres = models.ManyToManyField(Genre)  
+    tmdb_id = models.IntegerField(blank=True, null=True) #特定の映画情報を TMDb API から再取得するためのID
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
-
-class Review(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
-    content = models.TextField()  
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"{self.user} - {self.movie}"

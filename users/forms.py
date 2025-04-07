@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from .models import ProgressGoal
 
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
@@ -14,7 +15,6 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].widget = forms.PasswordInput(attrs={'placeholder': 'Confirm Password'})
         for fieldname in ['username', 'password1', 'password2']:
             self.fields[fieldname].help_text = None
-
 
 class ProgressGoalForm(forms.ModelForm):
     class Meta:
@@ -32,12 +32,14 @@ class ProgressGoalForm(forms.ModelForm):
             'current_progress': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 0,
-                'placeholder': '0'
+                'placeholder': '0',
+                'required': True 
             }),
             'total_movies': forms.NumberInput(attrs={
                 'class': 'form-control',
                 'min': 1,
-                'placeholder': '例: 10'
+                'placeholder': '例: 10',
+                'required': True 
             }),
             'genre_preferences': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -62,3 +64,9 @@ class ProgressGoalForm(forms.ModelForm):
             'target_date': '目標を達成したい日付を選択してください。',
             'total_movies': '達成したい映画の本数を入力してください。',
         }
+
+        def clean_total_movies(self):
+            total_movies = self.cleaned_data.get('total_movies')
+            if total_movies is None or total_movies <= 0:
+                raise forms.ValidationError('目標の映画鑑賞数を1以上で設定してください。')
+            return total_movies

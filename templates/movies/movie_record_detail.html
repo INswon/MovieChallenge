@@ -13,8 +13,8 @@
     <div class="card mb-3 mx-auto" style="width: 1000px;">
         <div class="row g-0">
             <div class="col-md-5">
-                {% if record.poster %}
-                    <img src="{{ record.poster.url }}" alt="{{ record.title }}" class="img-fluid">
+                {% if movie_data.poster_url %}
+                    <img src="{{ movie_data.poster_url }}" alt="{{ movie_data.title }}" class="img-fluid">
                 {% else %}
                     <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid">
                 {% endif %}
@@ -23,6 +23,23 @@
             <div class="col-md-7">
                 <div class="card-body">
                     <h5 class="card-title">{{ record.title }}</h5>
+                     {% if movie_data.director %}
+                        <p class="card-text">監督: {{ movie_data.director }}</p>
+                    {% endif %}
+
+                    {% if movie_data.genres %}
+                    <p class="card-text">
+                        ジャンル: 
+                        {% if movie_data.genres.0 %}  {# API取得時（list型） #}
+                            {{ movie_data.genres|join:", " }}
+                        {% else %}  {# 手動登録時（QuerySet） #}
+                            {% for genre in movie_data.genres %}
+                                {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                    </p>
+                    {% endif %}
+
                     <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
                     <p class="card-text">評価: 
                         {% if record.rating == 1 %}★☆☆☆☆
@@ -32,8 +49,13 @@
                         {% else %}★★★★★
                         {% endif %}
                     </p>
+
+                    {% if record.comment %}
+                        <p class="card-text">感想: {{ record.comment }}</p>
+                    {% endif %}
                     <div class="text-center">
                         <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
+                        <a href ="{% url 'movies:review' %}" class="btn btn-primary">レビューを書く</a>
                     </div>
                 </div>
             </div>

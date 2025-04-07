@@ -2,15 +2,16 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.http import HttpResponseForbidden
 from django.urls import reverse_lazy
-from movies.models import UserMovieRecord, Genre 
+from movies.models import UserMovieRecord, Genre, Review
 from missions.models import Batch, UserBatch
-from .forms import MovieRecordForm, MovieSearchForm
+from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect, get_object_or_404
 from django.views.generic import TemplateView
 from missions.models import Mission
 from .services import TmdbMovieService
 from datetime import date
+import requests
 
 # タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
 def create_movie_record(request):
@@ -51,11 +52,13 @@ def create_movie_record(request):
 
         return render(request, "movies/movie_create.html", context)
 
+
 # 映画鑑賞記録一覧表示機能
 class UserMovieListView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = 'movies/home.html'
     context_object_name = 'records'
+    
 
     def get_queryset(self):
         return UserMovieRecord.objects.filter(user=self.request.user)
@@ -76,7 +79,35 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
     model = UserMovieRecord
     template_name = 'movies/movie_record_detail.html'  
     context_object_name = 'record'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        record = self.object
 
+        api_data = TmdbMovieService.get_movie_info(record.tmdb_id) if record.tmdb_id else None
+
+        movie_data ={
+            "title": api_data.get("title") if api_data else record.title,
+            "poster_url": api_data.get("poster_url") if api_data else record.poster_url,
+            "director": api_data.get("director") if api_data else record.director,
+            "genres": api_data.get("genres") if api_data else record.genres.all(),
+        }
+
+        context["movie_data"] = movie_data
+        return context
+
+# ユーザーによる映画レビューの投稿ビュー
+class ReviewPageView(CreateView):
+    model = Review
+    form_class = UserReviewForm
+    template_name = "movies/movie_review.html"
+    success_url = "/thanks/"
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.movie = get_object_or_404(UserMovieRecord, pk=self.kwargs["movie_pk"])
+        return super().form_valid(form)
+    
 
 # 映画情報の取得検索
 class MovieSearchView(TemplateView):

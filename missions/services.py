@@ -1,12 +1,13 @@
-from movies.models import UserMovieRecord
+from movies.models import UserMovieRecord,Genre
 from missions.models import Mission, UserMission, UserBatch, Batch
 from django.utils.timezone import now
 
 # ミッション達成判定に使用する対象ジャンルのリスト
 TARGET_GENRE_NAMES = [
-    "アクション映画", "アドベンチャー映画", "SF映画",
-    "ミステリー映画", "恋愛映画", "コメディ映画",
-    "ファンタジー映画", "サスペンス映画", "ファンタジー", "アドベンチャー"
+    "アクション", "アドベンチャー", "SF",
+    "ミステリー", "恋愛", "コメディ",
+    "ファンタジー", "サスペンス", "ファンタジー", "アドベンチャー",
+    "ドラマ","ロマンス",
 ]
 
 class MissionService:
@@ -14,7 +15,12 @@ class MissionService:
     #「3本の映画視聴達成」のミッションバッジ付与処理
     @staticmethod
     def check_and_complete_mission(user, mission_title):
-        mission = Mission.objects.get(title=mission_title)
+        mission = Mission.objects.filter(title=mission_title).first()
+        
+        if not mission:
+            print(f"ミッション '{mission_title}' が存在しませんでした")
+            return False, "ミッションが見つかりませんでした"
+
         watched_movies_count = UserMovieRecord.objects.filter(user=user, is_deleted=False).count()
 
         if watched_movies_count >= 3:
@@ -33,7 +39,11 @@ class MissionService:
 
     @staticmethod
     def grant_batch_for_mission(user, mission_title):
-        mission = Mission.objects.get(title=mission_title)
+        mission = Mission.objects.filter(title=mission_title).first()
+        if not mission:
+            print(f"ミッション '{mission_title}' が存在しませんでした")
+            return
+
         user_mission, created = UserMission.objects.get_or_create(user=user, mission=mission)
         if not user_mission.is_completed:
             user_mission.is_completed = True
@@ -44,10 +54,14 @@ class MissionService:
             UserBatch.objects.get_or_create(user=user, batch=mission.batch)
 
 
-    #映画の記録ジャンルが3種類以上なら「3ジャンル制覇」バッジを付与
+    # 映画の記録ジャンルが3種類以上なら「3ジャンル制覇」バッジを付与
     @staticmethod
-    def check_and_assign_genre_badge(user):
-        mission = Mission.objects.get(title="3ジャンル制覇")
+    def check_and_assign_genre_batch(user):
+        mission = Mission.objects.filter(title="3ジャンル制覇").first()
+        if not mission:
+            print("３ジャンル制覇ミッションが存在しませんでした")
+            return False, "ミッションが存在しません"
+
 
         user_genres = Genre.objects.filter(
             usermovierecord__user=user,
@@ -62,13 +76,15 @@ class MissionService:
         if len(set(matched_genres)) >= 3:
             user_mission, created = UserMission.objects.get_or_create(user=user, mission=mission)
 
-            if created or not user_mission.is_completed:
-                user_mission.is_completed = True
-                user_mission.completed_at = now()
-                user_mission.save()
+            if user_mission.is_completed:
+                return False, "すでにこのミッションを達成済みです"
+            
+            user_mission.is_completed = True
+            user_mission.completed_at = now()
+            user_mission.save()
 
             if mission.batch:
-                 UserBatch.objects.get_or_create(user=user, badge=mission.batch)
+                UserBatch.objects.get_or_create(user=user, batch=mission.batch)
 
             return True, "ミッションを達成しました！"
 
