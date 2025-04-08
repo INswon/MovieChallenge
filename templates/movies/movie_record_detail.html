@@ -55,7 +55,7 @@
                     {% endif %}
                     <div class="text-center">
                         <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
-                        <a href ="{% url 'movies:review' %}" class="btn btn-primary">レビューを書く</a>
+                        <a href="{% url 'movies:review' record.pk %}" class="btn btn-primary">レビューを書く</a>
                     </div>
                 </div>
             </div>
