@@ -103,10 +103,20 @@ class ReviewPageView(CreateView):
     template_name = "movies/movie_review.html"
     success_url = "/thanks/"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.movie = get_object_or_404(UserMovieRecord, pk=kwargs["pk"])
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.movie = get_object_or_404(UserMovieRecord, pk=self.kwargs["movie_pk"])
+        form.instance.movie = self.movie
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["movie"] = self.movie 
+        return context
+
     
 
 # 映画情報の取得検索
