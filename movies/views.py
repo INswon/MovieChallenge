@@ -94,6 +94,13 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
         }
 
         context["movie_data"] = movie_data
+
+        movie = self.get_object()
+
+        # 他のユーザーのレビューを取得（ユーザー名・内容・日付含む）
+        other_reviews = Review.objects.filter(movie=movie).exclude(user=self.request.user).order_by("created_at")
+        context["other_reviews"] = other_reviews
+
         return context
 
 # ユーザーによる映画レビューの投稿ビュー
