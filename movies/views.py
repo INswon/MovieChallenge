@@ -94,6 +94,13 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
         }
 
         context["movie_data"] = movie_data
+
+        movie = self.get_object()
+
+        # 他のユーザーのレビューを取得（ユーザー名・内容・日付含む）
+        other_reviews = Review.objects.filter(movie=movie).exclude(user=self.request.user).order_by("created_at")
+        context["other_reviews"] = other_reviews
+
         return context
 
 # ユーザーによる映画レビューの投稿ビュー
@@ -103,10 +110,20 @@ class ReviewPageView(CreateView):
     template_name = "movies/movie_review.html"
     success_url = "/thanks/"
 
+    def dispatch(self, request, *args, **kwargs):
+        self.movie = get_object_or_404(UserMovieRecord, pk=kwargs["pk"])
+        return super().dispatch(request, *args, **kwargs)
+
     def form_valid(self, form):
         form.instance.user = self.request.user
-        form.instance.movie = get_object_or_404(UserMovieRecord, pk=self.kwargs["movie_pk"])
+        form.instance.movie = self.movie
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["movie"] = self.movie 
+        return context
+
     
 
 # 映画情報の取得検索

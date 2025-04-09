@@ -55,12 +55,27 @@
                     {% endif %}
                     <div class="text-center">
                         <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
-                        <a href ="{% url 'movies:review' %}" class="btn btn-primary">レビューを書く</a>
+                        <a href="{% url 'movies:review' record.pk %}" class="btn btn-primary">レビューを書く</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <h3>他のユーザーのレビュー</h3>
+    {% if other_reviews %}
+        <ul>
+            {% for review in other_reviews %}
+            <li>
+                <strong>{{ review.user.username }}</strong>：{{ review.content }}<br>
+                <small>{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>この映画にはまだ他のユーザーのレビューがありません。</p>
+    {% endif %}
+
 
     <div class="container text-center mb-4">
         <button type="button" class="btn-new" onclick="location.href='{% url 'movies:create' %}'">新規作成</button>
