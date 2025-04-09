@@ -22,3 +22,25 @@ class UserMovieRecord(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+
+class Review(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
+    content = models.TextField()
+    rating = models.IntegerField(default=3)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies' 
+    )
+
+    def is_reply(self):
+        return self.parent is not None
+
+    def __str__(self):
+        return f"{self.user} - {self.movie} - {'Reply' if self.is_reply() else 'Review'}"
+
