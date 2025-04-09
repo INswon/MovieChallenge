@@ -44,3 +44,13 @@ class Review(models.Model):
     def __str__(self):
         return f"{self.user} - {self.movie} - {'Reply' if self.is_reply() else 'Review'}"
 
+
+class Like(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints =[
+            models.UniqueConstraint(fields=["user", "review"], name="unique_user_review_like"),
+        ]
+
