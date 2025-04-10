@@ -1,12 +1,14 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+# 映画ジャンル（ユーザーの映画記録とManyToManyで紐づく）
 class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True) 
 
     def __str__(self):
         return self.name
-    
+        
+# ユーザーごとの映画鑑賞記録
 class UserMovieRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     title = models.CharField(max_length=20)
@@ -23,6 +25,7 @@ class UserMovieRecord(models.Model):
     def __str__(self):
         return f"{self.title} - {self.user.username}"
 
+# 映画に対するレビュー（感想投稿）
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
@@ -40,15 +43,20 @@ class Review(models.Model):
 
     def is_reply(self):
         return self.parent is not None
+        
+    # レビューに紐づくいいね数を取得（逆参照でカウント）
+    def like_count(self):
+        return self.like_set.count()
 
     def __str__(self):
         return f"{self.user} - {self.movie} - {'Reply' if self.is_reply() else 'Review'}"
 
-
+# いいね記録（1ユーザー1回制限）
 class Like(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     review = models.ForeignKey(Review, on_delete=models.CASCADE)
 
+    # 同一ユーザーが同じレビューに複数回いいねできないよう制約を設定
     class Meta:
         constraints =[
             models.UniqueConstraint(fields=["user", "review"], name="unique_user_review_like"),
