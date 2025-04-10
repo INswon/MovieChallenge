@@ -71,6 +71,10 @@
                 <small>{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
             </li>
             <li>
+                <form method="POST" action="{% url 'movies:review_like' review.pk %}">
+                     {% csrf_token %}
+                     <button type="submit" class="btn btn-outline-primary btn-sm">
+                </form>
                 <p>いいね数:{{ review.like_count }}</p>
             </li>
             {% endfor %}
