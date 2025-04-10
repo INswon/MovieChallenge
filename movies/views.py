@@ -124,6 +124,10 @@ class ReviewPageView(CreateView):
         context["movie"] = self.movie 
         return context
 
+# レビュー投稿確認ページ遷移
+class ThanksPageView(TemplateView):
+    template_name = "movies/movie_thanks.html"
+
 # レビューのいいね機能処理
 class ReviewLikeView(View):
     def post(self, request, pk):
