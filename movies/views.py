@@ -124,7 +124,18 @@ class ReviewPageView(CreateView):
         context["movie"] = self.movie 
         return context
 
-    
+# レビューのいいね機能処理
+class ReviewLikeView(View):
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        user = request.user
+
+        #いいねがまだされていない場合追加
+        if not Like.objects.filter(user=user, review=review).exists():
+            Like.objects.create(user=user, review=review, movie=review.movie)
+
+        return redirect("movies:detail", pk=review.movie.pk)
+
 
 # 映画情報の取得検索
 class MovieSearchView(TemplateView):
