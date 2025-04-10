@@ -70,6 +70,9 @@
                 <strong>{{ review.user.username }}</strong>：{{ review.content }}<br>
                 <small>{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
             </li>
+            <li>
+                <p>いいね数:{{ review.like_count }}</p>
+            </li>
             {% endfor %}
         </ul>
     {% else %}
