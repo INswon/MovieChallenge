@@ -134,10 +134,12 @@ class ReviewLikeView(View):
         review = get_object_or_404(Review, pk=pk)
         user = request.user
 
-        #いいねがまだされていない場合追加
-        if not Like.objects.filter(user=user, review=review).exists():
-            Like.objects.create(user=user, review=review, movie=review.movie)
+        like = Like.objects.filter(user=user, review=review).first()
 
+        if like:
+            like.delete()
+        else:
+            Like.objects.create(user=user, review=review, movie=review.movie)
         return redirect("movies:detail", pk=review.movie.pk)
 
 
