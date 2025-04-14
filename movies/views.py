@@ -95,10 +95,13 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
 
         context["movie_data"] = movie_data
 
-        movie = self.get_object()
+       # 他のユーザーのレビュー 一覧（作成日時順）
+        other_reviews = Review.objects.filter(movie=record).exclude(user=self.request.user).order_by("created_at")
 
-        # 他のユーザーのレビューを取得（ユーザー名・内容・日付含む）
-        other_reviews = Review.objects.filter(movie=movie).exclude(user=self.request.user).order_by("created_at")
+        #「ログイン中ユーザーがいいね済みかどうか」のフラグを付与 (テンプレート側で「❤️ / 🤍」の表示切り替えに使用)
+        for review in other_reviews:
+            review.is_liked_by_user = review.like_set.filter(user=self.request.user).exists()
+
         context["other_reviews"] = other_reviews
 
         return context
@@ -124,7 +127,24 @@ class ReviewPageView(CreateView):
         context["movie"] = self.movie 
         return context
 
-    
+# レビュー投稿確認ページ遷移
+class ThanksPageView(TemplateView):
+    template_name = "movies/movie_thanks.html"
+
+# レビューのいいね機能処理
+class ReviewLikeView(View):
+    def post(self, request, pk):
+        review = get_object_or_404(Review, pk=pk)
+        user = request.user
+
+        like = Like.objects.filter(user=user, review=review).first()
+
+        if like:
+            like.delete()
+        else:
+            Like.objects.create(user=user, review=review, movie=review.movie)
+        return redirect("movies:detail", pk=review.movie.pk)
+
 
 # 映画情報の取得検索
 class MovieSearchView(TemplateView):

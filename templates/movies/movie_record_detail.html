@@ -62,20 +62,29 @@
         </div>
     </div>
 
-    <h3>他のユーザーのレビュー</h3>
+    <h3>ユーザーのレビュー</h3>
     {% if other_reviews %}
         <ul>
             {% for review in other_reviews %}
-            <li>
                 <strong>{{ review.user.username }}</strong>：{{ review.content }}<br>
                 <small>{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
-            </li>
+
+            <form method="POST" action="{% url 'movies:review_like' review.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-primary btn-sm">
+                    {% if review.is_liked_by_user %}
+                        ❤️
+                    {% else %}
+                        🤍
+                    {% endif %}
+                    {{ review.like_set.count }}
+                </button>
+            </form>
             {% endfor %}
         </ul>
     {% else %}
         <p>この映画にはまだ他のユーザーのレビューがありません。</p>
     {% endif %}
-
 
     <div class="container text-center mb-4">
         <button type="button" class="btn-new" onclick="location.href='{% url 'movies:create' %}'">新規作成</button>
