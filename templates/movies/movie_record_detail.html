@@ -71,7 +71,9 @@
 
             <form method="POST" action="{% url 'movies:review_like' review.pk %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-outline-primary btn-sm">
+                <button type="submit"
+                        class="btn btn-outline-primary btn-sm like-button"
+                        data-review-id="{{ review.id }}">
                     {% if review.is_liked_by_user %}
                         ❤️
                     {% else %}
