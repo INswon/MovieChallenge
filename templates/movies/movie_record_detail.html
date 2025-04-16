@@ -74,12 +74,14 @@
                 <button type="submit"
                         class="btn btn-outline-primary btn-sm like-button"
                         data-review-id="{{ review.id }}">
-                    {% if review.is_liked_by_user %}
-                        ❤️
-                    {% else %}
-                        🤍
-                    {% endif %}
-                    {{ review.like_set.count }}
+                    <span>
+                        {% if review.is_liked_by_user %}
+                            ❤️
+                        {% else %}
+                            🤍
+                        {% endif %}
+                    </span>
+                    <span class="count">{{ review.like_set.count }}</span>  
                 </button>
             </form>
             {% endfor %}
