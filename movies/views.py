@@ -1,8 +1,8 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, JsonResponse
 from django.urls import reverse_lazy
-from movies.models import UserMovieRecord, Genre, Review
+from movies.models import UserMovieRecord, Genre, Review, Like
 from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
@@ -138,13 +138,16 @@ class ReviewLikeView(View):
         user = request.user
 
         like = Like.objects.filter(user=user, review=review).first()
+        liked = False
 
         if like:
             like.delete()
         else:
             Like.objects.create(user=user, review=review, movie=review.movie)
-        return redirect("movies:detail", pk=review.movie.pk)
+            liked = True
 
+        count = review.like_set.count()
+        return JsonResponse({"liked": liked, "count": count})
 
 # 映画情報の取得検索
 class MovieSearchView(TemplateView):
