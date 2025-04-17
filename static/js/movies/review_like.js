@@ -1,5 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
 
+  // .like-buttonが複数あることを想定して全取得
+  const buttons = document.querySelectorAll(".like-button")
+
   buttons.forEach(button => {
     button.addEventListener("click", async function (e) {
       e.preventDefault();
