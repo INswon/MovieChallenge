@@ -2,15 +2,14 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // .like-buttonが複数あることを想定して全取得
   const buttons = document.querySelectorAll(".like-button")
-
   buttons.forEach(button => {
     button.addEventListener("click", async function (e) {
       e.preventDefault();
-
+      
       const reviewId = button.dataset.reviewId;
 
       try {
-        const response = await fetch(`/review_like/${reviewId}/`, {
+        const response = await fetch(`/movies/review_like/${reviewId}/`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -25,6 +24,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const data = await response.json();
         console.log("サーバーからのレスポンス:", data);
+        
 
         // DOM更新処理（❤️↔🤍 切り替え + カウント更新）
         if (data.liked) {
