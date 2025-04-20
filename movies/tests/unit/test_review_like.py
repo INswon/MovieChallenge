@@ -54,5 +54,25 @@ class RevieLikeTest(TestCase):
         self.assertEqual(Like.objects.filter(user=self.userA, review=self.review).count(), 1)
 
 
+    def test_like_deleted_when_already_liked(self):
+        self.client.force_login(self.userA)
+
+        # いいね済みの状態を作る
+        Like.objects.create(user=self.userA, review=self.review, movie=self.movie)
+
+        # Ajaxで再度POST（トグルでOFF状態にする）
+        response = self.client.post(
+            f"/movies/review_like/{self.review.id}/",
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
+
+        # ステータス200・liked: false を確認
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()["liked"])
+
+        # DBからLikeが削除されたことを確認
+        self.assertEqual(Like.objects.filter(user=self.userA, review=self.review).count(), 0)
+
+
 
     
