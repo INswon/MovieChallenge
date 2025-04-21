@@ -49,7 +49,8 @@ class Review(models.Model):
         return self.like_set.count()
 
     def __str__(self):
-        return f"{self.user} - {self.movie} - {'Reply' if self.is_reply() else 'Review'}"
+        content_preview = self.content[:20] + ('...' if len(self.content) > 20 else '')
+        return f"{self.user.username} {content_preview} - {self.created_at.strftime('%Y-%m-%d')} ({self.movie.user} - {self.movie.title})"
 
 # いいね記録（1ユーザー1回制限）
 class Like(models.Model):
