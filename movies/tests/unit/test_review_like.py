@@ -73,6 +73,21 @@ class RevieLikeTest(TestCase):
         # DBからLikeが削除されたことを確認
         self.assertEqual(Like.objects.filter(user=self.userA, review=self.review).count(), 0)
 
+    # 未ログインユーザーがレビューにいいねを押した際にPOSTを403で拒否するかを検証（異常系）
+    def test_like_rejected_when_not_logged_in(self):
+        
+        # ajaxでポスト送信
+        response = self.client.post(
+            f"/movies/review_like/{self.review.id}/",
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest"
+        )
 
+        # いいねのポスト処理を拒否(403ステータスコード)
+        self.assertEqual(response.status_code, 403)
 
-    
+        # エラーメッセージがJSONで返っているかの検証（ユーザー目線での確認）
+        self.assertJSONEqual(response.content, {"error": "ログインが必要です"})
+
+        # いいねの記録データが作成されてないことの検証 
+        self.assertFalse(Like.objects.filter(review=self.review).exists())
+

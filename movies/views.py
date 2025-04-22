@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.http import HttpResponseForbidden, JsonResponse
 from django.urls import reverse_lazy
@@ -84,6 +84,7 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         record = self.object
 
+        #(後コメント考案) TMDb API から映画情報を取得（なければローカルの情報を使用）
         api_data = TmdbMovieService.get_movie_info(record.tmdb_id) if record.tmdb_id else None
 
         movie_data ={
@@ -107,11 +108,11 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
         return context
 
 # ユーザーによる映画レビューの投稿ビュー
-class ReviewPageView(CreateView):
+class ReviewPageView(LoginRequiredMixin,CreateView):
     model = Review
     form_class = UserReviewForm
     template_name = "movies/movie_review.html"
-    success_url = "/thanks/"
+    success_url = reverse_lazy("movies:thanks")
 
     def dispatch(self, request, *args, **kwargs):
         self.movie = get_object_or_404(UserMovieRecord, pk=kwargs["pk"])
@@ -131,8 +132,17 @@ class ReviewPageView(CreateView):
 class ThanksPageView(TemplateView):
     template_name = "movies/movie_thanks.html"
 
+# AjaxのLoginRequiredMixinの定義
+class AjaxLoginRequiredMixin(AccessMixin):
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            if request.headers.get("x-requested-with") == "XMLHttpRequest":
+                return JsonResponse({"error": "ログインが必要です"}, status=403)
+            return self.handle_no_permission()  # 通常の302リダイレクト
+        return super().dispatch(request, *args, **kwargs)
+
 # レビューのいいね機能処理
-class ReviewLikeView(View):
+class ReviewLikeView(AjaxLoginRequiredMixin,View):
     def post(self, request, pk):
         review = get_object_or_404(Review, pk=pk)
         user = request.user
@@ -148,9 +158,9 @@ class ReviewLikeView(View):
 
         count = review.like_set.count()
         return JsonResponse({"liked": liked, "count": count})
-
+    
 # 映画情報の取得検索
-class MovieSearchView(TemplateView):
+class MovieSearchView(LoginRequiredMixin, TemplateView):
     template_name = "movies/movie_search.html"
 
     def get_context_data(self, **kwargs):
