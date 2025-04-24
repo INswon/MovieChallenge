@@ -63,3 +63,8 @@ class Like(models.Model):
             models.UniqueConstraint(fields=["user", "review"], name="unique_user_review_like"),
         ]
 
+class Feel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
