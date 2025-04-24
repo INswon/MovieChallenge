@@ -67,8 +67,3 @@ class Like(models.Model):
 class Mood(models.Model):
     name = models.CharField(max_length=10)
 
-class Feel(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
-
