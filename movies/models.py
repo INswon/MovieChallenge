@@ -63,6 +63,10 @@ class Like(models.Model):
             models.UniqueConstraint(fields=["user", "review"], name="unique_user_review_like"),
         ]
 
+# ユーザーの感情をタグとして管理(#興奮, #新鮮, #癒された,#前向きになれた)
+class Mood(models.Model):
+    name = models.CharField(max_length=10)
+
 class Feel(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     movie = models.ForeignKey(UserMovieRecord, on_delete=models.CASCADE)
