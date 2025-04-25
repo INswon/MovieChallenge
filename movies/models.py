@@ -7,23 +7,28 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.name
+
+# ユーザーの感情をタグとして管理(#興奮, #新鮮, #癒された,#前向きになれた)
+class Mood(models.Model):
+    name = models.CharField(max_length=10)
         
-# ユーザーごとの映画鑑賞記録
 class UserMovieRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
     title = models.CharField(max_length=20)
     poster = models.ImageField(upload_to='posters/', null=True, blank=True)  #　映画ポスター画像（任意）
     poster_url = models.URLField(blank=True, null=True)  # APIから取得した画像URL用
-    date_watched = models.DateField()  
-    is_deleted = models.BooleanField(default=False)  # 論理削除フラグ（True: 非表示 / データはDBに残る）
     director = models.CharField(max_length=255, blank=True)
-    comment =  models.TextField(blank=True)  # 感想（任意）
+    genres = models.ManyToManyField(Genre)
     rating = models.IntegerField(default=3)
-    genres = models.ManyToManyField(Genre)  
+    mood = models.ForeignKey(Mood, on_delete=models.CASCADE, null=True, blank=True)
+    comment =  models.TextField(blank=True)  # 感想（任意）
+    date_watched = models.DateField()  
+    is_deleted = models.BooleanField(default=False)  # 論理削除フラグ（True: 非表示 / データはDBに残る）   
     tmdb_id = models.IntegerField(blank=True, null=True) #特定の映画情報を TMDb API から再取得するためのID
 
     def __str__(self):
         return f"{self.title} - {self.user.username}"
+
 
 # 映画に対するレビュー（感想投稿）
 class Review(models.Model):
