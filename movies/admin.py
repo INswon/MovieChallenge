@@ -32,3 +32,8 @@ class ReviewAdmin(admin.ModelAdmin):
 @admin.register(Mood)
 class MoodAdmin(admin.ModelAdmin):
     list_display = ('name',)
+    
+    def __str__(self):
+        return self.name
+        
+
