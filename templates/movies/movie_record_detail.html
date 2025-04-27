@@ -40,7 +40,6 @@
                     </p>
                     {% endif %}
 
-                    <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
                     <p class="card-text">評価: 
                         {% if record.rating == 1 %}★☆☆☆☆
                         {% elif record.rating == 2 %}★★☆☆☆
@@ -50,9 +49,16 @@
                         {% endif %}
                     </p>
 
+                    {% if record.mood %}
+                        <p class="card-text">ムード: {{ record.mood }}</p>
+                    {% endif %}
+
                     {% if record.comment %}
                         <p class="card-text">感想: {{ record.comment }}</p>
                     {% endif %}
+
+                    <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
+                    
                     <div class="text-center">
                         <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
                         <a href="{% url 'movies:review' record.pk %}" class="btn btn-primary">レビューを書く</a>
