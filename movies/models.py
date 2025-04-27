@@ -11,6 +11,9 @@ class Genre(models.Model):
 # ユーザーの感情をタグとして管理(#興奮, #新鮮, #癒された,#前向きになれた)
 class Mood(models.Model):
     name = models.CharField(max_length=10)
+
+    def __str__(self):
+        return self.name  
         
 class UserMovieRecord(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE) 
@@ -20,7 +23,7 @@ class UserMovieRecord(models.Model):
     director = models.CharField(max_length=255, blank=True)
     genres = models.ManyToManyField(Genre)
     rating = models.IntegerField(default=3)
-    mood = models.ForeignKey(Mood, on_delete=models.CASCADE, null=True, blank=True)
+    mood = models.CharField(max_length=10, blank=True) 
     comment =  models.TextField(blank=True)  # 感想（任意）
     date_watched = models.DateField()  
     is_deleted = models.BooleanField(default=False)  # 論理削除フラグ（True: 非表示 / データはDBに残る）   
