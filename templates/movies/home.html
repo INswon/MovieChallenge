@@ -42,7 +42,7 @@
                           {% endfor %}
                         </p>
                         <p class="card-text">監督: {{ record.director }}</p>
-                        <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
+                        <p class="card-text">ムード: {{ record.mood }}</p>
                         <p class="card-text">評価: 
                             {% if record.rating == 1 %}★☆☆☆☆
                             {% elif record.rating == 2 %}★★☆☆☆
@@ -52,6 +52,7 @@
                             {% endif %}
                         </p>
                         <p class="card-text">感想: {{ record.comment }}</p>
+                        <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
                         <div class="text-center mt-auto">
                             <button type="button" class="btn-list" onclick="location.href='{% url 'movies:detail' record.pk %}'">詳細</button>
                             <button type="button" class="btn-edit" onclick="location.href='{% url 'movies:edit' record.pk %}'">編集</button>
