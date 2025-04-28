@@ -42,7 +42,13 @@
                           {% endfor %}
                         </p>
                         <p class="card-text">監督: {{ record.director }}</p>
-                        <p class="card-text">ムード: {{ record.mood }}</p>
+                        <p>ムード:
+                            {% for mood in record.mood.all %}
+                                {{ mood.name }}{% if not forloop.last %}, {% endif %}
+                            {% empty %}
+                                なし
+                            {% endfor %}
+                        </p>
                         <p class="card-text">評価: 
                             {% if record.rating == 1 %}★☆☆☆☆
                             {% elif record.rating == 2 %}★★☆☆☆
