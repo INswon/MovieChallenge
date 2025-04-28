@@ -49,9 +49,13 @@
                         {% endif %}
                     </p>
 
-                    {% if record.mood %}
-                        <p class="card-text">ムード: {{ record.mood }}</p>
-                    {% endif %}
+                    <p>ムード:
+                        {% for mood in record.mood.all %}
+                            {{ mood.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                             なし
+                        {% endfor %}
+                    </p>
 
                     {% if record.comment %}
                         <p class="card-text">感想: {{ record.comment }}</p>
