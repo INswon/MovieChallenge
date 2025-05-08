@@ -1,5 +1,6 @@
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.http import HttpResponseForbidden, JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
 from missions.models import Batch, UserBatch
