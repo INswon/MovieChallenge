@@ -44,7 +44,7 @@
                         <p class="card-text">監督: {{ record.director }}</p>
                         <p>ムード:
                             {% for mood in record.mood.all %}
-                                {{ mood.name }}{% if not forloop.last %}, {% endif %}
+                                #{{ mood.name }}{% if not forloop.last %}, {% endif %}
                             {% empty %}
                                 なし
                             {% endfor %}
