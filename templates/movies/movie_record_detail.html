@@ -41,7 +41,6 @@
                         <p class="card-text">監督: {{ movie_data.director }}</p>
                     {% endif %}
 
-
                     <p>ムード:
                         {% for mood in record.mood.all %}
                             #{{ mood.name }}{% if not forloop.last %}, {% endif %}
@@ -58,7 +57,7 @@
                         {% else %}★★★★★
                         {% endif %}
                     </p>
-
+                  
                     {% if record.comment %}
                         <p class="card-text">感想: {{ record.comment }}</p>
                     {% endif %}

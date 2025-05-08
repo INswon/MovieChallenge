@@ -1,8 +1,8 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.http import HttpResponseForbidden, JsonResponse
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
-from movies.models import UserMovieRecord, Genre, Review, Like
+from movies.models import UserMovieRecord, Genre, Mood, Review, Like
 from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
@@ -13,9 +13,21 @@ from .services import TmdbMovieService
 from datetime import date
 import requests
 
+
 # タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
 def create_movie_record(request):
     if request.method == "POST":
+        mood_text = request.POST.get("mood", "")
+        mood_tags = mood_text.replace("　", " ").split()  # 全角・半角スペース対応
+        mood_objs = []
+
+        for tag in mood_tags:
+            clean_tag = tag.lstrip("#")  # 先頭の # を削除（あれば）
+            if clean_tag:  # 空文字を除外
+                mood_obj, _ = Mood.objects.get_or_create(name=clean_tag)
+                mood_objs.append(mood_obj)
+
+
         record = UserMovieRecord.objects.create(
             title=request.POST["title"],
             poster_url=request.POST["poster"], 
@@ -25,6 +37,7 @@ def create_movie_record(request):
             date_watched=date.today(),
             user=request.user 
         )
+
         genre_names = request.POST["genres"].split(", ")
         genre_objs = []
         for name in genre_names:
@@ -32,7 +45,9 @@ def create_movie_record(request):
             genre_objs.append(genre)
         record.genres.set(genre_objs)
 
-        return redirect("movies:home")  
+        record.mood.set(mood_objs)
+
+        return redirect("movies:home")
 
     else:
         movie_id = request.GET.get("movie_id")
@@ -52,23 +67,20 @@ def create_movie_record(request):
 
         return render(request, "movies/movie_create.html", context)
 
-
 # 映画鑑賞記録一覧表示機能
 class UserMovieListView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = 'movies/home.html'
     context_object_name = 'records'
-    
 
     def get_queryset(self):
         return UserMovieRecord.objects.filter(user=self.request.user)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         form = MovieSearchForm(self.request.GET or None)
         context["form"] = form  
-        
+     
         if form.is_valid():
             query = form.cleaned_data["movie_title"]
             context["movies"] = TmdbMovieService.search(query) if query else []        
