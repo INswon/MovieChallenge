@@ -23,9 +23,6 @@
             <div class="col-md-7">
                 <div class="card-body">
                     <h5 class="card-title">{{ record.title }}</h5>
-                     {% if movie_data.director %}
-                        <p class="card-text">監督: {{ movie_data.director }}</p>
-                    {% endif %}
 
                     {% if movie_data.genres %}
                     <p class="card-text">
@@ -40,6 +37,18 @@
                     </p>
                     {% endif %}
 
+                    {% if movie_data.director %}
+                        <p class="card-text">監督: {{ movie_data.director }}</p>
+                    {% endif %}
+
+                    <p>ムード:
+                        {% for mood in record.mood.all %}
+                            #{{ mood.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            なし
+                        {% endfor %}
+                    </p>
+
                     <p class="card-text">評価: 
                         {% if record.rating == 1 %}★☆☆☆☆
                         {% elif record.rating == 2 %}★★☆☆☆
@@ -48,21 +57,12 @@
                         {% else %}★★★★★
                         {% endif %}
                     </p>
-
-                    <p>ムード:
-                        {% for mood in record.mood.all %}
-                            {{ mood.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                             なし
-                        {% endfor %}
-                    </p>
-
+                  
                     {% if record.comment %}
                         <p class="card-text">感想: {{ record.comment }}</p>
                     {% endif %}
 
                     <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
-                    
                     <div class="text-center">
                         <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
                         <a href="{% url 'movies:review' record.pk %}" class="btn btn-primary">レビューを書く</a>
@@ -76,15 +76,14 @@
     {% if other_reviews %}
         <ul>
             {% for review in other_reviews %}
+            <li>
                 <strong>{{ review.user.username }}</strong>：{{ review.content }}<br>
                 <small>{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
 
-            <form method="POST" action="{% url 'movies:review_like' review.pk %}">
-                {% csrf_token %}
                 <button type="submit"
                         class="btn btn-outline-primary btn-sm like-button"
                         data-review-id="{{ review.id }}">
-                    <span>
+                    <span class="icon">
                         {% if review.is_liked_by_user %}
                             ❤️
                         {% else %}
@@ -93,7 +92,7 @@
                     </span>
                     <span class="count">{{ review.like_set.count }}</span>  
                 </button>
-            </form>
+            </li>
             {% endfor %}
         </ul>
     {% else %}
