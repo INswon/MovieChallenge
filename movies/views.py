@@ -73,8 +73,14 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     template_name = 'movies/home.html'
     context_object_name = 'records'
 
+    #感情タグの検索フィルタリング
     def get_queryset(self):
-        return UserMovieRecord.objects.filter(user=self.request.user)
+        qs = UserMovieRecord.objects.filter(user=self.request.user)
+        mood = self.request.GET.get("mood")
+        if mood:
+            mood = mood.lstrip("#")
+            qs = qs.filter(mood__name__in=[mood])
+        return qs
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
