@@ -10,6 +10,11 @@
         <button type="submit">検索</button>
     </form>
 
+    <!-- 感情タグ検索セクション -->
+    <form method="get" action="{% url 'movies:movie_search' %}">
+        <input type="text" name="mood" placeholder="記録として残した感情タグを入力「例: #迫力、#泣ける」">
+        <button type="submit" class="btn-light">検索</button>
+    </form>
 
     <div class="container my-1">
         <section class="jumbotron text-center">
