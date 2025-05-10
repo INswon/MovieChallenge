@@ -11,7 +11,7 @@ from django.views.generic import TemplateView
 from missions.models import Mission
 from .services import TmdbMovieService
 from datetime import date
-import requests
+import requests, re
 
 
 # タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
@@ -76,12 +76,16 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     #感情タグの検索フィルタリング
     def get_queryset(self):
         qs = UserMovieRecord.objects.filter(user=self.request.user)
-        mood = self.request.GET.get("mood")
-        if mood:
-            mood = mood.lstrip("#")
-            qs = qs.filter(mood__name__in=[mood])
-        return qs
+        moods = self.request.GET.get("mood", "")
     
+        # 区切り文字（カンマ・読点・スペース）で分割
+        raw_tags = re.split(r"[、,\s]+", moods.strip())
+        tags = [tag.strip().lstrip("#") for tag in raw_tags if tag.strip()]
+    
+        if tags:
+            qs = qs.filter(mood__name__in=tags).distinct()
+        return qs
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = MovieSearchForm(self.request.GET or None)
