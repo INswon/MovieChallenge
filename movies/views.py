@@ -11,22 +11,19 @@ from django.views.generic import TemplateView
 from missions.models import Mission
 from .services import TmdbMovieService
 from datetime import date
-import requests, re
+import requests,re
 
+# ムードタグ文字列を分割・整形して、Moodオブジェクトのリストに変換する関数（"#"・空白・区切り記号に対応）
+def parse_and_get_mood_objects(mood_text):
+    raw = re.split(r"[、,\s]+", mood_text.replace("　", " ").strip())
+    tags = [tag.strip().lstrip("#") for tag in raw if tag.strip()]
+    return [Mood.objects.get_or_create(name=tag)[0] for tag in tags]
 
 # タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
 def create_movie_record(request):
     if request.method == "POST":
         mood_text = request.POST.get("mood", "")
-        mood_tags = mood_text.replace("　", " ").split()  # 全角・半角スペース対応
-        mood_objs = []
-
-        for tag in mood_tags:
-            clean_tag = tag.lstrip("#")  # 先頭の # を削除（あれば）
-            if clean_tag:  # 空文字を除外
-                mood_obj, _ = Mood.objects.get_or_create(name=clean_tag)
-                mood_objs.append(mood_obj)
-
+        mood_objs = parse_and_get_mood_objects(mood_text)
 
         record = UserMovieRecord.objects.create(
             title=request.POST["title"],
@@ -73,19 +70,19 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     template_name = 'movies/home.html'
     context_object_name = 'records'
 
-    #感情タグの検索フィルタリング
+    # 感情タグの検索フィルタリング
     def get_queryset(self):
         qs = UserMovieRecord.objects.filter(user=self.request.user)
         moods = self.request.GET.get("mood", "")
     
-        # 区切り文字（カンマ・読点・スペース）で分割
-        raw_tags = re.split(r"[、,\s]+", moods.strip())
-        tags = [tag.strip().lstrip("#") for tag in raw_tags if tag.strip()]
+        # 整形関数で正規化されたmoodタグ一覧を取得（オブジェクト形式）
+        mood_objs = parse_and_get_mood_objects(moods)
+        tags = [m.name for m in mood_objs]
     
         if tags:
             qs = qs.filter(mood__name__in=tags).distinct()
         return qs
-
+    
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = MovieSearchForm(self.request.GET or None)
@@ -241,4 +238,3 @@ class MovieRecordEditView(LoginRequiredMixin, UpdateView):
         if commit:
             instance.save()
         return instance
-
