@@ -11,9 +11,9 @@ from django.views.generic import TemplateView
 from missions.models import Mission
 from .services import TmdbMovieService
 from datetime import date
-import requests,re
+import requests, re
 
-# ムードタグ文字列を分割・整形して、Moodオブジェクトのリストに変換する関数（"#"・空白・区切り記号に対応）
+#ムードタグ登録のデータ形式を整えるための整形関数
 def parse_and_get_mood_objects(mood_text):
     raw = re.split(r"[、,\s]+", mood_text.replace("　", " ").strip())
     tags = [tag.strip().lstrip("#") for tag in raw if tag.strip()]
@@ -70,7 +70,7 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     template_name = 'movies/home.html'
     context_object_name = 'records'
 
-    # 感情タグの検索フィルタリング
+    #感情タグの検索フィルタリング
     def get_queryset(self):
         qs = UserMovieRecord.objects.filter(user=self.request.user)
         moods = self.request.GET.get("mood", "")
@@ -91,6 +91,24 @@ class UserMovieListView(LoginRequiredMixin, ListView):
         if form.is_valid():
             query = form.cleaned_data["movie_title"]
             context["movies"] = TmdbMovieService.search(query) if query else []        
+        return context
+    
+#感情アーカイブページ一覧 (感情別の記録データを一覧取得)
+class MoodArchiveView(ListView):
+    model = UserMovieRecord
+    template_name = "movies/mood_archive.html"
+    context_object_name = "mood_archive"
+
+    def get_queryset(self):
+        mood_name = self.kwargs["mood_name"]
+        return UserMovieRecord.objects.filter(
+            user = self.request.user,
+            mood__name=mood_name
+        ).distinct()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["mood_name"] = self.kwargs.get("mood_name")
         return context
 
 # 映画鑑賞記録詳細表示機能
