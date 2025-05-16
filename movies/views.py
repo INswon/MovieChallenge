@@ -19,6 +19,13 @@ def parse_and_get_mood_objects(mood_text):
     tags = [tag.strip().lstrip("#") for tag in raw if tag.strip()]
     return [Mood.objects.get_or_create(name=tag)[0] for tag in tags]
 
+#特定の感情アーカイブページへのアクセス設定 (該当するページがなければホームページにリダイレクト)
+def redirect_to_mood_archive(request):
+    mood = request.GET.get("mood", "").strip().lstrip("#")
+    if mood:
+        return redirect("movies:mood_archive", mood_name=mood)  
+    return redirect("movies:home")
+
 # タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
 def create_movie_record(request):
     if request.method == "POST":
