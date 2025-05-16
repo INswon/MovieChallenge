@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ mood_name }}のアーカイブ一覧{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <h2 class="text-center my-4">「{{ mood_name }}」の映画一覧</h2>
+
+  {% for record in mood_archive %}
+    <div class="card mb-4 shadow-sm">
+      <div class="row g-0">
+        <!-- ポスター -->
+        <div class="col-md-4">
+          {% if record.poster %}
+            <img src="{{ record.poster.url }}" class="img-fluid rounded-start" alt="{{ record.title }}">
+          {% elif record.poster_url %}
+            <img src="{{ record.poster_url }}" class="img-fluid rounded-start" alt="{{ record.title }}">
+          {% else %}
+            <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" class="img-fluid rounded-start" alt="No image">
+          {% endif %}
+        </div>
+
+        <!-- 映画情報 -->
+        <div class="col-md-8">
+          <div class="card-body">
+            <h5 class="card-title">{{ record.title }}</h5>
+            <p class="card-text text-muted">ジャンル: 
+              {% for genre in record.genres.all %}
+                {{ genre.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </p>
+            <p class="card-text">監督: {{ record.director }}</p>
+            <p class="card-text">ムード: 
+              {% for mood in record.mood.all %}
+                #{{ mood.name }}{% if not forloop.last %}, {% endif %}
+              {% empty %} なし
+              {% endfor %}
+            </p>
+            <p class="card-text">評価: 
+              {% if record.rating == 1 %}★☆☆☆☆
+              {% elif record.rating == 2 %}★★☆☆☆
+              {% elif record.rating == 3 %}★★★☆☆
+              {% elif record.rating == 4 %}★★★★☆
+              {% else %}★★★★★
+              {% endif %}
+            </p>
+            <p class="card-text">感想: {{ record.comment }}</p>
+            <p class="card-text"><small class="text-muted">鑑賞日: {{ record.date_watched }}</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p class="text-center text-muted">該当する映画記録が見つかりませんでした。</p>
+  {% endfor %}
+
+  <div class="text-center mt-4">
+    <a href="{% url 'movies:movie_search' %}" class="btn btn-secondary">ホーム画面に戻る</a>
+  </div>
+</div>
+
+{% endblock %}
