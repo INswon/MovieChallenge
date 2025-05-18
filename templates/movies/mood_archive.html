@@ -8,8 +8,12 @@
 {% block title %}{{ mood_name }}のアーカイブ一覧{% endblock %}
 
 {% block content %}
-<div class="container">
-  <h2 class="text-center my-4 mood-{{ mood.id }}">「#{{ mood_name }}」な気持ちを、もう一度。</h2>
+
+<div class="mood-hero mood-{{ mood.id }}">
+  <div class="overlay-text text-center">
+    <h2>「#{{ mood_name }}」な気持ちを、もう一度。</h2>
+  </div>
+</div>
 
   {% for record in mood_archive %}
     <div class="card mb-4 shadow-sm">
