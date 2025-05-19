@@ -16,6 +16,26 @@
   background-repeat: no-repeat;
 }
 
+/* 前向き */
+.mood-positive {
+  background-color: #ffd54f; 
+}
+
+/* 笑い */
+.mood-fun {
+  background-color: #ffd180; 
+}
+
+/* 感動 */
+.mood-touching {
+  background-color: #f8bbd0;  
+}
+
+/* リラックス */
+.mood-relax {
+  background-color: #c8e6c9;
+}
+
 /* テキスト可読性を高める黒透過オーバーレイ */
 .mood-hero::before {
   position: absolute;
