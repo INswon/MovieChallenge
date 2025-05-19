@@ -63,6 +63,11 @@
     <p class="text-center text-muted">該当する映画記録が見つかりませんでした。</p>
   {% endfor %}
 
+  <button class="btn mood-btn mood-positive">前向き</button>
+  <button class="btn mood-btn mood-fun">笑い</button>
+  <button class="btn mood-btn mood-touching">感動</button>
+  <button class="btn mood-btn mood-relax">リラックス</button>
+
   <div class="text-center mt-4">
     <a href="{% url 'movies:movie_search' %}" class="btn btn-secondary">ホーム画面に戻る</a>
   </div>
