@@ -115,7 +115,12 @@ class MoodArchiveView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        mood_name = self.kwargs.get("mood_name")  
+        mood = get_object_or_404(Mood, name=mood_name)
+
         context["mood_name"] = self.kwargs.get("mood_name")
+        context["mood"] = mood 
         return context
 
 # 映画鑑賞記録詳細表示機能

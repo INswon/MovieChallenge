@@ -6,11 +6,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}映画鑑賞チャレンジアプリ{% endblock %}</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/base/styles.css' %}?v={{ STATIC_VERSION }}">
     <link rel="stylesheet" href="{% static 'css/users/home/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/base/missions/styles.css' %}">
     <link rel="stylesheet" href="{% static 'css/base/movies/styles.css' %}">
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base/movies/movies_archive.css' %}">
+    {% block extra_css %}{% endblock %}
+
 </head>
 <body>
     <header>
@@ -39,7 +42,7 @@
             <p>© 2024 サイト名. All rights reserved.</p>
         </div>
     </footer>
-    
+
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="{% static 'js/movies/review_like.js' %}?v={{ STATIC_VERSION }}"></script>
 </body>
