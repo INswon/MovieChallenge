@@ -2,6 +2,7 @@ from django.views.generic import ListView, CreateView, DeleteView, UpdateView, D
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
+from django.db.models import Count
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
 from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
@@ -101,7 +102,7 @@ class UserMovieListView(LoginRequiredMixin, ListView):
         return context
     
 #感情アーカイブページ一覧 (感情別の記録データを一覧取得)
-class MoodArchiveView(ListView):
+class MoodArchiveView(LoginRequiredMixin,ListView):
     model = UserMovieRecord
     template_name = "movies/mood_archive.html"
     context_object_name = "mood_archive"
@@ -118,9 +119,15 @@ class MoodArchiveView(ListView):
         
         mood_name = self.kwargs.get("mood_name")  
         mood = get_object_or_404(Mood, name=mood_name)
+        user = self.request.user 
 
-        context["mood_name"] = self.kwargs.get("mood_name")
+        filter_moods = Mood.objects.filter(usermovierecord__user=user) 
+        user_moods = filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records") 
+
+        context["mood_name"] = mood_name
         context["mood"] = mood 
+        context["top_moods"] = user_moods 
+
         return context
 
 # 映画鑑賞記録詳細表示機能
