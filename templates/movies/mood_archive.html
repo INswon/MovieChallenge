@@ -64,15 +64,14 @@
   {% endfor %}
 
   <div class="mood-button-wrapper">
-      {% for mood in top_moods %}
-        <button class="btn mood-btn mood-{{ mood.name|lower }}">
-          {{ mood.name }}（{{ mood.num_records }}回）
-        </button>
-      {% empty %}
-        <p class="text-muted">まだ感情タグが登録されていません</p>
-      {% endfor %}
+    {% for mood in top_moods %}
+      <button class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
+        {{ mood.name }}（{{ mood.num_records }}回）
+      </button>
+    {% empty %}
+      <p class="text-muted">まだ感情タグが登録されていません</p>
+    {% endfor %}
   </div>
-
 
   <div class="text-center mt-4">
     <a href="{% url 'movies:movie_search' %}" class="btn btn-secondary">ホーム画面に戻る</a>
