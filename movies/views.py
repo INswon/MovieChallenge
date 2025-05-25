@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
 from django.db.models import Count
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
+from movies.constants import MOOD_CATEGORY_MAP 
 from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
@@ -116,7 +117,6 @@ class MoodArchiveView(LoginRequiredMixin,ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
         mood_name = self.kwargs.get("mood_name")  
         mood = get_object_or_404(Mood, name=mood_name)
         user = self.request.user 
@@ -124,9 +124,15 @@ class MoodArchiveView(LoginRequiredMixin,ListView):
         filter_moods = Mood.objects.filter(usermovierecord__user=user) 
         user_moods = filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records") 
 
+        category_classes = {
+            mood.name: MOOD_CATEGORY_MAP.get(mood.name, "default")
+            for mood in user_moods
+        }
+
         context["mood_name"] = mood_name
         context["mood"] = mood 
         context["top_moods"] = user_moods 
+        context["category_classes"] = category_classes 
 
         return context
 
