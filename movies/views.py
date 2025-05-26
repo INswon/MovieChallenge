@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
 from django.db.models import Count
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
-from movies.constants import MOOD_CATEGORY_MAP 
+from movies.constants import MOOD_CATEGORY_MAP, MOOD_HERO_IMAGES
 from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
@@ -129,11 +129,21 @@ class MoodArchiveView(LoginRequiredMixin,ListView):
             for mood in user_moods
         }
 
+        mood_hero_image = {
+            mood.name: MOOD_HERO_IMAGES.get(mood.name, "default")
+            for mood in user_moods
+        }
+
+        category = MOOD_CATEGORY_MAP.get(mood_name, "default")
+        hero_image = MOOD_HERO_IMAGES.get(category, "img/hero/default.jpg")
+
         context["mood_name"] = mood_name
         context["mood"] = mood 
         context["top_moods"] = user_moods 
+        context["category_class"] = category
+        context["hero_image"] = hero_image
         context["category_classes"] = category_classes 
-
+        
         return context
 
 # 映画鑑賞記録詳細表示機能
