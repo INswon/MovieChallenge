@@ -51,3 +51,8 @@ MOOD_CATEGORY_MAP = {
     "展開が読めなかった": "curious",
     "視点が面白かった": "curious",
 }
+
+MOOD_HERO_IMAGES = {
+    "energy": "images/hero/excitement.jpg",
+}
+
