@@ -10,6 +10,7 @@ MOOD_CATEGORY_MAP = {
     "心地よかった": "healing",
 
     # emotional（感動・涙）
+    "涙": "emotional",
     "泣いた": "emotional",
     "感動した": "emotional",
     "共感した": "emotional",
@@ -20,6 +21,7 @@ MOOD_CATEGORY_MAP = {
     "涙が止まらなかった": "emotional",
 
     # energy（興奮・楽しい）
+    "興奮": "energy",
     "笑った": "energy",
     "テンション上がった": "energy",
     "爽快だった": "energy",
