@@ -6,6 +6,13 @@ from movies.views import YourView
 
 handler404 = 'users.views.custom_404_view'  # カスタム404ビューの指定
 
+# ログイン判定して遷移させるビュー (1.ログイン済みならホーム画面、2.未ログインならログイン画面)
+def root_router(request):
+    if request.user.is_authenticated:
+        return redirect('movies:home')  
+    else:
+        return redirect('users:login') 
+        
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('users/', include(('users.urls', 'users'), namespace='users')), 
