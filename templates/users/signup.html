@@ -6,13 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <title>アカウント作成</title>
+    <title>ユーザー作成</title>
 </head>
 
 <body>
     <div class="container">
         <form method="post">
-            <h2>アカウント作成</h2>
+            <h2>ユーザー作成</h2>
             {% csrf_token %}
             <div>
                 {{ form.username.label_tag }}
@@ -28,7 +28,7 @@
             </div>
             <div class="button-container">
                 <button type="submit">作成</button>
-                <button type="button" onclick="location.href='{% url 'login' %}'">ログイン画面</button>
+                <button type="button" onclick="location.href='{% url 'users:login' %}'">ログイン画面</button>
             </div>
         </form>
     </div>
