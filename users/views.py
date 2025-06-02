@@ -18,11 +18,11 @@ def custom_404_view(request, exception):
 # 認証機能 (ログイン機能)
 class SignupView(View):
     def get(self, request):
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
         return render(request, 'users/signup.html', {'form': form})
 
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
