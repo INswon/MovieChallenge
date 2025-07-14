@@ -20,7 +20,7 @@ MOOD_CATEGORY_MAP = {
     "胸が苦しくなった": "emotional",
     "涙が止まらなかった": "emotional",
 
-    # energy（興奮・楽しい）
+    # energy（興奮・楽しい) , 映画ジャンル(アクション,SF, スポーツ映画)
     "興奮": "energy",
     "笑った": "energy",
     "テンション上がった": "energy",
@@ -31,7 +31,7 @@ MOOD_CATEGORY_MAP = {
     "楽しかった": "energy",
     "熱くなった": "energy",
 
-    # tense（緊張・ホラー）
+    # tense（緊張・ホラー）, 映画ジャンル(ホラー系統)
     "怖かった": "tense",
     "緊張した": "tense",
     "ゾクッとした": "tense",
@@ -56,4 +56,3 @@ MOOD_HERO_IMAGES = {
     "energy": "images/hero/excitement.jpg",
     "healing":"images/hero/healing.jpg",
 }
-

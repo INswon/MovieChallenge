@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import SignupView, CustomLogoutView, UserMovieListview, ProgressGoalCreateView, ProgressGoalUpdateView
+from .views import SignupView, CustomLogoutView, ProgressGoalCreateView, ProgressGoalUpdateView
 from django.contrib.auth import views as auth_views
 
 app_name = 'users'

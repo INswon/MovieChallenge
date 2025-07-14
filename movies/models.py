@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 # 映画ジャンル（ユーザーの映画記録とManyToManyで紐づく）
 class Genre(models.Model):
     name = models.CharField(max_length=50, unique=True) 
-
+    
     def __str__(self):
         return self.name
 
