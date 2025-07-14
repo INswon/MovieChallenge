@@ -6,9 +6,8 @@ from django.views.generic import ListView, DetailView, DeleteView
 from django.views import View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
-from .forms import QuestForm
 from movies.models import UserMovieRecord
-from .models import ProgressGoal, Quest
+from .models import ProgressGoal
 from missions.models import Batch, UserBatch
 
 
