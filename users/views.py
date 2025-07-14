@@ -94,15 +94,3 @@ class ProgressGoalUpdateView(UpdateView):
     template_name = 'progressgoal_update_form.html'
     success_url = reverse_lazy('users:progress_goal_list')  # 成功時のリダイレクト先
 
-# クエスト関連
-class QuestCreateView(LoginRequiredMixin, CreateView):
-    model = Quest
-    form_class = QuestForm
-    template_name = 'create_quest.html'
-    
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-    
-    def get_success_url(self):
-        return reverse_lazy('quest_detail', kwargs={'quest_id': self.object.id})
