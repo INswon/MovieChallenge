@@ -9,7 +9,7 @@ from django.urls import reverse_lazy
 from movies.models import UserMovieRecord
 from .models import ProgressGoal
 from missions.models import Batch, UserBatch
-
+from .forms import CustomUserCreationForm
 
 def custom_404_view(request, exception):
     return render(request, 'test_templates/404.html', status=404)
