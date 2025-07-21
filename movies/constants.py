@@ -8,17 +8,17 @@ MOOD_CATEGORY_MAP = {
     "落ち着いた": "healing",
     "穏やかだった": "healing",
     "心地よかった": "healing",
-
-    # emotional（感動・涙）
-    "涙": "emotional",
-    "泣いた": "emotional",
-    "感動した": "emotional",
-    "共感した": "emotional",
-    "胸が熱くなった": "emotional",
-    "切なかった": "emotional",
-    "ジーンときた": "emotional",
-    "胸が苦しくなった": "emotional",
-    "涙が止まらなかった": "emotional",
+    
+    # impression（感動・涙）
+    "涙": "impression",
+    "泣いた": "impression",
+    "感動": "impression",
+    "共感した": "impression",
+    "胸が熱くなった": "impression",
+    "切なかった": "impression",
+    "ジーンときた": "impression",
+    "胸が苦しくなった": "impression",
+    "涙が止まらなかった": "impression",
 
     # energy（興奮・楽しい) , 映画ジャンル(アクション,SF, スポーツ映画)
     "興奮": "energy",
