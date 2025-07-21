@@ -56,5 +56,6 @@ MOOD_HERO_IMAGES = {
     "energy": "images/hero/excitement.jpg",
     "healing": "images/hero/healing.jpg",
     "impression": "images/hero/impression.jpg",
-    "scary": "images/hero/scary.jpg"
+    "scary": "images/hero/scary.jpg",
+    "curious": "images/hero/curious.jpg"
 }
