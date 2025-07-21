@@ -54,5 +54,6 @@ MOOD_CATEGORY_MAP = {
 
 MOOD_HERO_IMAGES = {
     "energy": "images/hero/excitement.jpg",
-    "healing":"images/hero/healing.jpg",
+    "healing": "images/hero/healing.jpg",
+    "impression": "images/hero/impression.jpg"
 }
