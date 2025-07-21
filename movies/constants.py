@@ -31,15 +31,15 @@ MOOD_CATEGORY_MAP = {
     "楽しかった": "energy",
     "熱くなった": "energy",
 
-    # tense（緊張・ホラー）, 映画ジャンル(ホラー系統)
-    "怖かった": "tense",
-    "緊張した": "tense",
-    "ゾクッとした": "tense",
-    "不安になった": "tense",
-    "ハラハラした": "tense",
-    "息が詰まった": "tense",
-    "衝撃を受けた": "tense",
-    "心臓がドキドキした": "tense",
+    # scary（緊張・ホラー）, 映画ジャンル(ホラー系統)
+    "怖かった": "scary",
+    "緊張した": "scary",
+    "ゾクッとした": "scary",
+    "不安になった": "scary",
+    "ハラハラした": "scary",
+    "息が詰まった": "scary",
+    "衝撃を受けた": "scary",
+    "心臓がドキドキした": "scary",
 
     # curious（好奇心・新鮮さ）
     "新鮮だった": "curious",
@@ -49,11 +49,12 @@ MOOD_CATEGORY_MAP = {
     "知的だった": "curious",
     "学びがあった": "curious",
     "展開が読めなかった": "curious",
-    "視点が面白かった": "curious",
+    "視点が面白かった": "curious"
 }
 
 MOOD_HERO_IMAGES = {
     "energy": "images/hero/excitement.jpg",
     "healing": "images/hero/healing.jpg",
-    "impression": "images/hero/impression.jpg"
+    "impression": "images/hero/impression.jpg",
+    "scary": "images/hero/scary.jpg"
 }
