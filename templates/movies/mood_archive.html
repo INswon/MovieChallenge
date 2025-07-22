@@ -66,7 +66,8 @@
 
   <div class="mood-button-wrapper">
     {% for mood in top_moods %}
-      <button class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
+      <a href="{% url 'movies:mood_archive' mood.name %}"
+      class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
         {{ mood.name }}（{{ mood.num_records }}回）
       </button>
     {% empty %}
