@@ -122,7 +122,7 @@ class MoodArchiveView(LoginRequiredMixin,ListView):
         user = self.request.user 
 
         filter_moods = Mood.objects.filter(usermovierecord__user=user) 
-        user_moods = filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records") 
+        user_moods = filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records")[:4]
 
         category_classes = {
             mood.name: MOOD_CATEGORY_MAP.get(mood.name, "default")
