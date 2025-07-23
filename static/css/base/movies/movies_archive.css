@@ -11,6 +11,16 @@
   background-repeat: no-repeat;
 }
 
+/* ボタン共通アニメーション（拡大・色変化をスムーズに対応） */
+.mood-btn {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+/* ホバー時：拡大してボタンを押せるスタイルを出す */
+.mood-btn:hover {
+  transform: scale(1.05);
+}
+
 /* 元気・興奮系（energy） */
 .mood-btn.mood-energy {
   background-color: #ffd54f;
