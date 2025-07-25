@@ -6,11 +6,10 @@ from django.views.generic import ListView, DetailView, DeleteView
 from django.views import View
 from django.views.generic.edit import CreateView, UpdateView
 from django.urls import reverse_lazy
-from .forms import QuestForm
 from movies.models import UserMovieRecord
-from .models import ProgressGoal, Quest
+from .models import ProgressGoal
 from missions.models import Batch, UserBatch
-
+from .forms import CustomUserCreationForm
 
 def custom_404_view(request, exception):
     return render(request, 'test_templates/404.html', status=404)
@@ -18,11 +17,11 @@ def custom_404_view(request, exception):
 # 認証機能 (ログイン機能)
 class SignupView(View):
     def get(self, request):
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
         return render(request, 'users/signup.html', {'form': form})
 
     def post(self, request):
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
@@ -95,15 +94,3 @@ class ProgressGoalUpdateView(UpdateView):
     template_name = 'progressgoal_update_form.html'
     success_url = reverse_lazy('users:progress_goal_list')  # 成功時のリダイレクト先
 
-# クエスト関連
-class QuestCreateView(LoginRequiredMixin, CreateView):
-    model = Quest
-    form_class = QuestForm
-    template_name = 'create_quest.html'
-    
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-    
-    def get_success_url(self):
-        return reverse_lazy('quest_detail', kwargs={'quest_id': self.object.id})

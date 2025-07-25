@@ -1,2 +1,18 @@
 # 環境変数ファイル
 .env
+
+# Pythonキャッシュ
+__pycache__/
+*.pyc
+
+# DB
+db.sqlite3
+
+# Mac OS
+.DS_Store
+
+# VSCode
+.vscode/
+
+# その他不要ファイル
+*.log

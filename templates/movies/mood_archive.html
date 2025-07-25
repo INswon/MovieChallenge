@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% load static %}
 
 {% block extra_css %}
@@ -9,7 +10,7 @@
 
 {% block content %}
 
-<div class="mood-hero mood-{{ mood.id }}">
+<div class="mood-hero" style="background-image: url('{% static hero_image %}');">
   <div class="overlay-text text-center">
     <h2>「#{{ mood_name }}」な気持ちを、もう一度。</h2>
   </div>
@@ -63,10 +64,16 @@
     <p class="text-center text-muted">該当する映画記録が見つかりませんでした。</p>
   {% endfor %}
 
-  <button class="btn mood-btn mood-positive">前向き</button>
-  <button class="btn mood-btn mood-fun">笑い</button>
-  <button class="btn mood-btn mood-touching">感動</button>
-  <button class="btn mood-btn mood-relax">リラックス</button>
+  <div class="mood-button-wrapper">
+    {% for mood in top_moods %}
+      <a href="{% url 'movies:mood_archive' mood.name %}"
+      class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
+        {{ mood.name }}（{{ mood.num_records }}回）
+      </button>
+    {% empty %}
+      <p class="text-muted">まだ感情タグが登録されていません</p>
+    {% endfor %}
+  </div>
 
   <div class="text-center mt-4">
     <a href="{% url 'movies:movie_search' %}" class="btn btn-secondary">ホーム画面に戻る</a>

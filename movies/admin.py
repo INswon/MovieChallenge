@@ -4,7 +4,7 @@ from .models import UserMovieRecord, Genre, Review, Mood
 # 映画鑑賞記録の管理画面
 @admin.register(UserMovieRecord)
 class UserMovieRecordAdmin(admin.ModelAdmin):
-    list_display = ('title', 'user', 'mood', 'date_watched', 'rating',) 
+    list_display = ('title', 'user', 'date_watched', 'rating',) 
     search_fields = ('title', 'user__username',)  
     list_filter = ('date_watched', 'rating',)
 

@@ -1,4 +1,4 @@
-/* ベースレイアウト（テキスト中央配置） */
+/* ヒーロー領域：感情に応じた背景画像を中央表示し、テキストを中央寄せ */
 .mood-hero {
   position: relative;
   height: 200px;
@@ -6,56 +6,74 @@
   align-items: center;
   justify-content: center;
   text-align: center;
-}
-
-/* 各ムードIDに応じた背景画像（例：興奮 = ID1） */
-.mood-1.mood-hero {
-  background-image: url("/static/images/mood_excitement.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
 }
 
-/* 前向き */
-.mood-positive {
-  background-color: #ffd54f; 
+/* ボタン共通アニメーション（拡大・色変化をスムーズに対応） */
+.mood-btn {
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+/* ホバー時：拡大してボタンを押せるスタイルを出す */
+.mood-btn:hover {
+  transform: scale(1.05);
+}
+
+/* 元気・興奮系（energy） */
+.mood-btn.mood-energy {
+  background-color: #ffd54f;
   margin-left: 30px;
   margin-right: 30px;
 }
 
-/* 笑い */
-.mood-fun {
-  background-color: #ffd180; 
+/* 感動・涙系（impression） */
+.mood-btn.mood-impression {
+  background-color: #f8bbd0;
   margin-right: 30px;
 }
 
-/* 感動 */
-.mood-touching {
-  background-color: #f8bbd0;  
+/* 癒し・落ち着き系（healing） */
+.mood-btn.mood-healing {
+  background-color: #b2ebf2;
   margin-right: 30px;
 }
 
-/* リラックス */
-.mood-relax {
-  background-color:#b2ebf2;
+/* 緊張・ホラー系（tense） */
+.mood-btn.mood-tense {
+  background-color: #2c2c2c;
+  color: white;
+}
+
+/* 好奇心・意外性系（curious） */
+.mood-btn.mood-curious {
+  background-color: #80cbc4;
+  color: white;
   margin-right: 30px;
+}
+
+/* 5ケースのジャンルに該当しなかった場合（default） */
+.mood-btn.mood-default {
+  background-color: #f2f2f2;
+  color: #555;
 }
 
 .mood-button-wrapper {
   display: flex;
-  justify-content: center;  
-  gap: 20px;                
+  justify-content: center;
+  gap: 20px;
   margin-top: 20px;
-  flex-wrap: wrap;         
+  flex-wrap: wrap;
 }
 
-/* テキスト可読性を高める黒透過オーバーレイ */
+/* 背景画像上でもテキストが読みやすくなるように半透明の黒背景を重ねる */
 .mood-hero::before {
   position: absolute;
   background: rgba(0, 0, 0, 0.4);
 }
 
-/* Hero内のテキストスタイル（前面に表示） */
+/* テキストを背景画像から視覚的に浮かせるためのスタイル */
 .overlay-text {
   position: relative;
   z-index: 1;

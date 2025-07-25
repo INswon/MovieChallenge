@@ -8,18 +8,20 @@ MOOD_CATEGORY_MAP = {
     "落ち着いた": "healing",
     "穏やかだった": "healing",
     "心地よかった": "healing",
+    
+    # impression（感動・涙）
+    "涙": "impression",
+    "泣いた": "impression",
+    "感動": "impression",
+    "共感した": "impression",
+    "胸が熱くなった": "impression",
+    "切なかった": "impression",
+    "ジーンときた": "impression",
+    "胸が苦しくなった": "impression",
+    "涙が止まらなかった": "impression",
 
-    # emotional（感動・涙）
-    "泣いた": "emotional",
-    "感動した": "emotional",
-    "共感した": "emotional",
-    "胸が熱くなった": "emotional",
-    "切なかった": "emotional",
-    "ジーンときた": "emotional",
-    "胸が苦しくなった": "emotional",
-    "涙が止まらなかった": "emotional",
-
-    # energy（興奮・楽しい）
+    # energy（興奮・楽しい) , 映画ジャンル(アクション,SF, スポーツ映画)
+    "興奮": "energy",
     "笑った": "energy",
     "テンション上がった": "energy",
     "爽快だった": "energy",
@@ -29,15 +31,15 @@ MOOD_CATEGORY_MAP = {
     "楽しかった": "energy",
     "熱くなった": "energy",
 
-    # tense（緊張・ホラー）
-    "怖かった": "tense",
-    "緊張した": "tense",
-    "ゾクッとした": "tense",
-    "不安になった": "tense",
-    "ハラハラした": "tense",
-    "息が詰まった": "tense",
-    "衝撃を受けた": "tense",
-    "心臓がドキドキした": "tense",
+    # scary（緊張・ホラー）, 映画ジャンル(ホラー系統)
+    "怖い": "scary",
+    "緊張した": "scary",
+    "ゾクッとした": "scary",
+    "不安になった": "scary",
+    "ハラハラした": "scary",
+    "息が詰まった": "scary",
+    "衝撃を受けた": "scary",
+    "心臓がドキドキした": "scary",
 
     # curious（好奇心・新鮮さ）
     "新鮮だった": "curious",
@@ -48,4 +50,13 @@ MOOD_CATEGORY_MAP = {
     "学びがあった": "curious",
     "展開が読めなかった": "curious",
     "視点が面白かった": "curious",
+    "意外性": "curious"
+}
+
+MOOD_HERO_IMAGES = {
+    "energy": "images/hero/excitement.jpg",
+    "healing": "images/hero/healing.jpg",
+    "impression": "images/hero/impression.jpg",
+    "scary": "images/hero/scary.jpg",
+    "curious": "images/hero/curious.jpg"
 }
