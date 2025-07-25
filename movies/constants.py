@@ -32,7 +32,7 @@ MOOD_CATEGORY_MAP = {
     "熱くなった": "energy",
 
     # scary（緊張・ホラー）, 映画ジャンル(ホラー系統)
-    "怖かった": "scary",
+    "怖い": "scary",
     "緊張した": "scary",
     "ゾクッとした": "scary",
     "不安になった": "scary",
@@ -49,7 +49,8 @@ MOOD_CATEGORY_MAP = {
     "知的だった": "curious",
     "学びがあった": "curious",
     "展開が読めなかった": "curious",
-    "視点が面白かった": "curious"
+    "視点が面白かった": "curious",
+    "意外性": "curious"
 }
 
 MOOD_HERO_IMAGES = {

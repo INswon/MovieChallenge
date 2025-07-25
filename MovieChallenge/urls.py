@@ -14,6 +14,13 @@ def root_router(request):
     else:
         return redirect('users:login') 
 
+# ログイン判定して遷移させるビュー (1.ログイン済みならホーム画面、2.未ログインならログイン画面)
+def root_router(request):
+    if request.user.is_authenticated:
+        return redirect('movies:home')  
+    else:
+        return redirect('users:login') 
+        
 urlpatterns = [
     path('', root_router, name='root'),  
     path('admin/', admin.site.urls),
