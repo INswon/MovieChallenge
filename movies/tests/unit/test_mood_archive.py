@@ -6,11 +6,8 @@ from django.urls import reverse
 # 感情アーカイブページの遷移に関するテストケース
 class MoodPageTestCase(TestCase):
     def setUp(self):
-        # ログインユーザー作成
         self.user = User.objects.create_user(username="testuser", password="testpass")
         self.client.login(username="testuser", password="testpass")
-
-        # テスト用の感情データ作成
         self.mood = Mood.objects.create(name="癒された")
 
     # (正常系) 感情名「癒された」でアクセスした場合、200が返る
@@ -24,4 +21,3 @@ class MoodPageTestCase(TestCase):
         url = reverse("movies:mood_archive", kwargs={"mood_name": "存在しない感情"})
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
-
