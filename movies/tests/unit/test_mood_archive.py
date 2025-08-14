@@ -57,4 +57,15 @@ class MoodPageTestCase(TestCase):
         self.assertContains(res, f'href="{page_url}"')
         self.assertContains(res, f'{self.mood1.name}（5回）')
 
-    
+    # (異常系)上位4件外なら、対象ムードのリンクはTop4ボタン群に存在しない (「癒された」を5位以下に落とす)
+    def test_top4_button_link_absent_when_current_mood_is_not_in_top4(self):
+        create_record(self.user, self.mood1, n=2)   
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=7)
+
+        page_url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(page_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertNotContains(res, f'href="{page_url}"')
