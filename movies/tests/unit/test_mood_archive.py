@@ -33,6 +33,7 @@ class MoodPageTestCase(TestCase):
 
     # (正常系) 感情名「癒された」でアクセスした場合、200が返る
     def test_mood_page_returns_200(self):
+        create_record(self.user, self.mood1, n=1)
         url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
