@@ -70,3 +70,15 @@ class MoodPageTestCase(TestCase):
         res = self.client.get(page_url)
         self.assertEqual(res.status_code, 200)
         self.assertNotContains(res, f'href="{page_url}"')
+
+    # (正常系) 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
+    def test_top4_hidden_when_no_records_on_home_page(self):
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+        self.assertContains(res, 'data-testid="top4-empty"')
+        self.assertNotContains(res, 'class="btn mood-btn mood-')
+
+        m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        self.assertNotContains(res, f'href="{m1}"')
