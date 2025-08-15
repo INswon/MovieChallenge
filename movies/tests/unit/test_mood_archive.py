@@ -1,8 +1,10 @@
+import re
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
 from datetime import date
 from movies.models import Mood, UserMovieRecord
+
 
 # 映画記録データの作成
 def create_record(user, mood, n=1):
@@ -82,3 +84,22 @@ class MoodPageTestCase(TestCase):
 
         m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         self.assertNotContains(res, f'href="{m1}"')
+
+    # (正常系) 感情Top4ボタンが5件以上あっても4件に制限されることの確認
+    def test_top4_shows_exactly_four_buttons_on_home(self):
+        create_record(self.user, self.mood1, n=5)
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=1)
+
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        html = res.content.decode()
+
+        buttons = re.findall(r'class="btn mood-btn mood-[^"]+"', html)
+        self.assertEqual(len(buttons), 4)
+
+        m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
+        self.assertNotContains(res, f'href="{m5}"')
