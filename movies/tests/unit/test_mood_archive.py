@@ -103,3 +103,19 @@ class MoodPageTestCase(TestCase):
 
         m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
         self.assertNotContains(res, f'href="{m5}"')
+        
+    # (正常系) 感情Top4ボタンが頻度降順で並ぶことの確認
+    def test_top4_order_is_desc_by_frequency_on_home(self):
+        create_record(self.user, self.mood1, n=10)
+        create_record(self.user, self.mood2, n=9)
+        create_record(self.user, self.mood3, n=8)
+        create_record(self.user, self.mood4, n=7)
+
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        html = res.content.decode()
+
+        urls = [reverse("movies:mood_archive", kwargs={"mood_name": m.name})
+                for m in [self.mood1, self.mood2, self.mood3, self.mood4]]
+        idx = [html.index(u) for u in urls]
+        self.assertEqual(idx, sorted(idx))
