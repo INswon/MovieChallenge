@@ -94,6 +94,19 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        top_moods = (
+            Mood.objects
+            .filter(usermovierecord__user=user)
+            .annotate(num_records=Count("usermovierecord"))
+            .order_by("-num_records", "id")[:4]  
+        )
+        context["top_moods"] = top_moods
+        context["category_classes"] = {
+            m.name: MOOD_CATEGORY_MAP.get(m.name, "default") for m in top_moods
+        }
+
         form = MovieSearchForm(self.request.GET or None)
         context["form"] = form  
      
@@ -241,7 +254,6 @@ class MovieSearchView(LoginRequiredMixin, TemplateView):
         context["movies"] = TmdbMovieService.search(query) if query else []
         return context
 
-
 # 映画鑑賞記録新規作成機能
 class MovieRecordCreateView(LoginRequiredMixin, CreateView):
     model = UserMovieRecord
@@ -270,8 +282,7 @@ class MovieRecordDeleteView(LoginRequiredMixin, DeleteView):
         
         self.object.is_deleted = True
         self.object.save()
-        
-        return super().delete(request, *args, **kwargs)
+        return redirect(self.success_url)
 
 # 映画鑑賞編集機能
 class MovieRecordEditView(LoginRequiredMixin, UpdateView):
