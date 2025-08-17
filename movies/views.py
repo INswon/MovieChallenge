@@ -291,14 +291,5 @@ class MovieRecordEditView(LoginRequiredMixin, UpdateView):
     template_name = 'movies/movie_record_edit.html'
     success_url = reverse_lazy('movies:home')
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-        if self.cleaned_data.get("delete_poster"):
-            if instance.poster:
-                instance.poster.delete(save=False)
-            instance.poster = None
-
-        if commit:
-            instance.save()
-        return instance
+    def get_queryset(self):
+        return UserMovieRecord.objects.filter(user=self.request.user)
