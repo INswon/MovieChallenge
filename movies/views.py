@@ -5,21 +5,23 @@ from django.urls import reverse_lazy
 from django.db.models import Count
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
 from movies.constants import MOOD_CATEGORY_MAP, MOOD_HERO_IMAGES
-from missions.models import Batch, UserBatch
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
 from django.shortcuts import render,redirect, get_object_or_404
 from django.views.generic import TemplateView
-from missions.models import Mission
 from .services import TmdbMovieService
 from datetime import date
-import requests, re
+import re
 
-#ムードタグ登録のデータ形式を整えるための整形関数
-def parse_and_get_mood_objects(mood_text):
-    raw = re.split(r"[、,\s]+", mood_text.replace("　", " ").strip())
-    tags = [tag.strip().lstrip("#") for tag in raw if tag.strip()]
-    return [Mood.objects.get_or_create(name=tag)[0] for tag in tags]
+def parse_mood_names(text: str):
+    s = (text or "").replace("　"," ").strip()
+    tokens = re.split(r"[、,\s]+", s)
+    names = [t.strip().lstrip("#") for t in tokens if t and t.strip()]
+    return list(dict.fromkeys(names))
+
+def get_or_create_mood_objects(mood_text):
+    names = parse_mood_names(mood_text)
+    return [Mood.objects.get_or_create(name=n)[0] for n in names]
 
 #特定の感情アーカイブページへのアクセス設定 (該当するページがなければホームページにリダイレクト)
 def redirect_to_mood_archive(request):
@@ -32,7 +34,7 @@ def redirect_to_mood_archive(request):
 def create_movie_record(request):
     if request.method == "POST":
         mood_text = request.POST.get("mood", "")
-        mood_objs = parse_and_get_mood_objects(mood_text)
+        mood_objs = get_or_create_mood_objects(mood_text)
 
         record = UserMovieRecord.objects.create(
             title=request.POST["title"],
@@ -57,7 +59,6 @@ def create_movie_record(request):
 
     else:
         movie_id = request.GET.get("movie_id")
-        lang = request.GET.get("lang", "ja-JP") 
         context = {}
 
         if movie_id:
@@ -83,17 +84,26 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         qs = UserMovieRecord.objects.filter(user=self.request.user)
         moods = self.request.GET.get("mood", "")
-    
-        # 整形関数で正規化されたmoodタグ一覧を取得（オブジェクト形式）
-        mood_objs = parse_and_get_mood_objects(moods)
-        tags = [m.name for m in mood_objs]
-    
+        tags = parse_mood_names(moods)
         if tags:
             qs = qs.filter(mood__name__in=tags).distinct()
         return qs
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        user = self.request.user
+        top_moods = (
+            Mood.objects
+            .filter(usermovierecord__user=user)
+            .annotate(num_records=Count("usermovierecord"))
+            .order_by("-num_records", "id")[:4]  
+        )
+        context["top_moods"] = top_moods
+        context["category_classes"] = {
+            m.name: MOOD_CATEGORY_MAP.get(m.name, "default") for m in top_moods
+        }
+
         form = MovieSearchForm(self.request.GET or None)
         context["form"] = form  
      
@@ -122,15 +132,10 @@ class MoodArchiveView(LoginRequiredMixin,ListView):
         user = self.request.user 
 
         filter_moods = Mood.objects.filter(usermovierecord__user=user) 
-        user_moods = filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records")[:4]
+        user_moods = (filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records", "id")[:4])
 
         category_classes = {
             mood.name: MOOD_CATEGORY_MAP.get(mood.name, "default")
-            for mood in user_moods
-        }
-
-        mood_hero_image = {
-            mood.name: MOOD_HERO_IMAGES.get(mood.name, "default")
             for mood in user_moods
         }
 
@@ -241,7 +246,6 @@ class MovieSearchView(LoginRequiredMixin, TemplateView):
         context["movies"] = TmdbMovieService.search(query) if query else []
         return context
 
-
 # 映画鑑賞記録新規作成機能
 class MovieRecordCreateView(LoginRequiredMixin, CreateView):
     model = UserMovieRecord
@@ -270,8 +274,7 @@ class MovieRecordDeleteView(LoginRequiredMixin, DeleteView):
         
         self.object.is_deleted = True
         self.object.save()
-        
-        return super().delete(request, *args, **kwargs)
+        return redirect(self.success_url)
 
 # 映画鑑賞編集機能
 class MovieRecordEditView(LoginRequiredMixin, UpdateView):
@@ -280,14 +283,5 @@ class MovieRecordEditView(LoginRequiredMixin, UpdateView):
     template_name = 'movies/movie_record_edit.html'
     success_url = reverse_lazy('movies:home')
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        
-        if self.cleaned_data.get("delete_poster"):
-            if instance.poster:
-                instance.poster.delete(save=False)
-            instance.poster = None
-
-        if commit:
-            instance.save()
-        return instance
+    def get_queryset(self):
+        return UserMovieRecord.objects.filter(user=self.request.user)
