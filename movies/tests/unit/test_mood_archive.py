@@ -5,7 +5,6 @@ from django.urls import reverse
 from datetime import date
 from movies.models import Mood, UserMovieRecord
 
-
 # 映画記録データの作成
 def create_record(user, mood, n=1):
     for _ in range(n):
