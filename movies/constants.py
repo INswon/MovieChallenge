@@ -60,4 +60,5 @@ MOOD_HERO_IMAGES = {
     "impression": "images/hero/impression.jpg",
     "scary": "images/hero/scary.jpg",
     "curious": "images/hero/curious.jpg",
+    "default": "images/hero/default.jpg",
 }
