@@ -10,11 +10,13 @@
 
 {% block content %}
 
-<div class="mood-hero" style="background-image: url('{% static hero_image %}');">
-  <div class="overlay-text text-center">
-    <h2>「#{{ mood_name }}」な気持ちを、もう一度。</h2>
+{% if hero_image and mood_archive %}
+  <div class="mood-hero" style="background-image: url('{% static hero_image %}');">
+    <div class="overlay-text text-center">
+      <h2>「#{{ mood_name }}」な気持ちを、もう一度。</h2>
+    </div>
   </div>
-</div>
+{% endif %}
 
   {% for record in mood_archive %}
     <div class="card mb-4 shadow-sm">
@@ -69,7 +71,7 @@
       <a href="{% url 'movies:mood_archive' mood.name %}"
       class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
         {{ mood.name }}（{{ mood.num_records }}回）
-      </button>
+      </a>
     {% empty %}
       <p class="text-muted">まだ感情タグが登録されていません</p>
     {% endfor %}
