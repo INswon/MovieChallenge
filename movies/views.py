@@ -112,42 +112,53 @@ class UserMovieListView(LoginRequiredMixin, ListView):
             context["movies"] = TmdbMovieService.search(query) if query else []        
         return context
     
-#感情アーカイブページ一覧 (感情別の記録データを一覧取得)
-class MoodArchiveView(LoginRequiredMixin,ListView):
+# 感情アーカイブページ一覧
+class MoodArchiveView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = "movies/mood_archive.html"
     context_object_name = "mood_archive"
 
     def get_queryset(self):
         mood_name = self.kwargs["mood_name"]
-        return UserMovieRecord.objects.filter(
-            user = self.request.user,
-            mood__name=mood_name
-        ).distinct()
-    
+        return (
+            UserMovieRecord.objects
+            .filter(user=self.request.user, mood__name=mood_name)
+            .distinct()
+        )
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        mood_name = self.kwargs.get("mood_name")  
-        mood = get_object_or_404(Mood, name=mood_name)
-        user = self.request.user 
+        mood_name = self.kwargs.get("mood_name")
+        mood_obj  = Mood.objects.filter(name=mood_name).first()
+        user = self.request.user
 
-        filter_moods = Mood.objects.filter(usermovierecord__user=user) 
-        user_moods = (filter_moods.annotate(num_records=Count("usermovierecord")).order_by("-num_records", "id")[:4])
+        filter_moods = Mood.objects.filter(usermovierecord__user=user).distinct()
+        user_moods = (
+            filter_moods
+            .annotate(num_records=Count("usermovierecord"))
+            .order_by("-num_records", "id")[:4]
+        )
+
+        has_records = context["mood_archive"].exists()
+
+        hero_image = None
+        category = None
+        if has_records:
+            category = MOOD_CATEGORY_MAP.get(mood_name, "default")
+            hero_image = MOOD_HERO_IMAGES.get(category, "images/hero/default.jpg")
 
         category_classes = {
-            mood.name: MOOD_CATEGORY_MAP.get(mood.name, "default")
-            for mood in user_moods
+            m.name: MOOD_CATEGORY_MAP.get(m.name, "default")
+            for m in user_moods
         }
 
-        category = MOOD_CATEGORY_MAP.get(mood_name, "default")
-        hero_image = MOOD_HERO_IMAGES.get(category, "img/hero/default.jpg")
-
         context["mood_name"] = mood_name
-        context["mood"] = mood 
-        context["top_moods"] = user_moods 
+        context["mood"] = mood_obj
+        context["top_moods"] = user_moods
         context["category_class"] = category
         context["hero_image"] = hero_image
-        context["category_classes"] = category_classes 
+        context["category_classes"] = category_classes
+        context["has_records"] = has_records
         
         return context
 
