@@ -1,7 +1,10 @@
 import re
+from django.conf import settings
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.urls import reverse
+from urllib.parse import quote
+from django.shortcuts import resolve_url
 from datetime import date
 from movies.models import Mood, UserMovieRecord
 
@@ -32,6 +35,7 @@ class MoodPageTestCase(TestCase):
         self.mood4 = Mood.objects.create(name="怖い")
         self.mood5 = Mood.objects.create(name="驚いた")
 
+    #カテゴリー [1] 認可 / 存在性（URLを叩いたときの基本反応）
     # (正常系) 感情名「癒された」でアクセスした場合、200が返る
     def test_mood_page_returns_200(self):
         create_record(self.user, self.mood1, n=1)
@@ -44,6 +48,23 @@ class MoodPageTestCase(TestCase):
         url = reverse("movies:mood_archive", kwargs={"mood_name": "存在しない感情"})
         res = self.client.get(url)
         self.assertEqual(res.status_code, 404)
+
+    # (正常系) 存在する感情名だが、記録としては登録されていないデータの呼び出した時の検証
+    def test_known_mood_returns_200_even_if_zero(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+    # (異常系)未ログインで、感情アーカイブページに飛ぶと(/login/?next)に302でリダイレクトされる検証
+    def test_requires_login_redirects_to_login(self):
+        # 未ログイン状態
+        self.client.logout()
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+
+        login_url = resolve_url(settings.LOGIN_URL)
+        expected = f"{login_url}?next={quote(url)}"
+        self.assertRedirects(res, expected_url=expected, status_code=302, target_status_code=200)
 
     # (正常系) TOP4以内の感情に対応するボタン表示の検証
     def test_top4_button_link_present_when_current_mood_is_in_top4(self):
