@@ -95,8 +95,20 @@ class UserMovieListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         form = MovieSearchForm(self.request.GET or None)
+        user = self.request.user 
         context["form"] = form  
-     
+        filter_moods = Mood.objects.filter(usermovierecord__user=user) 
+        user_moods = (
+            Mood.objects.filter(usermovierecord__user=user)
+            .annotate(num_records=Count("usermovierecord", distinct=True))
+            .order_by("-num_records", "id")[:4]
+        )
+
+        context["top_moods"] = list(user_moods) 
+        context["category_classes"] = {
+            m.name: MOOD_CATEGORY_MAP.get(m.name, "default") for m in user_moods
+        }
+
         if form.is_valid():
             query = form.cleaned_data["movie_title"]
             context["movies"] = TmdbMovieService.search(query) if query else []        
