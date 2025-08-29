@@ -55,7 +55,7 @@ class MoodPageTestCase(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
 
-    # (異常系)未ログインで、感情アーカイブページに飛ぶと(/login/?next)に302でリダイレクトされる検証
+    # 未ログインで、感情アーカイブページに飛ぶと(/login/?next)に302でリダイレクトされる検証
     def test_requires_login_redirects_to_login(self):
         # 未ログイン状態
         self.client.logout()
@@ -99,7 +99,7 @@ class MoodPageTestCase(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
 
-        self.assertContains(res, 'data-testid="top4-empty"')
+        self.assertContains(res, "まだ感情タグが登録されていません")
         self.assertNotContains(res, 'class="btn mood-btn mood-')
 
         m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
