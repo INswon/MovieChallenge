@@ -36,20 +36,20 @@ class MoodPageTestCase(TestCase):
         self.mood5 = Mood.objects.create(name="驚いた")
 
     #カテゴリー [1] 認可 / 存在性（URLを叩いたときの基本反応）
-    # (正常系) 感情名「癒された」でアクセスした場合、200が返る
+    # 感情名「癒された」でアクセスした場合、200が返る
     def test_mood_page_returns_200(self):
         create_record(self.user, self.mood1, n=1)
         url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
 
-    # (異常系) 存在しない感情名でアクセスした場合、404が返る
+    # 存在しない感情名でアクセスした場合、404が返る
     def test_mood_page_returns_404_for_invalid_id(self):
         url = reverse("movies:mood_archive", kwargs={"mood_name": "存在しない感情"})
         res = self.client.get(url)
         self.assertEqual(res.status_code, 404)
 
-    # (正常系) 存在する感情名だが、記録としては登録されていないデータの呼び出した時の検証
+    # 存在する感情名だが、記録としては登録されていないデータの呼び出した時の検証
     def test_known_mood_returns_200_even_if_zero(self):
         url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         res = self.client.get(url)
@@ -66,7 +66,8 @@ class MoodPageTestCase(TestCase):
         expected = f"{login_url}?next={quote(url)}"
         self.assertRedirects(res, expected_url=expected, status_code=302, target_status_code=200)
 
-    # (正常系) TOP4以内の感情に対応するボタン表示の検証
+    #カテゴリー [2] 感情リンクボタン上位4件に該当する検証 (アーカイブ側)
+    # TOP4以内の感情に対応するボタン表示の検証
     def test_top4_button_link_present_when_current_mood_is_in_top4(self):
         create_record(self.user, self.mood1, n=5)
         create_record(self.user, self.mood2, n=10)
@@ -80,7 +81,7 @@ class MoodPageTestCase(TestCase):
         self.assertContains(res, f'href="{page_url}"')
         self.assertContains(res, f'{self.mood1.name}（5回）')
 
-    # (異常系)上位4件外なら、対象ムードのリンクはTop4ボタン群に存在しない (「癒された」を5位以下に落とす)
+    # 上位4件外なら、対象ムードのリンクはTop4ボタン群に存在しない (「癒された」を5位以下に落とす)
     def test_top4_button_link_absent_when_current_mood_is_not_in_top4(self):
         create_record(self.user, self.mood1, n=2)   
         create_record(self.user, self.mood2, n=10)
@@ -92,8 +93,28 @@ class MoodPageTestCase(TestCase):
         res = self.client.get(page_url)
         self.assertEqual(res.status_code, 200)
         self.assertNotContains(res, f'href="{page_url}"')
+    
+    # 感情Top4ボタンが5件以上あっても4件に制限されることの確認
+    def test_top4_shows_exactly_four_buttons_on_mood_archive(self):
+        create_record(self.user, self.mood1, n=5)
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=1)
 
-    # (正常系) 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        html = res.content.decode()
+
+        buttons = re.findall(r'class="btn mood-btn mood-[^"]+"', html)
+        self.assertEqual(len(buttons), 4)
+
+        m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
+        self.assertNotContains(res, f'href="{m5}"')
+
+
+    # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
     def test_top4_hidden_when_no_records_on_home_page(self):
         url = reverse("movies:home")
         res = self.client.get(url)
@@ -105,7 +126,7 @@ class MoodPageTestCase(TestCase):
         m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         self.assertNotContains(res, f'href="{m1}"')
 
-    # (正常系) 感情Top4ボタンが5件以上あっても4件に制限されることの確認
+    # 感情Top4ボタンが5件以上あっても4件に制限されることの確認
     def test_top4_shows_exactly_four_buttons_on_home(self):
         create_record(self.user, self.mood1, n=5)
         create_record(self.user, self.mood2, n=10)
@@ -124,7 +145,7 @@ class MoodPageTestCase(TestCase):
         m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
         self.assertNotContains(res, f'href="{m5}"')
         
-    # (正常系) 感情Top4ボタンが頻度降順で並ぶことの確認
+    # 感情Top4ボタンが頻度降順で並ぶことの確認
     def test_top4_order_is_desc_by_frequency_on_home(self):
         create_record(self.user, self.mood1, n=10)
         create_record(self.user, self.mood2, n=9)
