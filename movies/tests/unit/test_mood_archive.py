@@ -35,7 +35,7 @@ class MoodPageTestCase(TestCase):
         self.mood4 = Mood.objects.create(name="怖い")
         self.mood5 = Mood.objects.create(name="驚いた")
 
-    #カテゴリー [1] 認可 / 存在性（URLを叩いたときの基本反応）
+    # カテゴリー [1] 認可 / 存在性（URLを叩いたときの基本反応）
     # 感情名「癒された」でアクセスした場合、200が返る
     def test_mood_page_returns_200(self):
         create_record(self.user, self.mood1, n=1)
@@ -66,7 +66,7 @@ class MoodPageTestCase(TestCase):
         expected = f"{login_url}?next={quote(url)}"
         self.assertRedirects(res, expected_url=expected, status_code=302, target_status_code=200)
 
-    #カテゴリー [2] 感情リンクボタン上位4件に該当する検証 (アーカイブ側)
+    # カテゴリー [2] 感情リンクボタン上位4件に該当する検証 (アーカイブ側)
     # TOP4以内の感情に対応するボタン表示の検証
     def test_top4_button_link_present_when_current_mood_is_in_top4(self):
         create_record(self.user, self.mood1, n=5)
@@ -130,19 +130,24 @@ class MoodPageTestCase(TestCase):
         idx = [html.index(u) for u in urls]
         self.assertEqual(idx, sorted(idx))
 
-
-    # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
-    def test_top4_hidden_when_no_records_on_home_page(self):
-        url = reverse("movies:home")
+    # 映画記録が0件のとき、感情Top4ボタンが表示されないことの確認
+    def test_top4_hidden_when_no_records_on_mood_archive(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
-
         self.assertContains(res, "まだ感情タグが登録されていません")
         self.assertNotContains(res, 'class="btn mood-btn mood-')
-
         m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         self.assertNotContains(res, f'href="{m1}"')
 
+    # 映画記録が0件だった時「該当する映画記録が見つかりませんでした。」の文言が表示されることの確認
+    def test_archive_record_list_empty_message(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "該当する映画記録が見つかりませんでした。")
+
+    # カテゴリー [3] 感情リンクボタン上位4件に該当する検証 (ホーム側)
     # 感情Top4ボタンが5件以上あっても4件に制限されることの確認
     def test_top4_shows_exactly_four_buttons_on_home(self):
         create_record(self.user, self.mood1, n=5)
@@ -161,7 +166,7 @@ class MoodPageTestCase(TestCase):
 
         m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
         self.assertNotContains(res, f'href="{m5}"')
-        
+    
     # 感情Top4ボタンが頻度降順で並ぶことの確認
     def test_top4_order_is_desc_by_frequency_on_home(self):
         create_record(self.user, self.mood1, n=10)
@@ -177,3 +182,19 @@ class MoodPageTestCase(TestCase):
                 for m in [self.mood1, self.mood2, self.mood3, self.mood4]]
         idx = [html.index(u) for u in urls]
         self.assertEqual(idx, sorted(idx))
+
+    
+
+    # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
+    def test_top4_hidden_when_no_records_on_home_page(self):
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+        self.assertContains(res, "まだ感情タグが登録されていません")
+        self.assertNotContains(res, 'class="btn mood-btn mood-')
+
+        m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        self.assertNotContains(res, f'href="{m1}"')
+
+    
