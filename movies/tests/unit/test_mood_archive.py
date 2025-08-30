@@ -113,6 +113,23 @@ class MoodPageTestCase(TestCase):
         m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
         self.assertNotContains(res, f'href="{m5}"')
 
+    # 感情Top4ボタンが頻度降順で並ぶことの確認
+    def test_top4_order_is_desc_by_frequency_on_mood_archive(self):
+        create_record(self.user, self.mood1, n=10)
+        create_record(self.user, self.mood2, n=9)
+        create_record(self.user, self.mood3, n=8)
+        create_record(self.user, self.mood4, n=7)
+
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        html = res.content.decode()
+
+        urls = [reverse("movies:mood_archive", kwargs={"mood_name": m.name})
+                for m in [self.mood1, self.mood2, self.mood3, self.mood4]]
+        idx = [html.index(u) for u in urls]
+        self.assertEqual(idx, sorted(idx))
+
 
     # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
     def test_top4_hidden_when_no_records_on_home_page(self):
