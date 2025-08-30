@@ -140,6 +140,23 @@ class MoodPageTestCase(TestCase):
         m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
         self.assertNotContains(res, f'href="{m1}"')
 
+    # Top4の感情に対応するボタン表示のカウントが正しいことの確認
+    def test_top4_mood_counts_are_correct_on_mood_archive(self):
+        create_record(self.user, self.mood1, n=5)
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+
+        page_url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(page_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, f'href="{page_url}"')
+ 
+        self.assertContains(res,f'{self.mood1.name}（5回）')
+        self.assertContains(res,f'{self.mood2.name}（10回）')
+        self.assertContains(res,f'{self.mood3.name}（9回）')
+        self.assertContains(res,f'{self.mood4.name}（8回）')
+
     # 映画記録が0件だった時「該当する映画記録が見つかりませんでした。」の文言が表示されることの確認
     def test_archive_record_list_empty_message(self):
         url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
@@ -182,8 +199,6 @@ class MoodPageTestCase(TestCase):
                 for m in [self.mood1, self.mood2, self.mood3, self.mood4]]
         idx = [html.index(u) for u in urls]
         self.assertEqual(idx, sorted(idx))
-
-    
 
     # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
     def test_top4_hidden_when_no_records_on_home_page(self):
