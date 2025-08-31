@@ -198,7 +198,7 @@ class MoodPageTestCase(TestCase):
         self.assertEqual(idx, sorted(idx))
 
     # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
-    def test_top4_hidden_when_no_records_on_home_page(self):
+    def test_top4_hidden_when_no_records_on_home(self):
         url = reverse("movies:home")
         res = self.client.get(url)
         self.assertEqual(res.status_code, 200)
@@ -210,21 +210,18 @@ class MoodPageTestCase(TestCase):
         self.assertNotContains(res, f'href="{m1}"')
 
     # Top4の感情に対応するボタン表示のカウントが正しいことの確認
-    def test_top4_mood_counts_are_correct_on_home_page(self):
-        create_record(self.user, self.mood1, n=5)
-        create_record(self.user, self.mood2, n=10)
-        create_record(self.user, self.mood3, n=9)
-        create_record(self.user, self.mood4, n=8)
-
-        page_url = reverse("movies:home")
-        res = self.client.get(page_url)
+    def test_top4_mood_counts_are_correct_on_home(self):
+        data = [(self.mood1, 5), (self.mood2, 10), (self.mood3, 9), (self.mood4, 8)]
+        for mood, n in data:
+            create_record(self.user, mood, n=n)
+        
+        res = self.client.get(reverse("movies:home"))
         self.assertEqual(res.status_code, 200)
-        self.assertContains(res, f'href="{page_url}"')
- 
-        self.assertContains(res,f'{self.mood1.name}（5回）')
-        self.assertContains(res,f'{self.mood2.name}（10回）')
-        self.assertContains(res,f'{self.mood3.name}（9回）')
-        self.assertContains(res,f'{self.mood4.name}（8回）')
-
+        
+        for mood, n in data:
+            mood_url = reverse("movies:mood_archive", kwargs={"mood_name": mood.name})
+            self.assertContains(res, f'href="{mood_url}"')
+            self.assertContains(res, f'{mood.name}（{n}回）')
+    
 
     
