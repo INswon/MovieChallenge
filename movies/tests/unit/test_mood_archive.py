@@ -248,3 +248,22 @@ class MoodPageTestCase(TestCase):
         self.assertEqual(qs.count(), 1)
         self.assertEqual(list(qs.values_list("pk", flat=True)), [mine_record.pk])
         self.assertTrue(all(r.user_id == self.user.id for r in qs))
+
+    # 1つの映画記録に複数ムードを付与しても、一覧に重複して表示されないことの確認
+    def test_archive_distinct_records_when_record_has_multiple_moods(self):
+        rec = UserMovieRecord.objects.create(
+            user=self.user, title="uniq-title", director="d",
+            rating=3, comment="c", date_watched=date.today(), poster_url=None
+        )
+        rec.mood.add(self.mood1)   
+        rec.mood.add(self.mood2)   
+
+        res = self.client.get(reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name}))
+        self.assertEqual(res.status_code, 200)
+
+        qs = res.context["mood_archive"]
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(list(qs.values_list("pk", flat=True)), [rec.pk])
+
+        html = res.content.decode()
+        self.assertEqual(html.count("uniq-title"), 1)
