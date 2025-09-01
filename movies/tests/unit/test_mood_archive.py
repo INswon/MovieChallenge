@@ -222,6 +222,22 @@ class MoodPageTestCase(TestCase):
             mood_url = reverse("movies:mood_archive", kwargs={"mood_name": mood.name})
             self.assertContains(res, f'href="{mood_url}"')
             self.assertContains(res, f'{mood.name}（{n}回）')
-    
 
-    
+    # カテゴリー[4] データ抽出
+    # ログインユーザー以外の記録表示がされないことの確認
+    def test_archive_shows_only_current_users_records(self):
+        # 自分記録データ
+        r1 = UserMovieRecord.objects.create(user=self.user, title="mine", director="d", rating=3,
+                                        comment="c", date_watched=date.today(), poster_url=None)
+        r1.mood.add(self.mood1)
+
+        # 他者記録データ
+        other = User.objects.create_user(username="other", password="x")
+        r2 = UserMovieRecord.objects.create(user=other, title="others", director="d", rating=3,
+                                        comment="c", date_watched=date.today(), poster_url=None)
+        r2.mood.add(self.mood1)
+
+        res = self.client.get(reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name}))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "mine")
+        self.assertNotContains(res, "others")  
