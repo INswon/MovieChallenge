@@ -1,18 +1,52 @@
-# 環境変数ファイル
+# --- 環境変数ファイル（機密なのでGit管理しない） ---
 .env
+.env.*
+!.env.sample        # ただしサンプルは残して配布する
+.envrc              # direnv 用の設定ファイル
 
-# Pythonキャッシュ
+# --- 仮想環境ディレクトリ（ローカル専用） ---
+.venv/
+venv/
+env/
+
+# --- Pythonのキャッシュ／ビルド成果物（不要） ---
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
 
-# DB
-db.sqlite3
+# --- Djangoがローカルで作る生成物（リポジトリ不要） ---
+db.sqlite3          # 開発用SQLite DB
+*.sqlite3
+/staticfiles/       # collectstatic の出力先（設定に合わせて）
+/media/             # ローカルのアップロード保存先（必要なら .gitkeep を置く）
 
-# Mac OS
-.DS_Store
+# --- テスト・カバレッジの出力（自動生成物） ---
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
 
-# VSCode
+# --- Linter／型チェッカーのキャッシュ ---
+.mypy_cache/
+.ruff_cache/
+.pyright/
+.pyre/
+
+# --- エディタ／OSが作るファイル（不要） ---
 .vscode/
+.idea/
+.DS_Store
+*.swp               # vim のスワップファイル
 
-# その他不要ファイル
+# --- ログ／一時ファイル ---
 *.log
+logs/
+*.tmp
+*.bak
+
+# --- （任意）事前ビルドしたWheelの置き場（キャッシュ） ---
+.wheelhouse/

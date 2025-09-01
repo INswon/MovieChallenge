@@ -1,0 +1,269 @@
+import re
+from django.conf import settings
+from django.test import TestCase
+from django.contrib.auth.models import User
+from django.urls import reverse
+from urllib.parse import quote
+from django.shortcuts import resolve_url
+from datetime import date
+from movies.models import Mood, UserMovieRecord
+
+# 映画記録データの作成
+def create_record(user, mood, n=1):
+    for _ in range(n):
+        r = UserMovieRecord.objects.create(
+            user=user,
+            title="t",
+            director="d",
+            rating=3,
+            comment="c",
+            date_watched=date.today(),
+            poster_url=None,
+        )
+        r.mood.add(mood)
+
+
+class MoodPageTestCase(TestCase):
+    # テスト作成データ
+    def setUp(self):
+        self.user = User.objects.create_user(username="testuser", password="testpass")
+        self.client.login(username="testuser", password="testpass")
+
+        self.mood1 = Mood.objects.create(name="癒された")  
+        self.mood2 = Mood.objects.create(name="泣いた")
+        self.mood3 = Mood.objects.create(name="興奮")
+        self.mood4 = Mood.objects.create(name="怖い")
+        self.mood5 = Mood.objects.create(name="驚いた")
+
+    # カテゴリー [1] 認可 / 存在性（URLを叩いたときの基本反応）
+    # 感情名「癒された」でアクセスした場合、200が返る
+    def test_mood_page_returns_200(self):
+        create_record(self.user, self.mood1, n=1)
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+    # 存在しない感情名でアクセスした場合、404が返る
+    def test_mood_page_returns_404_for_invalid_id(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": "存在しない感情"})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 404)
+
+    # 存在する感情名だが、記録としては登録されていないデータの呼び出した時の検証
+    def test_known_mood_returns_200_even_if_zero(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+    # 未ログインで、感情アーカイブページに飛ぶと(/login/?next)に302でリダイレクトされる検証
+    def test_requires_login_redirects_to_login(self):
+        # 未ログイン状態
+        self.client.logout()
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+
+        login_url = resolve_url(settings.LOGIN_URL)
+        expected = f"{login_url}?next={quote(url)}"
+        self.assertRedirects(res, expected_url=expected, status_code=302, target_status_code=200)
+
+    # カテゴリー [2] 感情リンクボタン上位4件に該当する検証 (アーカイブ側)
+    # TOP4以内の感情に対応するボタン表示の検証
+    def test_top4_button_link_present_when_current_mood_is_in_top4(self):
+        create_record(self.user, self.mood1, n=5)
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=1)
+
+        page_url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(page_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, f'href="{page_url}"')
+        self.assertContains(res, f'{self.mood1.name}（5回）')
+
+    # 上位4件外なら、対象ムードのリンクはTop4ボタン群に存在しない (「癒された」を5位以下に落とす)
+    def test_top4_button_link_absent_when_current_mood_is_not_in_top4(self):
+        create_record(self.user, self.mood1, n=2)   
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=7)
+
+        page_url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(page_url)
+        self.assertEqual(res.status_code, 200)
+        self.assertNotContains(res, f'href="{page_url}"')
+    
+    # 感情Top4ボタンが5件以上あっても4件に制限されることの確認
+    def test_top4_shows_exactly_four_buttons_on_mood_archive(self):
+        create_record(self.user, self.mood1, n=5)
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=1)
+
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        html = res.content.decode()
+
+        buttons = re.findall(r'class="btn mood-btn mood-[^"]+"', html)
+        self.assertEqual(len(buttons), 4)
+
+        m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
+        self.assertNotContains(res, f'href="{m5}"')
+
+    # 感情Top4ボタンが頻度降順で並ぶことの確認
+    def test_top4_order_is_desc_by_frequency_on_mood_archive(self):
+        create_record(self.user, self.mood1, n=10)
+        create_record(self.user, self.mood2, n=9)
+        create_record(self.user, self.mood3, n=8)
+        create_record(self.user, self.mood4, n=7)
+
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        html = res.content.decode()
+
+        urls = [reverse("movies:mood_archive", kwargs={"mood_name": m.name})
+                for m in [self.mood1, self.mood2, self.mood3, self.mood4]]
+        idx = [html.index(u) for u in urls]
+        self.assertEqual(idx, sorted(idx))
+
+    # 映画記録が0件のとき、感情Top4ボタンが表示されないことの確認
+    def test_top4_hidden_when_no_records_on_mood_archive(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "まだ感情タグが登録されていません")
+        self.assertNotContains(res, 'class="btn mood-btn mood-')
+        m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        self.assertNotContains(res, f'href="{m1}"')
+
+    # Top4の感情に対応するボタン表示のカウントが正しいことの確認
+    def test_top4_mood_counts_are_correct_on_mood_archive(self):
+        data = [(self.mood1, 5), (self.mood2, 10), (self.mood3, 9), (self.mood4, 8)]
+        for mood, n in data:
+            create_record(self.user, mood, n=n)
+        
+        res = self.client.get(reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name}))
+        self.assertEqual(res.status_code, 200)
+        
+        for mood, n in data:
+            mood_url = reverse("movies:mood_archive", kwargs={"mood_name": mood.name})
+            self.assertContains(res, f'href="{mood_url}"')
+            self.assertContains(res, f'{mood.name}（{n}回）')
+        
+    # 映画記録が0件だった時「該当する映画記録が見つかりませんでした。」の文言が表示されることの確認
+    def test_archive_record_list_empty_message(self):
+        url = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "該当する映画記録が見つかりませんでした。")
+
+    # カテゴリー [3] 感情リンクボタン上位4件に該当する検証 (ホーム側)
+    # 感情Top4ボタンが5件以上あっても4件に制限されることの確認
+    def test_top4_shows_exactly_four_buttons_on_home(self):
+        create_record(self.user, self.mood1, n=5)
+        create_record(self.user, self.mood2, n=10)
+        create_record(self.user, self.mood3, n=9)
+        create_record(self.user, self.mood4, n=8)
+        create_record(self.user, self.mood5, n=1)
+
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+        html = res.content.decode()
+
+        buttons = re.findall(r'class="btn mood-btn mood-[^"]+"', html)
+        self.assertEqual(len(buttons), 4)
+
+        m5 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood5.name})
+        self.assertNotContains(res, f'href="{m5}"')
+    
+    # 感情Top4ボタンが頻度降順で並ぶことの確認
+    def test_top4_order_is_desc_by_frequency_on_home(self):
+        create_record(self.user, self.mood1, n=10)
+        create_record(self.user, self.mood2, n=9)
+        create_record(self.user, self.mood3, n=8)
+        create_record(self.user, self.mood4, n=7)
+
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        html = res.content.decode()
+
+        urls = [reverse("movies:mood_archive", kwargs={"mood_name": m.name})
+                for m in [self.mood1, self.mood2, self.mood3, self.mood4]]
+        idx = [html.index(u) for u in urls]
+        self.assertEqual(idx, sorted(idx))
+
+    # 映画記録が0件のとき、ホーム画面で感情Top4ボタンが表示されないことの確認
+    def test_top4_hidden_when_no_records_on_home(self):
+        url = reverse("movies:home")
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+        self.assertContains(res, "まだ感情タグが登録されていません")
+        self.assertNotContains(res, 'class="btn mood-btn mood-')
+
+        m1 = reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name})
+        self.assertNotContains(res, f'href="{m1}"')
+
+    # Top4の感情に対応するボタン表示のカウントが正しいことの確認
+    def test_top4_mood_counts_are_correct_on_home(self):
+        data = [(self.mood1, 5), (self.mood2, 10), (self.mood3, 9), (self.mood4, 8)]
+        for mood, n in data:
+            create_record(self.user, mood, n=n)
+        
+        res = self.client.get(reverse("movies:home"))
+        self.assertEqual(res.status_code, 200)
+        
+        for mood, n in data:
+            mood_url = reverse("movies:mood_archive", kwargs={"mood_name": mood.name})
+            self.assertContains(res, f'href="{mood_url}"')
+            self.assertContains(res, f'{mood.name}（{n}回）')
+
+    # カテゴリー[4] データ抽出
+    # ログインユーザー以外の記録表示がされないことの確認
+    def test_archive_shows_only_current_users_records(self):
+        # 自分記録データ
+        mine_record = UserMovieRecord.objects.create(user=self.user, title="mine", director="d", rating=3,
+                                        comment="c", date_watched=date.today(), poster_url=None)
+        mine_record.mood.add(self.mood1)
+
+        # 他者記録データ
+        other_user = User.objects.create_user(username="other", password="x")
+        other_record = UserMovieRecord.objects.create(user=other_user, title="others", director="d", rating=3,
+                                        comment="c", date_watched=date.today(), poster_url=None)
+        other_record.mood.add(self.mood1)
+
+        # 画面アクセス
+        res = self.client.get(reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name}))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "mine")
+        self.assertNotContains(res, "others")  
+
+        #渡している抽出データを直接確認
+        qs  = res.context["mood_archive"]
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(list(qs.values_list("pk", flat=True)), [mine_record.pk])
+        self.assertTrue(all(r.user_id == self.user.id for r in qs))
+
+    # 1つの映画記録に複数ムードを付与しても、一覧に重複して表示されないことの確認
+    def test_archive_distinct_records_when_record_has_multiple_moods(self):
+        rec = UserMovieRecord.objects.create(
+            user=self.user, title="uniq-title", director="d",
+            rating=3, comment="c", date_watched=date.today(), poster_url=None
+        )
+        rec.mood.add(self.mood1)   
+        rec.mood.add(self.mood2)   
+
+        res = self.client.get(reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name}))
+        self.assertEqual(res.status_code, 200)
+
+        qs = res.context["mood_archive"]
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(list(qs.values_list("pk", flat=True)), [rec.pk])
+
+        html = res.content.decode()
+        self.assertEqual(html.count("uniq-title"), 1)

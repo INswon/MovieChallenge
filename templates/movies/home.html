@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load custom_filters %}
 {% load static %} 
 
 {% block content %}
@@ -73,6 +73,18 @@
             </div>
         </div>
         {% endfor %}
+
+        <div class="mood-button-wrapper">
+            {% for mood in top_moods %}
+                <a href="{% url 'movies:mood_archive' mood.name %}"
+                   class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
+                  {{ mood.name }}（{{ mood.num_records }}回）
+                </a>
+            {% empty %}
+                <p class="text-muted">まだ感情タグが登録されていません</p>
+            {% endfor %}
+        </div>
+
 
         <div class="container text-center mb-4">
             <button type="button" class="btn-new" onclick="location.href='{% url 'movies:create' %}'">新規作成</button>
