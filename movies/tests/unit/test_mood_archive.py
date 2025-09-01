@@ -227,17 +227,24 @@ class MoodPageTestCase(TestCase):
     # ログインユーザー以外の記録表示がされないことの確認
     def test_archive_shows_only_current_users_records(self):
         # 自分記録データ
-        r1 = UserMovieRecord.objects.create(user=self.user, title="mine", director="d", rating=3,
+        mine_record = UserMovieRecord.objects.create(user=self.user, title="mine", director="d", rating=3,
                                         comment="c", date_watched=date.today(), poster_url=None)
-        r1.mood.add(self.mood1)
+        mine_record.mood.add(self.mood1)
 
         # 他者記録データ
-        other = User.objects.create_user(username="other", password="x")
-        r2 = UserMovieRecord.objects.create(user=other, title="others", director="d", rating=3,
+        other_user = User.objects.create_user(username="other", password="x")
+        other_record = UserMovieRecord.objects.create(user=other_user, title="others", director="d", rating=3,
                                         comment="c", date_watched=date.today(), poster_url=None)
-        r2.mood.add(self.mood1)
+        other_record.mood.add(self.mood1)
 
+        # 画面アクセス
         res = self.client.get(reverse("movies:mood_archive", kwargs={"mood_name": self.mood1.name}))
         self.assertEqual(res.status_code, 200)
         self.assertContains(res, "mine")
         self.assertNotContains(res, "others")  
+
+        #渡している抽出データを直接確認
+        qs  = res.context["mood_archive"]
+        self.assertEqual(qs.count(), 1)
+        self.assertEqual(list(qs.values_list("pk", flat=True)), [mine_record.pk])
+        self.assertTrue(all(r.user_id == self.user.id for r in qs))
