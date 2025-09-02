@@ -42,6 +42,7 @@ MOOD_CATEGORY_MAP = {
     "心臓がドキドキした": "scary",
 
     # curious（好奇心・新鮮さ）
+    "新鮮": "curious",
     "新鮮だった": "curious",
     "考えさせられた": "curious",
     "興味深かった": "curious",
@@ -58,5 +59,6 @@ MOOD_HERO_IMAGES = {
     "healing": "images/hero/healing.jpg",
     "impression": "images/hero/impression.jpg",
     "scary": "images/hero/scary.jpg",
-    "curious": "images/hero/curious.jpg"
+    "curious": "images/hero/curious.jpg",
+    "default": "images/hero/default.jpg",
 }

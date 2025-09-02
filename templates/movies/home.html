@@ -76,10 +76,11 @@
 
         <div class="mood-button-wrapper">
             {% for mood in top_moods %}
-                <a href="{% url 'movies:mood_archive' mood.name %}"
-                   class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
-                  {{ mood.name }}（{{ mood.num_records }}回）
-                </a>
+                {% if mood.name %}
+                    <a href="{% url 'movies:mood_archive' mood.name %}"
+                    class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
+                    {{ mood.name }}（{{ mood.num_records }}回）</a>
+                {% endif %}
             {% empty %}
                 <p class="text-muted">まだ感情タグが登録されていません</p>
             {% endfor %}
