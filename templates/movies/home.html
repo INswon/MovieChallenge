@@ -19,7 +19,13 @@
     <div class="container my-1">
         <section class="jumbotron text-center">
             <h1 class="jumbotron-heading">ようこそ！{{ user.username }}さん</h1>
-            <p class="lead text-muted">好きな映画を記録し、映画鑑賞の旅を共有しよう！</p>
+            <p class="lead text-muted"> 🎥気分に合った作品を提案いたします</p>
+            <p>
+                <a href="{% url 'movies:recommend' recomend_name='healed' %}",
+                   class="btn btn-primary btn-lg">
+                   気分を選んでおすすめを見る →
+                </a>
+            </p>
         </section>
     </div>
 
