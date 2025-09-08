@@ -16,16 +16,16 @@
 <body>
     <header>
         <div class="header-title">
-            <h1>映画鑑賞チャレンジアプリ</h1>
+            <h1>ムードシネマ</h1>
         </div>
 
         <div class="header-nav">
             <nav>
               <ul>
                 <li><a href="{% url 'movies:home' %}">ホーム</a></li>
-                <li><a href="{% url 'users:logout' %}">ログアウト</a></li>
-                <li><a href="{% url 'missions:user_batch_list' %}">バッチ一覧</a></li>
-                <li><a href="{% url 'users:progress_goal_create' %}">目標管理</a></li>
+                <li><a href="{% url 'users:record' %}">記録一覧</a></li>
+                <li><a href="{% url 'movies:batch' %}">バッチ一覧</a></li>
+                <li><a href="{% url 'movies:recommend' %}">おすすめ</a></li>
               </ul>
             </nav>
           </div>
