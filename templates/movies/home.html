@@ -1,100 +1,27 @@
-{% extends 'base.html' %}
-{% load custom_filters %}
-{% load static %} 
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ホーム | ムードシネマ{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
 
 {% block content %}
-    
-    <!-- 検索フォームセクション -->
-    <form method="get" action="{% url 'movies:movie_search' %}">
-        <input type="text" name="query" placeholder="映画タイトルを入力">
-        <button type="submit">検索</button>
-    </form>
+  <section class="hero" aria-labelledby="welcome-title">  
+    <div class="container hero__inner" > 
+      <h1 id="welcome-title" class="hero__title fw-bold">ようこそ！{{ user.username }}さん</h1>
+      <p class="hero__lead">気分に合った作品を提案いたします</p>
 
-    <!-- 感情タグ検索セクション -->
-    <form method="get" action="{% url 'movies:mood_search' %}">
-        <input type="text" name="mood" placeholder="記録として残した感情タグを入力「例: #迫力、#泣ける」">
-        <button type="submit" class="btn-light">検索</button>
-    </form>
+      <a class="btn btn-primary btn-lg hero__primary fw-bold px-5 py-3 rounded-3 shadow"
+        href="{% url 'movies:recommend' recommend_name='healed' %}">
+        気分を選んでおすすめを見る
+      </a>
 
-    <div class="container my-1 home-hero">
-        <section class="jumbotron text-center">
-            <h1 class="jumbotron-heading">ようこそ！{{ user.username }}さん</h1>
-            <p class="lead text-muted"> 🎥気分に合った作品を提案いたします</p>
-            <p>
-                <a href="{% url 'movies:recommend' recomend_name='healed' %}",
-                   class="btn btn-primary btn-lg">
-                   気分を選んでおすすめを見る →
-                </a>
-            </p>
-        </section>
+      <nav class="hero__secondary d-flex justify-content-center mt-3">
+        <a class="btn btn-light btn-lg fw-bold px-5 py-3 rounded-3"
+           href="{% url 'movies:movie_search' %}">今すぐ探す</a>
+        <a class="btn btn-light btn-lg fw-bold px-5 py-3 rounded-3"
+           href="{% url 'movies:record' %}">記録を見る</a>
+      </nav>
     </div>
-
-    <!-- 映画鑑賞記録セクション -->
-    <h2 class="text-center mb-4">映画鑑賞記録</h2>
-
-        {% for record in records %}
-        <div class="card mb-3 mx-auto" style="width: 1000px;">
-            <div class="d-flex align-items-stretch">
-                <div class="col-md-5">
-                    {% if record.poster %}
-                        <img src="{{ record.poster.url }}" alt="{{ record.title }}" class="img-fluid">
-                    {% elif record.poster_url %}
-                        <img src="{{ record.poster_url }}" alt="{{ record.title }}" class="img-fluid">
-                    {% else %}
-                        <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid">
-                    {% endif %}
-                </div>
-                <div class="col-md-7 d-flex flex-column">
-                    <div class="card-body flex-fill">
-                        <h5 class="card-title">{{ record.title }}</h5>
-                        <p class="card-text">ジャンル: 
-                          {% for genre in record.genres.all %}
-                            {{ genre.name }}{% if not forloop.last %}, {% endif %}
-                          {% endfor %}
-                        </p>
-                        <p class="card-text">監督: {{ record.director }}</p>
-                        <p>ムード:
-                            {% for mood in record.mood.all %}
-                                #{{ mood.name }}{% if not forloop.last %}, {% endif %}
-                            {% empty %}
-                                なし
-                            {% endfor %}
-                        </p>
-                        <p class="card-text">評価: 
-                            {% if record.rating == 1 %}★☆☆☆☆
-                            {% elif record.rating == 2 %}★★☆☆☆
-                            {% elif record.rating == 3 %}★★★☆☆
-                            {% elif record.rating == 4 %}★★★★☆
-                            {% else %}★★★★★
-                            {% endif %}
-                        </p>
-                        <p class="card-text">感想: {{ record.comment }}</p>
-                        <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
-                        <div class="text-center mt-auto">
-                            <button type="button" class="btn-list" onclick="location.href='{% url 'movies:detail' record.pk %}'">詳細</button>
-                            <button type="button" class="btn-edit" onclick="location.href='{% url 'movies:edit' record.pk %}'">編集</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endfor %}
-
-        <div class="mood-button-wrapper">
-            {% for mood in top_moods %}
-                {% if mood.name %}
-                    <a href="{% url 'movies:mood_archive' mood.name %}"
-                    class="btn mood-btn mood-{{ category_classes|get_item:mood.name }}">
-                    {{ mood.name }}（{{ mood.num_records }}回）</a>
-                {% endif %}
-            {% empty %}
-                <p class="text-muted">まだ感情タグが登録されていません</p>
-            {% endfor %}
-        </div>
-
-
-        <div class="container text-center mb-4">
-            <button type="button" class="btn-new" onclick="location.href='{% url 'movies:create' %}'">新規作成</button>
-        </div>     
-
+  </section>
 {% endblock %}
