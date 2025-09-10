@@ -55,14 +55,48 @@ header nav a:hover {
   position: relative;
 }
 
+/*section内のスタイル*/
+.hero {
+  min-height: 80vh;              
+  display: flex;
+  flex-direction: column;         
+  justify-content: center;        
+  align-items: center;            
+  text-align: center;
+  color: #fff;
+}
 
-/*ホーム画面(Hero)スタイル*/
-.home-hero {
-  width: 100%;
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 12px;
-  text-align: center;  
+.hero__secondary .btn {
+  transform: scale(1.1);       
+  padding: 1rem 2.5rem;        
+  font-size: 1.25rem;          
+}
+
+.hero__title{
+  font-size: clamp(28px, 4.2vw, 56px);
+  letter-spacing: .5px;
+}
+.hero__lead{
+  font-size: clamp(14px, 1.6vw, 20px);
+  opacity: .9;
+  margin-bottom: 1rem;
+}
+
+.hero__primary{
+  font-size: 1.15rem;          
+  padding: 0.9rem 2rem;        
+  border-radius: .75rem;       
+}
+
+.hero__secondary .btn{
+  font-size: 1.15rem;
+  padding: 0.95rem 2.2rem;
+}
+
+.hero__primary{
+  font-size: 2rem;
+  padding: 0.9rem 2rem;
+  border-radius: .75rem;
 }
 
 /* プロフィール情報のスタイル */
