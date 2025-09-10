@@ -49,6 +49,13 @@ header nav a:hover {
   color: #0056b3; 
 }
 
+/*body全体のスタイル*/
+.home-bg{
+  background-image: url("/static/images/home/main.jpg");
+  position: relative;
+}
+
+
 /*ホーム画面(Hero)スタイル*/
 .home-hero {
   width: 100%;
