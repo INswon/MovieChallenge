@@ -1,11 +1,10 @@
 /*header内のスタイル*/
 header {
   display: flex;
-  background-color: gray; /* ライトグレーの背景 */
+  background-color: gray;
   justify-content: space-around;
   align-items: center;
   padding: 20px;
-  margin-bottom: 20px;
 }
 
 .header-title {
@@ -32,13 +31,13 @@ header h1 {
   color: #333;
 }
 
-nav {
+header nav {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-nav a{
+header nav a{
   color: #4CAF50;
   text-decoration: none;
   font-weight: bold;
@@ -46,8 +45,8 @@ nav a{
   list-style: none;
 }
 
-nav a:hover {
-  color: #0056b3; /* ホバースタイル */
+header nav a:hover {
+  color: #0056b3; 
 }
 
 /*ホーム画面(Hero)スタイル*/
@@ -109,4 +108,3 @@ button {
 button:hover {
   background-color: #45a049;
 }
-
