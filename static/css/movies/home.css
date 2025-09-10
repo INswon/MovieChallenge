@@ -99,6 +99,32 @@ header nav a:hover {
   border-radius: .75rem;
 }
 
+/*footer内のスタイル*/
+footer {
+  background: transparent; 
+  text-align: center;      
+  color: #fff;            
+  padding: 20px 0;         
+}
+
+footer small {
+  display: block;          
+  margin-bottom: 8px;      
+  font-size: 14px;
+  color: #fff;
+}
+
+footer nav a {
+  color: #fff;            
+  text-decoration: none;   
+  margin: 0 8px;           
+}
+
+footer nav a:hover {
+  text-decoration: underline; 
+  opacity: .8;
+}
+
 /* プロフィール情報のスタイル */
 .profile-info {
   display: flex;
