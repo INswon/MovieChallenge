@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'css/base/missions/styles.css' %}">
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% block page_bg_wrapper_class %}{% endblock %}">
     <header>
         <div class="header-title">
             <h1>ムードシネマ</h1>
@@ -22,9 +22,9 @@
             <nav>
               <ul>
                 <li><a href="{% url 'movies:home' %}">ホーム</a></li>
-                <li><a href="{% url 'users:record' %}">記録一覧</a></li>
-                <li><a href="{% url 'movies:batch' %}">バッチ一覧</a></li>
-                <li><a href="{% url 'movies:recommend' %}">おすすめ</a></li>
+                <li><a href="{% url 'movies:record' %}">記録一覧</a></li>
+                <li><a href="{% url 'missions:batch' %}">バッジ一覧</a></li>
+                <li><a href="{% url 'movies:recommend' recommend_name='healed' %}">おすすめ</a></li>
               </ul>
             </nav>
           </div>
