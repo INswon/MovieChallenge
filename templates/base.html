@@ -1,33 +1,30 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}映画鑑賞チャレンジアプリ{% endblock %}</title>
+    <title>{% block title %}ムードシネマ{% endblock %}</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/base/styles.css' %}?v={{ STATIC_VERSION }}">
     <link rel="stylesheet" href="{% static 'css/users/home/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/movies/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/movies/mood_archive.css' %}">
     <link rel="stylesheet" href="{% static 'css/base/missions/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base/movies/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/base/movies/movies_archive.css' %}">
     {% block extra_css %}{% endblock %}
-
 </head>
-<body>
+<body class="{% block page_bg_wrapper_class %}{% endblock %}">
     <header>
         <div class="header-title">
-            <h1>映画鑑賞チャレンジアプリ</h1>
+            <h1>ムードシネマ</h1>
         </div>
-
         <div class="header-nav">
             <nav>
               <ul>
                 <li><a href="{% url 'movies:home' %}">ホーム</a></li>
-                <li><a href="{% url 'users:logout' %}">ログアウト</a></li>
-                <li><a href="{% url 'missions:user_batch_list' %}">バッチ一覧</a></li>
-                <li><a href="{% url 'users:progress_goal_create' %}">目標管理</a></li>
+                <li><a href="{% url 'movies:record' %}">記録一覧</a></li>
+                <li><a href="{% url 'missions:batch' %}">バッジ一覧</a></li>
+                <li><a href="{% url 'movies:recommend' recommend_name='healed' %}">おすすめ</a></li>
               </ul>
             </nav>
           </div>
@@ -39,7 +36,12 @@
 
     <footer>
         <div class="container text-center">
-            <p>© 2024 サイト名. All rights reserved.</p>
+            <small>© {% now "Y" %} ムードシネマ</small>
+            <nav>
+                <a href="#">利用規約</a> |
+                <a href="#">プライバシー</a> |
+                <a href="#">お問い合わせ</a>
+            </nav>
         </div>
     </footer>
 

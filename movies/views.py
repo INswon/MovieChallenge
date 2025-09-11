@@ -173,6 +173,16 @@ class MoodArchiveView(LoginRequiredMixin, ListView):
         context["has_records"] = has_records
         
         return context
+    
+# 推薦映画表示
+class RecommendView(LoginRequiredMixin, TemplateView):
+    template_name = "movies/recommend.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["recommend"] = {"name": "healed"}              
+        return ctx
+    
 
 # 映画鑑賞記録詳細表示機能
 class MovieRecordDetailView(LoginRequiredMixin, DetailView):
