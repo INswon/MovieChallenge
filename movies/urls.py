@@ -1,6 +1,6 @@
 from urllib.parse import quote
 from django.urls import path
-from .views import UserMovieListView, MovieSearchView, MovieRecordDetailView, MoodArchiveView, RecommendView, ReviewPageView, ThanksPageView, ReviewLikeView, MovieRecordCreateView, MovieRecordDeleteView, MovieRecordEditView
+from .views import UserMovieListView, ReccordView, MovieSearchView, MovieRecordDetailView, MoodArchiveView, RecommendView, ReviewPageView, ThanksPageView, ReviewLikeView, MovieRecordCreateView, MovieRecordDeleteView, MovieRecordEditView
 from .views import redirect_to_mood_archive 
 from . import views
 
@@ -8,7 +8,7 @@ app_name = 'movies'
 
 urlpatterns = [
     path('home/', UserMovieListView.as_view(),name='home'),
-    path('record/',UserMovieListView.as_view() ,name="record"),
+    path('record/',ReccordView.as_view() ,name="record"),
     path('detail/<int:pk>/',MovieRecordDetailView.as_view(), name='detail'),
     path('create/',MovieRecordCreateView.as_view(), name="create"),
     path('delete/<int:pk>/',MovieRecordDeleteView.as_view(), name="delete"),

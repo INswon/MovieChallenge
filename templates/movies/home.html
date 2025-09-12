@@ -12,14 +12,17 @@
       <p class="hero__lead">気分に合った作品を提案いたします</p>
 
       <a class="btn btn-primary btn-lg hero__primary fw-bold px-5 py-3 rounded-3 shadow"
+        data-testid="recommend"
         href="{% url 'movies:recommend' recommend_name='healed' %}">
         気分を選んでおすすめを見る
       </a>
 
       <nav class="hero__secondary d-flex justify-content-center mt-3">
         <a class="btn btn-light btn-lg fw-bold px-5 py-3 rounded-3"
+           data-testid="movie_search"
            href="{% url 'movies:movie_search' %}">今すぐ探す</a>
         <a class="btn btn-light btn-lg fw-bold px-5 py-3 rounded-3"
+           data-testid="record"
            href="{% url 'movies:record' %}">記録を見る</a>
       </nav>
     </div>

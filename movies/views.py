@@ -182,7 +182,10 @@ class RecommendView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx["recommend"] = {"name": "healed"}              
         return ctx
-    
+
+# 映画記録表示
+class ReccordView(LoginRequiredMixin, TemplateView):
+    template_name = "movies/movie_record.html"
 
 # 映画鑑賞記録詳細表示機能
 class MovieRecordDetailView(LoginRequiredMixin, DetailView):
