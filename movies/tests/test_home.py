@@ -55,7 +55,7 @@ class HomeViewTests(TestCase):
         self.assertEqual(resp2.status_code, 200)
         self.assertTemplateUsed(resp2, "movies/movie_search.html")
 
-    # 「記録を見る」ボタンの存在確認、映画作品検索画面に遷移することの確認
+    # 「記録を見る」ボタンの存在確認、映画記録一覧画面に遷移することの確認
     def test_record_button_exists_and_navigates_to_page(self):
         self.client.login(username="u", password="p")
         path = reverse("movies:home")
