@@ -27,7 +27,7 @@ class HomeViewTests(TestCase):
         expected_url = f"{resolve_url(settings.LOGIN_URL)}?next={path}"
         self.assertRedirects(response, expected_url)
 
-    # 「気分を選んでおすすめを見る」ボタンを押して、映画推薦画面に画面遷移することの検証
+    # 「気分を選んでおすすめを見る」ボタンを押して、映画推薦画面に画面遷移することの確認
     def test_main_cta_navigates_to_recommend_page(self):
         self.client.login(username="u", password="p")
         path = reverse("movies:home")
@@ -40,3 +40,19 @@ class HomeViewTests(TestCase):
 
         self.assertEqual(resp2.status_code, 200)
         self.assertTemplateUsed(resp2, "movies/recommend.html")
+
+    # 「今すぐ探す」ボタンを押して、映画作品検索画面に遷移することの確認
+    def test_link_to_search_page(self):
+        self.client.login(username="u", password="p")
+        path = reverse("movies:home")
+        search_path = reverse("movies:movie_search")
+
+        response = self.client.get(path)
+        self.assertContains(response, 'data-testid="movie_search"')
+        self.assertContains(response, f'href="{search_path}"')
+        resp2 = self.client.get(search_path)
+
+        self.assertEqual(resp2.status_code, 200)
+        self.assertTemplateUsed(resp2, "movies/movie_search.html")
+
+    
