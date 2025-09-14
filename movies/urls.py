@@ -26,7 +26,7 @@ urlpatterns = [
     path('mood_archive/<str:mood_name>/',MoodArchiveView.as_view(), name='mood_archive'),
 
     # 5. 映画推薦
-    path('recommend/',RecommendSelectView.as_view(), name='recommend'),
+    path('recommend/',RecommendSelectView.as_view(), name='recommend_select'),
     path('recommend/<str:recommend_name>/',RecommendListView.as_view(), name='recommend'),
     
     # 6. レビュー
