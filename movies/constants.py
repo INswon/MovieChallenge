@@ -1,3 +1,13 @@
+
+# 映画推薦で選択できる感情
+RECOMMEND_CATEGORY = {
+    "healing":     {"label": "癒された", "order": 1},
+    "impression":  {"label": "泣いた", "order": 2},
+    "energy":      {"label": "興奮した","order": 3},
+    "scary":       {"label": "怖かった","order": 4},
+    "curious":     {"label": "新鮮だった","order": 5},
+}
+
 MOOD_CATEGORY_MAP = {
     # healing（癒し・落ち着き）
     "癒された": "healing",
