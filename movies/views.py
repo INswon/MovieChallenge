@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
 from django.db.models import Count
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
-from movies.constants import MOOD_CATEGORY_MAP, MOOD_HERO_IMAGES, RECOMMEND_CATEGORY
+from movies.constants import MOOD_CATEGORY_MAP, MOOD_HERO_IMAGES, RECOMMEND_CATEGORY, RECOMMEND_MOVIE
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
 from django.shortcuts import render,redirect, get_object_or_404
@@ -281,10 +281,16 @@ class RecommendSelectView(LoginRequiredMixin, TemplateView):
 
 # 5. 推薦映画表示
 class RecommendListView(LoginRequiredMixin, TemplateView):
-    template_name = "movies/recommend.html"
+    template_name = "movies/recommend_list.html"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        category = kwargs.get("category", "energy") 
+        ctx["category"] = category
+        ctx["label"] = RECOMMEND_CATEGORY.get(category, {"label": "おすすめ"})["label"]
+        ctx["movies"] = RECOMMEND_MOVIE.get(category, []) 
+        return ctx
     
-
 # 6. ユーザーによる映画レビューの投稿ビュー
 class ReviewPageView(LoginRequiredMixin,CreateView):
     model = Review
