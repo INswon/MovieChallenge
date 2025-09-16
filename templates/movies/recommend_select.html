@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}気分で選んでおすすめを見る{% endblock %}
+
+{% block content %}
+<section class="container py-4">
+  <h1 class="font-weight-bold text-center mb-4">気分で選んでおすすめを見る</h1>
+
+  <div class="d-flex justify-content-around">
+    {% for m in moods %}
+      <a class="btn btn-primary btn-lg px-4 py-2"
+         href="{% url 'movies:recommend' m.category %}"
+         aria-label="{{ m.label }}のおすすめ">
+        <span aria-hidden="true">{{ m.emoji }}</span> {{ m.label }}
+      </a>
+    {% empty %}
+      <p class="text-muted">選べる気分がまだありません。</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}
