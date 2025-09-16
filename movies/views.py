@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 from django.urls import reverse_lazy
 from django.db.models import Count
 from movies.models import UserMovieRecord, Genre, Mood, Review, Like
-from movies.constants import MOOD_CATEGORY_MAP, MOOD_HERO_IMAGES
+from movies.constants import MOOD_CATEGORY_MAP, MOOD_HERO_IMAGES, RECOMMEND_CATEGORY
 from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
 from django.shortcuts import render,redirect, get_object_or_404
@@ -13,68 +13,14 @@ from .services import TmdbMovieService
 from datetime import date
 import re
 
+#　補助関数　(UserMovieListView)
 def parse_mood_names(text: str):
     s = (text or "").replace("　"," ").strip()
     tokens = re.split(r"[、,\s]+", s)
     names = [t.strip().lstrip("#") for t in tokens if t and t.strip()]
     return list(dict.fromkeys(names))
 
-def get_or_create_mood_objects(mood_text):
-    names = parse_mood_names(mood_text)
-    return [Mood.objects.get_or_create(name=n)[0] for n in names]
-
-#特定の感情アーカイブページへのアクセス設定 (該当するページがなければホームページにリダイレクト)
-def redirect_to_mood_archive(request):
-    mood = request.GET.get("mood", "").strip().lstrip("#")
-    if mood:
-        return redirect("movies:mood_archive", mood_name=mood)  
-    return redirect("movies:home")
-
-# タイトル、ポスターURL、監督、ジャンルをAPIから取得し、UserMovieRecordに保存
-def create_movie_record(request):
-    if request.method == "POST":
-        mood_text = request.POST.get("mood", "")
-        mood_objs = get_or_create_mood_objects(mood_text)
-
-        record = UserMovieRecord.objects.create(
-            title=request.POST["title"],
-            poster_url=request.POST["poster"], 
-            director=request.POST["director"],  
-            rating=int(request.POST["rating"]),
-            comment=request.POST["comment"],
-            date_watched=date.today(),
-            user=request.user 
-        )
-
-        genre_names = request.POST["genres"].split(", ")
-        genre_objs = []
-        for name in genre_names:
-            genre, _ = Genre.objects.get_or_create(name=name)
-            genre_objs.append(genre)
-        record.genres.set(genre_objs)
-
-        record.mood.set(mood_objs)
-
-        return redirect("movies:home")
-
-    else:
-        movie_id = request.GET.get("movie_id")
-        context = {}
-
-        if movie_id:
-            movie_info = TmdbMovieService.get_movie_info(movie_id)
-            if movie_info:
-                context = {
-                    "title": movie_info["title"],
-                    "poster": movie_info["poster_url"],
-                    "director": movie_info["director"],
-                    "genres": ", ".join(movie_info["genres"]),
-                    "rating_choices": range(1, 6)
-                }
-
-        return render(request, "movies/movie_create.html", context)
-
-# 映画鑑賞記録一覧表示機能
+# 1.ホーム画面
 class UserMovieListView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = 'movies/home.html'
@@ -124,7 +70,151 @@ class UserMovieListView(LoginRequiredMixin, ListView):
             context["movies"] = TmdbMovieService.search(query) if query else []        
         return context
     
-# 感情アーカイブページ一覧
+# 2. 映画記録
+class RecordView(LoginRequiredMixin, TemplateView):
+    template_name = "movies/movie_record.html"
+
+# 2. 映画鑑賞記録詳細表示機能
+class MovieRecordDetailView(LoginRequiredMixin, DetailView):
+    model = UserMovieRecord
+    template_name = 'movies/movie_record_detail.html'  
+    context_object_name = 'record'
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        record = self.object
+
+        #(後コメント考案) TMDb API から映画情報を取得（なければローカルの情報を使用）
+        api_data = TmdbMovieService.get_movie_info(record.tmdb_id) if record.tmdb_id else None
+
+        movie_data ={
+            "title": api_data.get("title") if api_data else record.title,
+            "poster_url": api_data.get("poster_url") if api_data else record.poster_url,
+            "director": api_data.get("director") if api_data else record.director,
+            "genres": api_data.get("genres") if api_data else record.genres.all(),
+        }
+
+        context["movie_data"] = movie_data
+
+       # 他のユーザーのレビュー 一覧（作成日時順）
+        other_reviews = Review.objects.filter(movie=record).exclude(user=self.request.user).order_by("created_at")
+
+        #「ログイン中ユーザーがいいね済みかどうか」のフラグを付与 (テンプレート側で「❤️ / 🤍」の表示切り替えに使用)
+        for review in other_reviews:
+            review.is_liked_by_user = review.like_set.filter(user=self.request.user).exists()
+
+        context["other_reviews"] = other_reviews
+
+        return context
+    
+# 2. 感情データの作成 (補助関数)
+def get_or_create_mood_objects(mood_text):
+    names = parse_mood_names(mood_text)
+    return [Mood.objects.get_or_create(name=n)[0] for n in names]
+
+# 2. 映画記録データ作成(TMDP API使用)
+def create_movie_record(request):
+    if request.method == "POST":
+        mood_text = request.POST.get("mood", "")
+        mood_objs = get_or_create_mood_objects(mood_text)
+
+        record = UserMovieRecord.objects.create(
+            title=request.POST["title"],
+            poster_url=request.POST["poster"], 
+            director=request.POST["director"],  
+            rating=int(request.POST["rating"]),
+            comment=request.POST["comment"],
+            date_watched=date.today(),
+            user=request.user 
+        )
+
+        genre_names = request.POST["genres"].split(", ")
+        genre_objs = []
+        for name in genre_names:
+            genre, _ = Genre.objects.get_or_create(name=name)
+            genre_objs.append(genre)
+        record.genres.set(genre_objs)
+
+        record.mood.set(mood_objs)
+
+        return redirect("movies:home")
+
+    else:
+        movie_id = request.GET.get("movie_id")
+        context = {}
+
+        if movie_id:
+            movie_info = TmdbMovieService.get_movie_info(movie_id)
+            if movie_info:
+                context = {
+                    "title": movie_info["title"],
+                    "poster": movie_info["poster_url"],
+                    "director": movie_info["director"],
+                    "genres": ", ".join(movie_info["genres"]),
+                    "rating_choices": range(1, 6)
+                }
+
+        return render(request, "movies/movie_create.html", context)
+
+
+# 2. 映画鑑賞記録新規作成機能 
+class MovieRecordCreateView(LoginRequiredMixin, CreateView):
+    model = UserMovieRecord
+    form_class = MovieRecordForm
+    template_name = 'movies/movie_record_create.html'
+    success_url = reverse_lazy('movies:home')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+
+        if not form.cleaned_data.get("poster"):
+            form.instance.poster = None
+
+        return super().form_valid(form)
+
+# 2. 映画鑑賞記録削除機能
+class MovieRecordDeleteView(LoginRequiredMixin, DeleteView):
+    model = UserMovieRecord
+    template_name = 'movies/movie_record_delete.html'
+    success_url = reverse_lazy('movies:home') 
+
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        if self.object.user != request.user:
+            return HttpResponseForbidden()  
+        
+        self.object.is_deleted = True
+        self.object.save()
+        return redirect(self.success_url)
+
+# 2. 映画鑑賞編集機能
+class MovieRecordEditView(LoginRequiredMixin, UpdateView):
+    model = UserMovieRecord
+    form_class = MovieRecordForm
+    template_name = 'movies/movie_record_edit.html'
+    success_url = reverse_lazy('movies:home')
+
+    def get_queryset(self):
+        return UserMovieRecord.objects.filter(user=self.request.user)
+
+# 3. 映画情報の取得検索
+class MovieSearchView(LoginRequiredMixin, TemplateView):
+    template_name = "movies/movie_search.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        query = self.request.GET.get("query")
+        context["movies"] = TmdbMovieService.search(query) if query else []
+        return context
+
+# 3. 該当する感情にアクセス (MoodArchiveViewの補助関数)
+def redirect_to_mood_archive(request):
+    mood = request.GET.get("mood", "").strip().lstrip("#")
+    if mood:
+        return redirect("movies:mood_archive", mood_name=mood)  
+    return redirect("movies:home")
+
+# 4. 感情アーカイブページ一覧
 class MoodArchiveView(LoginRequiredMixin, ListView):
     model = UserMovieRecord
     template_name = "movies/mood_archive.html"
@@ -173,54 +263,29 @@ class MoodArchiveView(LoginRequiredMixin, ListView):
         context["has_records"] = has_records
         
         return context
-    
-# 推薦映画表示
-class RecommendView(LoginRequiredMixin, TemplateView):
-    template_name = "movies/recommend.html"
 
-    def get_context_data(self, **kwargs):
+# 5. 推薦映画選択
+class RecommendSelectView(LoginRequiredMixin, TemplateView):
+    template_name = "movies/recommend_select.html"
+
+    def get_context_data(self, **kwargs):  
         ctx = super().get_context_data(**kwargs)
-        ctx["recommend"] = {"name": "healed"}              
+
+        category_items = list(RECOMMEND_CATEGORY.items())
+        category_items.sort(key=lambda kv:kv[1]["order"])
+        ctx["moods"] =  [
+            {"category": key, "label": meta["label"]}
+            for key, meta in category_items
+        ]
         return ctx
 
-# 映画記録表示
-class ReccordView(LoginRequiredMixin, TemplateView):
-    template_name = "movies/movie_record.html"
+# 5. 推薦映画表示
+class RecommendListView(LoginRequiredMixin, TemplateView):
+    template_name = "movies/recommend.html"
 
-# 映画鑑賞記録詳細表示機能
-class MovieRecordDetailView(LoginRequiredMixin, DetailView):
-    model = UserMovieRecord
-    template_name = 'movies/movie_record_detail.html'  
-    context_object_name = 'record'
     
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        record = self.object
 
-        #(後コメント考案) TMDb API から映画情報を取得（なければローカルの情報を使用）
-        api_data = TmdbMovieService.get_movie_info(record.tmdb_id) if record.tmdb_id else None
-
-        movie_data ={
-            "title": api_data.get("title") if api_data else record.title,
-            "poster_url": api_data.get("poster_url") if api_data else record.poster_url,
-            "director": api_data.get("director") if api_data else record.director,
-            "genres": api_data.get("genres") if api_data else record.genres.all(),
-        }
-
-        context["movie_data"] = movie_data
-
-       # 他のユーザーのレビュー 一覧（作成日時順）
-        other_reviews = Review.objects.filter(movie=record).exclude(user=self.request.user).order_by("created_at")
-
-        #「ログイン中ユーザーがいいね済みかどうか」のフラグを付与 (テンプレート側で「❤️ / 🤍」の表示切り替えに使用)
-        for review in other_reviews:
-            review.is_liked_by_user = review.like_set.filter(user=self.request.user).exists()
-
-        context["other_reviews"] = other_reviews
-
-        return context
-
-# ユーザーによる映画レビューの投稿ビュー
+# 6. ユーザーによる映画レビューの投稿ビュー
 class ReviewPageView(LoginRequiredMixin,CreateView):
     model = Review
     form_class = UserReviewForm
@@ -241,11 +306,12 @@ class ReviewPageView(LoginRequiredMixin,CreateView):
         context["movie"] = self.movie 
         return context
 
-# レビュー投稿確認ページ遷移
+# 6. レビュー投稿確認ページ遷移
 class ThanksPageView(TemplateView):
     template_name = "movies/movie_thanks.html"
 
-# AjaxのLoginRequiredMixinの定義
+
+# AjaxのLoginRequiredMixinの定義 (ReviewLikeVie補助クラス)
 class AjaxLoginRequiredMixin(AccessMixin):
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -254,7 +320,7 @@ class AjaxLoginRequiredMixin(AccessMixin):
             return self.handle_no_permission()  # 通常の302リダイレクト
         return super().dispatch(request, *args, **kwargs)
 
-# レビューのいいね機能処理
+# 6. レビューのいいね機能処理
 class ReviewLikeView(AjaxLoginRequiredMixin,View):
     def post(self, request, pk):
         review = get_object_or_404(Review, pk=pk)
@@ -271,53 +337,4 @@ class ReviewLikeView(AjaxLoginRequiredMixin,View):
 
         count = review.like_set.count()
         return JsonResponse({"liked": liked, "count": count})
-    
-# 映画情報の取得検索
-class MovieSearchView(LoginRequiredMixin, TemplateView):
-    template_name = "movies/movie_search.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        query = self.request.GET.get("query")
-        context["movies"] = TmdbMovieService.search(query) if query else []
-        return context
-
-# 映画鑑賞記録新規作成機能
-class MovieRecordCreateView(LoginRequiredMixin, CreateView):
-    model = UserMovieRecord
-    form_class = MovieRecordForm
-    template_name = 'movies/movie_record_create.html'
-    success_url = reverse_lazy('movies:home')
-
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-
-        if not form.cleaned_data.get("poster"):
-            form.instance.poster = None
-
-        return super().form_valid(form)
-
-# 映画鑑賞記録削除機能
-class MovieRecordDeleteView(LoginRequiredMixin, DeleteView):
-    model = UserMovieRecord
-    template_name = 'movies/movie_record_delete.html'
-    success_url = reverse_lazy('movies:home') 
-
-    def delete(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        if self.object.user != request.user:
-            return HttpResponseForbidden()  
-        
-        self.object.is_deleted = True
-        self.object.save()
-        return redirect(self.success_url)
-
-# 映画鑑賞編集機能
-class MovieRecordEditView(LoginRequiredMixin, UpdateView):
-    model = UserMovieRecord
-    form_class = MovieRecordForm
-    template_name = 'movies/movie_record_edit.html'
-    success_url = reverse_lazy('movies:home')
-
-    def get_queryset(self):
-        return UserMovieRecord.objects.filter(user=self.request.user)
