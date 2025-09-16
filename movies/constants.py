@@ -1,4 +1,3 @@
-
 # 映画推薦で選択できる感情
 RECOMMEND_CATEGORY = {
     "healing":     {"label": "癒された", "order": 1},
@@ -6,6 +5,30 @@ RECOMMEND_CATEGORY = {
     "energy":      {"label": "興奮した","order": 3},
     "scary":       {"label": "怖かった","order": 4},
     "curious":     {"label": "新鮮だった","order": 5},
+}
+
+# おすすめ表示映画作品
+RECOMMEND_MOVIE = {
+    "energy": [
+        {
+            "title": "ベイビー・ドライバー",
+            "note": "音楽×カーチェイスの多幸感。テンポ良く一気見",
+            "poster": "",  
+            "year": 2017,
+        },
+        {
+            "title": "キングスマン",
+            "note": "キレキレのスパイ・アクション。“気絶モード”の快感",
+            "poster": "",
+            "year": 2015,
+        },
+        {
+            "title": "アンチャーテッド",
+            "note": "財宝を追う冒険活劇。王道アドベンチャーでワクワク",
+            "poster": "",
+            "year": 2022,
+        }
+    ]
 }
 
 MOOD_CATEGORY_MAP = {
