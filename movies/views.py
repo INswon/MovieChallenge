@@ -285,7 +285,7 @@ class RecommendListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        category = kwargs.get("category", "energy") 
+        category = self.kwargs["category"]
         ctx["category"] = category
         ctx["label"] = RECOMMEND_CATEGORY.get(category, {"label": "おすすめ"})["label"]
         ctx["movies"] = RECOMMEND_MOVIE.get(category, []) 
