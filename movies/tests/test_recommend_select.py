@@ -1,8 +1,11 @@
 from django.test import TestCase
 from django.urls import reverse,resolve
+from django.shortcuts import resolve_url
 from django.contrib.auth import get_user_model
+from django.conf import settings
 
 User = get_user_model()
+
 class Recommend_SelectTests(TestCase):
     #　作成データ
     def setUp(self):
@@ -22,3 +25,11 @@ class Recommend_SelectTests(TestCase):
         response = self.client.get(reverse("movies:recommend_select"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "movies/recommend_select.html")
+
+    # 未ログインならLOGIN_URLにリダイレクト
+    def test_redirects_when_not_logged_in(self):
+        path = reverse("movies:recommend_select")
+        response = self.client.get(path)
+
+        expected_url = f"{resolve_url(settings.LOGIN_URL)}?next={path}"
+        self.assertRedirects(response, expected_url)
