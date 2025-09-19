@@ -10,12 +10,9 @@
     {% for mv in movies %}
       <div class="col-12 col-md-6 col-lg-3 mb-3">
         <div class="card h-100">
-          {% if mv.poster %}
-            <img class="card-img-top" src="{{ mv.poster }}" alt="{{ mv.title }}">
-          {% endif %}
           <div class="card-body">
-            <h5 class="card-title mb-2">{{ mv.title }}</h5>
-            {% if mv.note %}<p class="card-text text-muted">{{ mv.note }}</p>{% endif %}
+            <h5 class="card-title mb-2">{{ mv.title}}</h5>
+            <p class="card-text text-muted">{{ mv.note}}</p>
           </div>
         </div>
       </div>
