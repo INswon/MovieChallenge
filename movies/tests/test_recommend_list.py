@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse, resolve
+from django.shortcuts import resolve_url
 from django.contrib.auth import get_user_model
+from django.conf import settings
 from movies.constants import RECOMMEND_CATEGORY
 
 User = get_user_model()
@@ -24,8 +26,18 @@ class Recommend_ListTests(TestCase):
         for key in RECOMMEND_CATEGORY.keys():
             url = reverse("movies:recommend_list", args=[key])
             response = self.client.get(url)
+
             self.assertEqual(response.status_code, 200)
             self.assertTemplateUsed(response, "movies/recommend_list.html")
+
+    # 未ログインユーザーはリダイレクトされることの確認
+    def test_redirects_when_not_logged_in(self):
+        for key in RECOMMEND_CATEGORY.keys():
+            path = reverse("movies:recommend_list", args=[key])
+            response = self.client.get(path)
+
+            expected_url = f"{resolve_url(settings.LOGIN_URL)}?next={path}"
+            self.assertRedirects(response, expected_url)
     
 
     
