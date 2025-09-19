@@ -38,7 +38,12 @@ class Recommend_ListTests(TestCase):
 
             expected_url = f"{resolve_url(settings.LOGIN_URL)}?next={path}"
             self.assertRedirects(response, expected_url)
-    
-
-    
-    
+        
+    # 見出しはカテゴリー別の日本語ラベルが出る（全カテゴリ）
+    def test_heading_shows_category_label(self):
+        self.client.login(username="u", password="p")
+        for key, category_data in RECOMMEND_CATEGORY.items():
+            url = reverse("movies:recommend_list", args=[key])
+            response = self.client.get(url)
+            expected_heading = f"「{category_data['label']}」おすすめの作品はこちら"
+            self.assertContains(response, expected_heading)
