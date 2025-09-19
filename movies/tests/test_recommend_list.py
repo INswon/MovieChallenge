@@ -3,7 +3,7 @@ from django.urls import reverse, resolve
 from django.shortcuts import resolve_url
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from movies.constants import RECOMMEND_CATEGORY
+from movies.constants import RECOMMEND_CATEGORY, RECOMMEND_MOVIE
 
 User = get_user_model()
 class Recommend_ListTests(TestCase):
@@ -47,3 +47,13 @@ class Recommend_ListTests(TestCase):
             response = self.client.get(url)
             expected_heading = f"「{category_data['label']}」おすすめの作品はこちら"
             self.assertContains(response, expected_heading)
+    
+    # 各カテゴリの映画タイトル,内容が全件表示されることの確認
+    def test_all_movie_titles_render(self):
+        self.client.login(username="u", password="p")
+        for key in RECOMMEND_CATEGORY.keys():
+            url = reverse("movies:recommend_list", args=[key])
+            response = self.client.get(url)
+            for mv in RECOMMEND_MOVIE[key]:
+                self.assertContains(response, mv["title"])
+                self.assertContains(response, mv["note"])
