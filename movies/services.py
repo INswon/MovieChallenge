@@ -5,6 +5,16 @@ from decouple import config
 TMDB_API_KEY = config("TMDB_API_KEY")  
 BASE_URL = "https://api.themoviedb.org/3/"
 
+# おすすめ映画表示フィルター設定()
+BASE_PARAMS = {
+    "language": "ja-JP",                # 取得言語(日本語)
+    "region": "JP",                     # 日本の公開/人気を優先
+    "include_adult": "false",           # 成人向けカテゴリ除去
+    "primary_release_date.gte": "1990-01-01",  # 1990年以降の映画を対象
+    "sort_by": "popularity.desc",       # 人気順にソート（代表作が上に来やすい）
+    "vote_count.gte": 500,              # 評価数500以上 → マイナー作品を除外
+}
+
 # TMDb API から映画データ取得するサービス
 class TmdbMovieService:
 
