@@ -28,6 +28,21 @@ MOOD_TO_GENRES = {
 # TMDb API から映画データ取得するサービス
 class TmdbMovieService:
 
+    # おすすめ映画のあらすじ表示を80文字に制限
+    @staticmethod
+    def truncate_text(text, max_length=80):
+        #　文章がない時 (空文字を返す)
+        if text is None or text =="":
+            return ""
+        
+        # 80文字以下の時 (そのまま表示)
+        if len(text) <= max_length:
+            return text
+        
+        # 80文字以上の時 (…を末尾につける)
+        long_text = text[:max_length]
+        return long_text + "…" 
+
     # 代表作5作品の取得
     @staticmethod
     def discover_top5(genre_id=None):
