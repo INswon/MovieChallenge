@@ -55,7 +55,21 @@ class TmdbMovieService:
             response = requests.get(url, params=params, timeout=5)
             response.raise_for_status()
             results = response.json().get("results", [])
-            return results[:5]  
+            items = results[:5]  
+
+            formatted = []
+            for m in items:
+                formatted.append({
+                    "id": m.get("id"),
+                    "title": m.get("title"),
+                    "overview": TmdbMovieService.truncate_text(m.get("overview"), 80),
+                    "poster_url": (
+                        f"https://image.tmdb.org/t/p/w342{m['poster_path']}"
+                        if m.get("poster_path") else None
+                    ),
+                    "rating": m.get("vote_average"),
+                })
+            return formatted
         except requests.exceptions.RequestException as e:
             print(f"[Discover取得] APIエラー: {e}")
             return []
