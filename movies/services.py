@@ -5,7 +5,7 @@ from decouple import config
 TMDB_API_KEY = config("TMDB_API_KEY")  
 BASE_URL = "https://api.themoviedb.org/3/"
 
-# おすすめ映画表示フィルター設定()
+# おすすめ映画表示フィルター設定
 BASE_PARAMS = {
     "language": "ja-JP",                # 取得言語(日本語)
     "region": "JP",                     # 日本の公開/人気を優先
@@ -17,6 +17,23 @@ BASE_PARAMS = {
 
 # TMDb API から映画データ取得するサービス
 class TmdbMovieService:
+
+    # 代表作5作品の取得
+    @staticmethod
+    def discover_top5(genre_id=None):
+        url = f"{BASE_URL}discover/movie"
+        params = {**BASE_PARAMS, "api_key": TMDB_API_KEY}
+        if genre_id:
+            params["with_genres"] = genre_id
+
+        try:
+            response = requests.get(url, params=params, timeout=5)
+            response.raise_for_status()
+            results = response.json().get("results", [])
+            return results[:5]  
+        except requests.exceptions.RequestException as e:
+            print(f"[Discover取得] APIエラー: {e}")
+            return []
 
     @staticmethod
     def search(query):
