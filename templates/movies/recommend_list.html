@@ -1,22 +1,30 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %} おすすめ作品 {% endblock %}
 
 {% block content %}
-<section class="container py-4">
-  <h1 class="text-center font-weight-bold mb-4">「{{ label }}」おすすめの作品はこちら</h1>
+  <section class="container py-4">
+    <h1 class="text-center font-weight-bold mb-4">「{{ label }}」おすすめの作品はこちら</h1>
+    <div class="row g-3">  
+      {% for mv in movies %}
+        <div class="col-auto"> 
+          <div class="card h-100" style="width:20rem;">
+            {% if mv.poster_url %}
+              <img src="{{ mv.poster_url }}" class="card-img-top" alt="{{ mv.title }}">
+            {% else %}
+              <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="No image">
+            {% endif %}
 
-  <div class="row">
-    {% for mv in movies %}
-      <div class="col-12 col-md-6 col-lg-3 mb-3">
-        <div class="card h-100">
-          <div class="card-body">
-            <h5 class="card-title mb-2">{{ mv.title}}</h5>
-            <p class="card-text text-muted">{{ mv.note}}</p>
+            <div class="card-body">
+              <h5 class="card-title mb-2">{{ mv.title }}</h5>
+              <p class="card-text text-muted mb-2">{{ mv.overview}}</p>
+              <p class="card-text mb-1"><small class="text-muted">ジャンル: {{ mv.genres|join:"," }}</small></p>
+              <p class="card-text">評価: {{ mv.rating }}</p>
+            </div>
           </div>
-        </div>
-      </div>
-    {% endfor %}
-  </div>
-</section>
+        </div> 
+      {% endfor %}
+    </div>
+  </section>
 {% endblock %}

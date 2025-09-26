@@ -9,7 +9,7 @@ from .forms import MovieRecordForm, MovieSearchForm, UserReviewForm
 from django.views import View
 from django.shortcuts import render,redirect, get_object_or_404
 from django.views.generic import TemplateView
-from .services import TmdbMovieService
+from .services import TmdbMovieService, MOOD_TO_GENRES
 from datetime import date
 import re
 
@@ -288,7 +288,19 @@ class RecommendListView(LoginRequiredMixin, TemplateView):
         category = self.kwargs["category"]
         ctx["category"] = category
         ctx["label"] = RECOMMEND_CATEGORY[category]["label"]
-        ctx["movies"] = RECOMMEND_MOVIE.get(category, []) 
+       
+        # 感情 → ジャンルID に変換
+        genre_ids = MOOD_TO_GENRES.get(category)
+        with_genres = genre_ids if isinstance(genre_ids, str) else "|".join(map(str, genre_ids))
+
+        # サービスを呼び出して映画データ取得
+        movies = TmdbMovieService.discover_top5(with_genres)
+
+        # もしAPIで結果が0件/エラー時はフォールバック
+        if not movies:
+            movies = RECOMMEND_MOVIE.get(category, [])
+
+        ctx["movies"] = movies
         return ctx
     
 # 6. ユーザーによる映画レビューの投稿ビュー
