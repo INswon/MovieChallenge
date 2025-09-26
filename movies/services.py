@@ -77,7 +77,7 @@ class TmdbMovieService:
                         if m.get("poster_path") else None
                     ),
                     "genres": names,
-                    "rating": m.get("vote_average"),
+                    "rating": round(float(m.get("vote_average", 0)) /2, 1)
                 })
             return formatted
         except requests.exceptions.RequestException as e:
