@@ -1,9 +1,14 @@
-import requests
+import requests, random
 from decouple import config
 
 # 準備: 環境変数からAPIキーの取得
 TMDB_API_KEY = config("TMDB_API_KEY")  
 BASE_URL = "https://api.themoviedb.org/3/"
+
+# 映画推薦機能 (ページ取得の制御定数)
+START_PAGE = 1
+MAX_PAGE = 30
+PAGES_PER_FETCH = 3 # 1〜30ページの中の3ページを検索対象にする
 
 # 映画推薦機能 (おすすめ映画表示フィルター設定)
 BASE_PARAMS = {
