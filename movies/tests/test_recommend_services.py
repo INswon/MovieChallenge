@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unittest.mock import patch, Mock
-from movies.services import TmdbMovieService as tmdb 
+from movies.services import TmdbMovieService as tmdb, MOOD_TO_GENRES
 
 class TmdbServiceParamTests(TestCase):
 
@@ -33,11 +33,11 @@ class TmdbServiceParamTests(TestCase):
 
         # 該当呼び出しのパラメータを検証
         expected = {
-            "language": "ja-JP", #言語
-            "region": "JP", #
-            "include_adult": "false",
-            "sort_by": "popularity.desc",
-            "with_genres": "27|53",
+            "language": "ja-JP", # 言語
+            "region": "JP", # 地域
+            "include_adult": "false", # 成人除外
+            "sort_by": "popularity.desc", # 人気順
+            "with_genres": "27|53", 
         }
         for k, v in expected.items():
             self.assertEqual(params.get(k), v)
@@ -45,3 +45,13 @@ class TmdbServiceParamTests(TestCase):
         # 評価件数・公開年パラメータ
         self.assertGreaterEqual(int(params["vote_count.gte"]), 500)
         self.assertIn("primary_release_date.gte", params)
+
+    # 感情カテゴリー(MOOD_TO_GENRES)キーに差異がないことの確認
+    def test_mood_keys_exact(self):
+        expected = {"healing","impression","energy","scary","curious"}
+
+        actual = set(MOOD_TO_GENRES.keys())
+
+        missing = expected - actual
+        extra   = actual - expected
+        assert actual == expected, f"Missing: {sorted(missing)} / Extra: {sorted(extra)}"
