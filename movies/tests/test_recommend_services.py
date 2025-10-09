@@ -55,3 +55,42 @@ class TmdbServiceParamTests(TestCase):
         missing = expected - actual
         extra   = actual - expected
         assert actual == expected, f"Missing: {sorted(missing)} / Extra: {sorted(extra)}"
+    
+    # id, タイトル, あらすじ, ジャンルID, 評価が適切であること
+    @patch("movies.services.TmdbMovieService._genre_map", return_value={27: "Horror", 53: "Thriller"})
+    @patch("movies.services.TmdbMovieService.truncate_text", return_value="TRIMMED_80")
+    @patch("movies.services.requests.get")
+    def test_parameters_returns(self, mock_get, mock_trunc, mock_gmap): 
+        # モックでAPIの戻り値を定義
+        mock_data = {
+            "results": [
+            {
+                "id": 1259,
+                "title": "リング",
+                "overview": "ジャーナリストの浅川和美は、姪の突然の死を追ううちに、見た者は1週間後に死ぬという「呪いのビデオ」の存在を知る。彼女自身もビデオを見てしまい、残された時間を呪いの謎を解明するために奔走する。",
+                "poster_path": "/5N90Qv2K8eNf1x0v9Q9sE1wYx7X.jpg",
+                "genre_ids": [27, 53],
+                "vote_average": 7.3,
+                "release_date": "1998-01-31"
+            }
+        ]
+    }
+        mock_get.return_value = Mock(status_code=200, json=lambda: mock_data)
+
+        # 関数呼び出し（services.py 内の対象）
+        out = tmdb.discover_top5([27, 53])
+
+        #　期待される変換後データ
+        expected = [
+            {
+                "id": 1259,
+                "title": "リング",
+                "overview": "TRIMMED_80",  
+                "poster_url": "https://image.tmdb.org/t/p/w342/5N90Qv2K8eNf1x0v9Q9sE1wYx7X.jpg",
+                "genres": ["Horror", "Thriller"],  
+                "rating": 3.6,  
+            }
+        ]
+
+        # 比較（完全一致）
+        assert out == expected
