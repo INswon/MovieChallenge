@@ -94,3 +94,16 @@ class TmdbServiceParamTests(TestCase):
 
         # 比較（完全一致）
         assert out == expected
+    
+    # おすすめ映画データ未取得時、空リスト([])を返すことの確認
+    @patch("movies.services.requests.get")
+    def test_return_empty_when_no_results(self,mock_get):
+
+        # APIが「空のresults」を返すシナリオをモックで作成
+        mock_get.return_value = Mock(status_code=200, json=lambda:{"results": []})
+
+        # おすすめ映画呼び出し(discover_top5)を実行
+        out = tmdb.discover_top5([27, 53])
+
+        # 例外を発生させず、空リスト([])を返すことを確認
+        assert out == []
