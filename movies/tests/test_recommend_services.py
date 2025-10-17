@@ -1,7 +1,7 @@
 from django.test import TestCase
 from unittest.mock import patch, Mock
 from movies.services import TmdbMovieService as tmdb, MOOD_TO_GENRES
-
+import random as _random
 class TmdbServiceParamTests(TestCase):
 
     # 主要なパラメータ（言語・地域・年・成人除外・人気順・評価数500以上・ジャンル指定）が揃っていること
@@ -107,3 +107,30 @@ class TmdbServiceParamTests(TestCase):
 
         # 例外を発生させず、空リスト([])を返すことを確認
         assert out == []
+
+    # おすすめ映画の同一作品の重複がないことの確認
+    @patch("movies.services.random.sample")
+    @patch("movies.services.requests.get")
+    @patch.object(tmdb, "_genre_map", return_value={})
+    def test_seen_ids_eliminates_duplicates(self, _gmap, mock_get, mock_rand):  
+        original_sample = _random.sample
+
+        def sample_stub(population, k, *args, **kwargs):
+            if isinstance(population, range):
+                return [1, 2, 3]  
+            return original_sample(population, k, *args, **kwargs)
+        mock_rand.side_effect = sample_stub
+
+        def r(payload):
+            resp = Mock(); resp.json.return_value = payload
+            resp.raise_for_status = lambda: None
+            return resp
+
+        def fake_get(url, params=None, timeout=5):
+            if url.endswith("discover/movie"):
+                p = params.get("page")
+                return {
+                    1: r({"results":[{"id":100,"genre_ids":[27]},{"id":200,"genre_ids":[53]}]}),
+                    2: r({"results":[{"id":100,"genre_ids":[27]},{"id":300,"genre_ids":[27,53]}]}),
+                    3: r({"results":[{"id":400,"genre_ids":[53]}]}),
+                }[p]
