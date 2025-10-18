@@ -134,3 +134,38 @@ class TmdbServiceParamTests(TestCase):
                     2: r({"results":[{"id":100,"genre_ids":[27]},{"id":300,"genre_ids":[27,53]}]}),
                     3: r({"results":[{"id":400,"genre_ids":[53]}]}),
                 }[p]
+
+    # おすすめ映画のポスターがnullでも適切にサービス処理されることの確認
+    @patch("movies.services.requests.get")
+    @patch("movies.services.TmdbMovieService._genre_map", return_value={27: "Horror"})
+    def test_none_poster_returns_movie_with_none_url(self, _gmap, mock_get):
+
+        #モックでジャンルホラーで、ポスターがnullの映画作品の送信
+        mock_get.return_value = Mock(                                             
+            status_code=200,                                                     
+            json=lambda: {                                                      
+                "results": [{                                                    
+                    "id": 1,                                                     
+                    "title": "NoPoster",                                         
+                    "overview": "..." * 10,                                      
+                    "poster_path": None,  
+                    "genre_ids": [27],                                           
+                    "vote_average": 7.2,                                         
+            }]                                                               
+        }                                                                    
+    )
+        # 期待値;ぷスターデータがnullであること
+        expected = [{                                                             
+            "id": 1,                                                              
+            "title": "NoPoster",                                                  
+            "overview": "..." * 10,                                               
+            "poster_url": None, 
+            "genres": ["Horror"],                                                 
+            "rating": 3.6,  
+        }]            
+
+        # ホラーのジャンルIDを比較対象とする
+        out = tmdb.discover_top5([27])                                           
+                                                                              
+        # 比較（完全一致）                                                                              
+        self.assertEqual(out, expected)              
