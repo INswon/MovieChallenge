@@ -11,7 +11,7 @@ class Recommend_ListTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username="u", password="p")
      
-    # 気分別おすすめ映画一覧のURL逆引き、ルーティングが適切である確認
+    # 気分別おすすめ映画一覧のURL逆引き、ルーティングが適切である確認　
     def test_reverse_and_resolve(self):
         for key in RECOMMEND_CATEGORY.keys():
             url = reverse("movies:recommend_list", args=[key])
@@ -20,7 +20,7 @@ class Recommend_ListTests(TestCase):
             self.assertEqual(match.view_name, "movies:recommend_list")
             self.assertEqual(match.kwargs, {"category":key})
 
-    # ログイン済みユーザーが気分別おすすめ映画一覧にアクセスでき、期待テンプレートで描画されることを確認
+    # ログイン済みユーザーが気分別おすすめ映画一覧にアクセスでき、期待テンプレートで描画されることを確認　
     def test_status_and_template(self):
         self.client.login(username = "u", password = "p")
         for key in RECOMMEND_CATEGORY.keys():
@@ -30,7 +30,7 @@ class Recommend_ListTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTemplateUsed(response, "movies/recommend_list.html")
 
-    # 未ログインユーザーはリダイレクトされることの確認
+    # 未ログインユーザーはリダイレクトされることの確認　
     def test_redirects_when_not_logged_in(self):
         for key in RECOMMEND_CATEGORY.keys():
             path = reverse("movies:recommend_list", args=[key])
@@ -48,7 +48,7 @@ class Recommend_ListTests(TestCase):
             expected_heading = f"「{category_data['label']}」おすすめの作品はこちら"
             self.assertContains(response, expected_heading)
     
-    # 各カテゴリの映画タイトル,内容が全件表示されることの確認
+    # 各カテゴリの映画タイトル,内容が全件表示されることの確認 
     def test_all_movie_titles_render(self):
         self.client.login(username="u", password="p")
         for key in RECOMMEND_CATEGORY.keys():
@@ -57,3 +57,12 @@ class Recommend_ListTests(TestCase):
             for mv in RECOMMEND_MOVIE[key]:
                 self.assertContains(response, mv["title"])
                 self.assertContains(response, mv["note"])
+
+    # 存在しないcategoryを指定時、サーバ内部エラー(500)ではなく、リソース不在を表すHTTP 404を返すことの確認
+    def test_invalid_category_returns_404(self):
+        self.client.login(username="u", password="p")  
+        url = reverse("movies:recommend", args=["__invalid__"])
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 404)
+
+
