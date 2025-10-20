@@ -168,4 +168,30 @@ class TmdbServiceParamTests(TestCase):
         out = tmdb.discover_top5([27])                                           
                                                                               
         # 比較（完全一致）                                                                              
-        self.assertEqual(out, expected)              
+        self.assertEqual(out, expected)       
+
+    # おすすめ作品数が5作品未満でもエラーにならないことの確認
+    @patch("movies.services.requests.get")
+    def test_reurns_safely_when_three_items(self,mock_get):
+        
+        # 3件だけの映画データをモックで返す
+        mock_get.return_value = Mock(
+            status_code = 200,
+              json=lambda: {
+                  "results": [
+                    {"id": 10, "title": "A", "overview": "x",
+                    "poster_path": "/a.jpg", "genre_ids": [27], "vote_average": 8.0},
+                    {"id": 11, "title": "B", "overview": "x",
+                    "poster_path": "/b.jpg", "genre_ids": [27], "vote_average": 7.0},
+                    {"id": 12, "title": "C", "overview": "x",
+                    "poster_path": "/c.jpg", "genre_ids": [27], "vote_average": 6.0}, 
+                ]
+            }
+        )
+
+        # 怖いジャンルに該当する作品
+        out = tmdb.discover_top5([27])
+
+        # 3作品データが返却されるか確認
+        self.assertEqual(len(out), 3)
+        self.assertEqual({m['id'] for m in out}, {10, 11, 12})
