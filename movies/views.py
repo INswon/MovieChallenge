@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.views.generic import ListView, CreateView, DeleteView, UpdateView, DetailView
 from django.http import HttpResponseForbidden, JsonResponse
 from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
@@ -286,9 +287,13 @@ class RecommendListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         category = self.kwargs["category"]
+
+        if category not in RECOMMEND_CATEGORY or category not in MOOD_TO_GENRES:
+            raise Http404("ページが見つかりません")
+        
         ctx["category"] = category
-        ctx["label"] = RECOMMEND_CATEGORY[category]["label"]
-       
+        ctx["label"] = RECOMMEND_CATEGORY[category]["label"] 
+
         # 感情 → ジャンルID に変換
         genre_ids = MOOD_TO_GENRES.get(category)
         with_genres = genre_ids if isinstance(genre_ids, str) else "|".join(map(str, genre_ids))
