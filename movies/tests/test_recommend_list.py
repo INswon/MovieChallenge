@@ -4,8 +4,16 @@ from django.shortcuts import resolve_url
 from django.contrib.auth import get_user_model
 from django.conf import settings
 from movies.constants import RECOMMEND_CATEGORY, RECOMMEND_MOVIE
+from movies.services import MOOD_TO_GENRES
+from unittest.mock import patch
 
 User = get_user_model()
+ANY_VALID = next(iter(RECOMMEND_CATEGORY.keys()))
+
+# listなら"|"連結、strならそのまま
+def join_or_keep(v):
+    return v if isinstance(v, str) else "|".join(map(str, v))
+
 class Recommend_ListTests(TestCase):
     #　作成データ
     def setUp(self):
@@ -65,4 +73,30 @@ class Recommend_ListTests(TestCase):
         res = self.client.get(url)
         self.assertEqual(res.status_code, 404)
 
+    #　正しいジャンルIDでサービス呼び出しが行われているかの確認
+    @patch("movies.views.TmdbMovieService.discover_top5")  
+    def test_view_calls_service_with_correct_with_genres(self, mock_discover):
+        self.client.login(username="u", password="p")  
+        mock_discover.return_value = [{
+            "title": "dummy",
+            "overview": "dummy",
+            "poster_url": None,   
+            "genres": [],         
+            "rating": 3.5         
+        }]
 
+        url = reverse("movies:recommend", args=[ANY_VALID])
+        res = self.client.get(url)
+        self.assertEqual(res.status_code, 200)
+
+        # 呼び出し確認
+        mock_discover.assert_called_once()
+
+        # 期待値：配列は"|"連結、文字列はそのまま
+        expected = join_or_keep(MOOD_TO_GENRES[ANY_VALID])
+
+        # 位置/キーワード 両対応で取得（今回は位置引数対策）
+        args, kwargs = mock_discover.call_args
+        passed = kwargs.get("with_genres") or (args[0] if args else None)
+
+        self.assertEqual(passed, expected)
