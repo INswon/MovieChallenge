@@ -46,8 +46,9 @@ class UserMissionProgressView(LoginRequiredMixin, ListView):
 # バッチ一覧表示リストビュー
 class BatchListTemplateView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        return render(request, "missions/batch_list.html")
+        return render(request, "missons/user_batch_list.html")
     
+
 # バッチ一覧表示リストビュー
 class BatchListView(View):
     def get(self, request, *args, **kwargs):
