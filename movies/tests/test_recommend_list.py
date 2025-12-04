@@ -100,3 +100,12 @@ class Recommend_ListTests(TestCase):
         passed = kwargs.get("with_genres") or (args[0] if args else None)
 
         self.assertEqual(passed, expected)
+
+    # ビューでcontext["movies"]が存在すること、件数が一致していること
+    @patch("movies.views.TmdbMovieService.discover_top5")
+    def test_context_has_movies_and_status_200(self, _):
+        self.client.login(username="u", password="p")  
+        res = self.client.get(reverse("movies;recommend", args=[ANY_VALID]))
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, "Movie x")
+        self.assertContains(res, "Movie y")
