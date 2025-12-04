@@ -50,3 +50,7 @@ logs/
 
 # --- （任意）事前ビルドしたWheelの置き場（キャッシュ） ---
 .wheelhouse/
+0001-test-TMDb-52.patch
+tmdb_mood_sample_*.csv
+*.pyc
+myenv/
