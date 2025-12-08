@@ -33,9 +33,34 @@
 
 ---
 
-## 3. 画面イメージ（例）
+## 3. 画面内容
+
+###  ログイン画面　/  ホーム画面
+<table>
+  <tr>
+    <th style="text-align:center;">ログイン画面</th>
+    <th style="text-align:center;">ホーム画面</th>
+  </tr>
+
+  <tr>
+    <td width="50%" align="center">
+      <img src="document/image/login.jpg" style="width:100%; max-width:800px;">
+    </td>
+    <td width="50%" align="center">
+      <img src="document/image/home.jpg" style="width:100%; max-width:800px;">
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding: 10px;">
+      メールアドレスとパスワードでサインインでき、ユーザーはアプリ利用をすぐ開始できます。
+    </td>
+    <td style="padding: 10px;">
+      ログインするとホーム画面に遷移します。気分検索・映画検索・記録確認へワンクリックで移動できます
+    </td>
+  </tr>
+</table>
 
 
 ---
 
----
