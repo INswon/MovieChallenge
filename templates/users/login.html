@@ -1,23 +1,33 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/login/styles.css' %}?v=3.0">
-    <title>ログイン</title>
+    <title>ログイン | ムードシネマ</title>
+    <link rel="stylesheet" href="{% static 'css/auth/auth.css' %}">
 </head>
-<body>
-    <div class="container">
+
+<body class="auth-bg">
+
+    <div class="auth-card">
+        <h2 class="auth-title">ログイン</h2>
+
         <form method="post">
-            <h2>ログイン</h2>
             {% csrf_token %}
-            {{ form.as_p }}
-            <div class="message-container ">
-                <button type="submit">ログイン</button>
-                <button type="button" onclick="location.href='{% url 'users:signup' %}'">ユーザー登録</button>
-            </div>            
+            <div class="auth-fields">
+                {{ form.username }}
+                {{ form.password }}
+            </div>
+
+            <button type="submit" class="btn-primary">ログイン</button>
+
+            <p class="auth-link">
+                アカウントをお持ちでない方 → 
+                <a href="{% url 'users:signup' %}">新規登録</a>
+            </p>
         </form>
     </div>
+
 </body>
 </html>
