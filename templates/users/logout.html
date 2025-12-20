@@ -1,18 +1,17 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{% static 'css/login/styles.css' %}?v=3.0">
-    <title>ログアウト</title>
+    <title>ログアウト | ムードシネマ</title>
+    <link rel="stylesheet" href="{% static 'css/auth/auth.css' %}">
 </head>
-<body>
-    <div class="container">
-        <div class="message-container">
-            <h2>ログアウトしました</h2>
-            <p><a href="{% url 'users:login' %}">ログイン画面に戻る</a></p>
-        </div>
+
+<body class="auth-bg">
+    <div class="auth-card">
+        <h2 class="auth-title">ログアウトしました</h2>
+        <a href="{% url 'users:login' %}" class="btn-primary">ログイン画面へ戻る</a>
     </div>
 </body>
 </html>
