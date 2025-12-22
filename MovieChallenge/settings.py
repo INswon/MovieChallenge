@@ -128,6 +128,8 @@ LOGIN_URL = '/users/login/'
 DEBUG = False
 ALLOWED_HOSTS = ['g6qqzffsxu.ap-northeast-1.awsapprunner.com']
 CSRF_TRUSTED_ORIGINS = ["https://g6qqzffsxu.ap-northeast-1.awsapprunner.com"]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 LOGGING = {
     "version": 1,
