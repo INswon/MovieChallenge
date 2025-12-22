@@ -35,7 +35,7 @@
 
 ## 3. 画面内容
 
-###  ログイン画面　/  ホーム画面
+###  ログイン画面　　/　ホーム画面
 <table>
   <tr>
     <th style="text-align:center;">ログイン画面</th>
@@ -61,6 +61,35 @@
   </tr>
 </table>
 
+### いますぐ探す画面　　/　映画作品検索結果
+<table>
+  <tr>
+    <th style="text-align:center;">いますぐ探す画面</th>
+    <th style="text-align:center;">映画作品検索結果画面</th>
+  </tr>
 
+  <tr>
+    <td width="40%" align="center">
+      <img src="document/image/movie_search_1.jpg" style="width:100%; max-width:600px;">
+    </td>
+    <td width="50%" align="center">
+      <img src="document/image/movie_search_2.jpg" style="width:100%; max-width:800px;">
+    </td>
+  </tr>
+
+  <tr>
+    <td style="padding: 10px;">
+      映画作品の検索画面に遷移します。
+    </td>
+    <td style="padding: 10px;">
+      シリーズものは全作品出力されます。
+    </td>
+  </tr>
+
+</table>
+
+
+
+ 
 ---
 
