@@ -99,7 +99,6 @@ TIME_ZONE = 'Asia/Tokyo'
 USE_I18N = True
 USE_TZ = True
 
-
 # TMDb API設定
 TMDB_API_KEY = config('TMDB_API_KEY')  # .envファイルからAPIキーを取得
 TMDB_ACCESS_TOKEN = config('TMDB_ACCESS_TOKEN')  # .envファイルからアクセストークンを取得
@@ -121,11 +120,14 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEBUG = False
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = '/movies/home/'
 LOGIN_URL = '/users/login/'
-ALLOWED_HOSTS = ['*']
+
+# セキュリティ設定
+DEBUG = False
+ALLOWED_HOSTS = ['g6qqzffsxu.ap-northeast-1.awsapprunner.com']
+CSRF_TRUSTED_ORIGINS = ["https://g6qqzffsxu.ap-northeast-1.awsapprunner.com"]
 
 LOGGING = {
     "version": 1,
