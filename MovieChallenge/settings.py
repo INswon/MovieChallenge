@@ -126,7 +126,11 @@ LOGIN_URL = '/users/login/'
 
 # セキュリティ設定
 DEBUG = False
-ALLOWED_HOSTS = ['g6qqzffsxu.ap-northeast-1.awsapprunner.com']
+ALLOWED_HOSTS = [
+    ".awsapprunner.com",  # 1. App Runner接続許可(本番環境)
+    "localhost",  # 2. ローカル環境接続許可
+    "127.0.0.1",
+]
 CSRF_TRUSTED_ORIGINS = ["https://g6qqzffsxu.ap-northeast-1.awsapprunner.com"]
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
