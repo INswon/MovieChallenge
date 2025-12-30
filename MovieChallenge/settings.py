@@ -64,6 +64,7 @@ WSGI_APPLICATION = "MovieChallenge.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# SQLite3 環境設定
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -71,6 +72,17 @@ DATABASES = {
     }
 }
 
+# PostgreSQL設定
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",   
+        "NAME": os.environ.get("DB_NAME"),           # DB名
+        "USER": os.environ.get("DB_USER"),           # ユーザー名
+        "PASSWORD": os.environ.get("DB_PASSWORD"),   # パスワード
+        "HOST": os.environ.get("DB_HOST"),           # エンドポイント
+        "PORT": "5432",                             
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
