@@ -140,6 +140,7 @@ LOGIN_URL = '/users/login/'
 DEBUG = False
 ALLOWED_HOSTS = [
     ".awsapprunner.com",  # 1. App Runner接続許可(本番環境)
+    "169.254.172.3" # App Runnerヘルスチェック用 IP
     "localhost",  # 2. ローカル環境接続許可
     "127.0.0.1",
 ]
