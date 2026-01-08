@@ -64,6 +64,7 @@ WSGI_APPLICATION = "MovieChallenge.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# SQLite3 環境設定
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -71,6 +72,17 @@ DATABASES = {
     }
 }
 
+# PostgreSQL設定
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",   
+        "NAME": os.environ.get("DB_NAME"),           # DB名
+        "USER": os.environ.get("DB_USER"),           # ユーザー名
+        "PASSWORD": os.environ.get("DB_PASSWORD"),   # パスワード
+        "HOST": os.environ.get("DB_HOST"),           # エンドポイント
+        "PORT": "5432",                             
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -99,7 +111,6 @@ TIME_ZONE = 'Asia/Tokyo'
 USE_I18N = True
 USE_TZ = True
 
-
 # TMDb API設定
 TMDB_API_KEY = config('TMDB_API_KEY')  # .envファイルからAPIキーを取得
 TMDB_ACCESS_TOKEN = config('TMDB_ACCESS_TOKEN')  # .envファイルからアクセストークンを取得
@@ -121,11 +132,21 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
-DEBUG = False
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_REDIRECT_URL = '/movies/home/'
 LOGIN_URL = '/users/login/'
-ALLOWED_HOSTS = ['*']
+
+# セキュリティ設定
+DEBUG = False
+ALLOWED_HOSTS = [
+    ".awsapprunner.com",  # 1. App Runner接続許可(本番環境)
+    "169.254.172.3" # App Runnerヘルスチェック用 IP
+    "localhost",  # 2. ローカル環境接続許可
+    "127.0.0.1",
+]
+CSRF_TRUSTED_ORIGINS = ["https://g6qqzffsxu.ap-northeast-1.awsapprunner.com"]
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 LOGGING = {
     "version": 1,

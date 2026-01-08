@@ -1,0 +1,11 @@
+version: 1.0
+runtime: python311  # Python ランタイムを使用
+build:
+  commands:
+    build:
+      - pip install -r requirements.txt  # 依存ライブラリをインストール
+      - chmod +x entrypoint.sh  # entrypoint.sh を実行許可する
+run:
+  command: sh entrypoint.sh  # コンテナ起動時に実行するコマンド
+  network:
+    port: 8000  # Gunicorn が listen するポート
