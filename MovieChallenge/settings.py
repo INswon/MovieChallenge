@@ -31,6 +31,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -116,16 +117,14 @@ TMDB_API_KEY = config('TMDB_API_KEY')  # .envファイルからAPIキーを取�
 TMDB_ACCESS_TOKEN = config('TMDB_ACCESS_TOKEN')  # .envファイルからアクセストークンを取得
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
-
+# 静的ファイル
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_VERSION = "1.0.0"
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')] # 開発環境時のファイルディレクトリ
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # 本番環境時のファイルディレクトリ
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files
-# https://docs.djangoproject.com/en/5.0/topics/files/
-
+# メディアファイル
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
