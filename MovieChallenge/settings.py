@@ -2,6 +2,7 @@ from pathlib import Path
 from decouple import config
 import os
 
+DEBUG = config('DEBUG', default=True, cast=bool)
 DEFAULT_CHARSET = 'utf-8'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -62,28 +63,27 @@ TEMPLATES = [
 WSGI_APPLICATION = "MovieChallenge.wsgi.application"
 
 
-# Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
-# SQLite3 環境設定
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# データベース設定
+if DEBUG:
+    # ローカル環境: SQLite3
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
     }
-}
-
-# PostgreSQL設定
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",   
-        "NAME": os.environ.get("DB_NAME"),           # DB名
-        "USER": os.environ.get("DB_USER"),           # ユーザー名
-        "PASSWORD": os.environ.get("DB_PASSWORD"),   # パスワード
-        "HOST": os.environ.get("DB_HOST"),           # エンドポイント
-        "PORT": "5432",                             
+else:
+    # 本番環境: PostgreSQL設定
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",   
+            "NAME": os.environ.get("DB_NAME"),           # DB名
+            "USER": os.environ.get("DB_USER"),           # ユーザー名
+            "PASSWORD": os.environ.get("DB_PASSWORD"),   # パスワード
+            "HOST": os.environ.get("DB_HOST"),           # エンドポイント
+            "PORT": "5432",                             
+        }
     }
-}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
@@ -136,7 +136,6 @@ LOGIN_REDIRECT_URL = '/movies/home/'
 LOGIN_URL = '/users/login/'
 
 # セキュリティ設定
-DEBUG = False
 ALLOWED_HOSTS = [
     ".awsapprunner.com",  # 1. App Runner接続許可(本番環境)
     "169.254.172.3" # App Runnerヘルスチェック用 IP
