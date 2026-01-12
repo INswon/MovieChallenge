@@ -8,6 +8,10 @@ python3 manage.py migrate --noinput || echo "!!! MIGRATE FAILED !!!"
 echo "Run showmigrations"
 python3 manage.py showmigrations || true
 
-# 3: Application startup 設定
+# 3:静的ファイル配信設定
+echo "Collect static files"
+python3 manage.py collectstatic --noinput
+
+# 4: Application startup 設定
 echo "Start gunicorn"
 exec python3 -m gunicorn MovieChallenge.wsgi:application --bind 0.0.0.0:8000
