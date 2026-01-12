@@ -50,3 +50,6 @@ logs/
 
 # --- （任意）事前ビルドしたWheelの置き場（キャッシュ） ---
 .wheelhouse/
+
+# collectstaticコマンドによって生成されるディレクトリ
+staticfiles/
