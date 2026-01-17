@@ -5,12 +5,21 @@ set -e
 echo "===== ENTRYPOINT START ====="
 echo "Run migrations"
 python3 manage.py migrate --noinput || echo "!!! MIGRATE FAILED !!!"
+
 echo "Run showmigrations"
 python3 manage.py showmigrations || true
 
 # 3:静的ファイル配信設定
 echo "Collect static files"
 python3 manage.py collectstatic --noinput
+
+echo "Collect static files"
+python3 manage.py collectstatic --noinput -v 2
+
+echo "List staticfiles"
+ls -la staticfiles || true
+ls -la staticfiles/css || true
+find staticfiles -maxdepth 6 -type f -name "*.css" | head -n 50 || true
 
 # 4: Application startup 設定
 echo "Start gunicorn"
