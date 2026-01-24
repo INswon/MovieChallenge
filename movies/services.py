@@ -1,9 +1,14 @@
-import requests
+import requests,random
 from decouple import config
 
 # 準備: 環境変数からAPIキーの取得
 TMDB_API_KEY = config("TMDB_API_KEY")  
 BASE_URL = "https://api.themoviedb.org/3/"
+
+# 映画推薦機能 (ページ取得の制御定数)
+START_PAGE = 1
+MAX_PAGE = 30
+PAGES_PER_FETCH = 3 # 1〜30ページの中の3ページを検索対象にする
 
 # 映画推薦機能 (おすすめ映画表示フィルター設定)
 BASE_PARAMS = {
@@ -37,7 +42,7 @@ class TmdbMovieService:
             return text
         
         long_text = text[:max_length]
-        return long_text + "…" 
+        return long_text + "…"
 
     # ジャンル辞書の取得 
     @staticmethod
@@ -52,18 +57,32 @@ class TmdbMovieService:
     @staticmethod
     def discover_top5(genre_id=None):
         url = f"{BASE_URL}discover/movie"
-        params = {**BASE_PARAMS, "api_key": TMDB_API_KEY}
-        if genre_id:
-            params["with_genres"] = genre_id
-
         try:
-            response = requests.get(url, params=params, timeout=5)
-            response.raise_for_status()
-            results = response.json().get("results", [])
-            items = results[:5]
+            # START_PAGE 〜 PAGES_PER_FETCH の範囲から PAGES_PER_FETCH 個のページランダム選択
+            pages = random.sample(range(START_PAGE, MAX_PAGE + 1), k=PAGES_PER_FETCH)
+
+            # 複数ページから取得したデータをpoolに集約
+            pool, seen_ids = [], set()
+            for p in pages:
+                params = {**BASE_PARAMS, "api_key": TMDB_API_KEY, "page": p}
+                if genre_id:
+                    params["with_genres"] = "|".join(str(g) for g in genre_id)
+                    
+                r = requests.get(url, params=params, timeout=5)
+                r.raise_for_status()
+
+                for m in r.json().get("results", []):
+                    mid = m.get("id")
+                    if not mid or mid in seen_ids:
+                        continue
+                    seen_ids.add(mid)
+                    pool.append(m)
+
+            # 集約したpoolからランダムに5件抽出（足りなければ取得できた分だけ抽出)
+            k = 5 if len(pool) >= 5 else len(pool)
+            items = random.sample(pool, k=k) if k else []
 
             gmap = TmdbMovieService._genre_map()
-
             formatted = []
             for m in items:
                 ids = m.get("genre_ids", [])
