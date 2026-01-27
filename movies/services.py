@@ -57,17 +57,18 @@ class TmdbMovieService:
     @staticmethod
     def discover_top5(genre_id=None):
         url = f"{BASE_URL}discover/movie"
-        try:
-            # START_PAGE 〜 PAGES_PER_FETCH の範囲から PAGES_PER_FETCH 個のページランダム選択
-            pages = random.sample(range(START_PAGE, MAX_PAGE + 1), k=PAGES_PER_FETCH)
+        
+        pages = random.sample(range(START_PAGE, MAX_PAGE + 1), k=PAGES_PER_FETCH) # PAGES_PER_FETCH 個のページランダム選択
+        pool, seen_ids = [], set()
 
-            # 複数ページから取得したデータをpoolに集約
-            pool, seen_ids = [], set()
-            for p in pages:
+        gmap = TmdbMovieService._genre_map()
+
+        for p in pages:
+            try:
                 params = {**BASE_PARAMS, "api_key": TMDB_API_KEY, "page": p}
                 if genre_id:
                     params["with_genres"] = "|".join(str(g) for g in genre_id)
-                    
+
                 r = requests.get(url, params=params, timeout=5)
                 r.raise_for_status()
 
@@ -78,30 +79,33 @@ class TmdbMovieService:
                     seen_ids.add(mid)
                     pool.append(m)
 
-            # 集約したpoolからランダムに5件抽出（足りなければ取得できた分だけ抽出)
-            k = 5 if len(pool) >= 5 else len(pool)
-            items = random.sample(pool, k=k) if k else []
+            except requests.exceptions.RequestException as e:
+                print(f"[Discover取得] ページ{p}でエラー。続行: {e}")
+                continue
 
-            gmap = TmdbMovieService._genre_map()
-            formatted = []
-            for m in items:
-                ids = m.get("genre_ids", [])
-                names = [gmap.get(i) for i in ids if gmap.get(i)]
-                formatted.append({
-                    "id": m.get("id"),
-                    "title": m.get("title"),
-                    "overview": TmdbMovieService.truncate_text(m.get("overview"), 80),
-                    "poster_url": (
-                        f"https://image.tmdb.org/t/p/w342{m['poster_path']}"
-                        if m.get("poster_path") else None
-                    ),
-                    "genres": names,
-                    "rating": round(float(m.get("vote_average", 0)) /2, 1)
-                })
-            return formatted
-        except requests.exceptions.RequestException as e:
-            print(f"[Discover取得] APIエラー: {e}")
+        if not pool:
             return []
+
+        # 集約したpoolからランダムに5件抽出（足りなければ取得できた分だけ抽出)
+        k = min(5, len(pool))
+        items = random.sample(pool, k=k) if k else []
+
+        formatted = []
+        for m in items:
+            ids = m.get("genre_ids", [])
+            names = [gmap.get(i) for i in ids if gmap.get(i)]
+            formatted.append({
+                "id": m.get("id"),
+                "title": m.get("title"),
+                "overview": TmdbMovieService.truncate_text(m.get("overview"), 80),
+                "poster_url": (
+                    f"https://image.tmdb.org/t/p/w342{m['poster_path']}"
+                    if m.get("poster_path") else None
+                ),
+                "genres": names,
+                "rating": round(float(m.get("vote_average", 0)) / 2, 1)
+            })
+        return formatted
     
     # 映画作品検索機能 
     @staticmethod
