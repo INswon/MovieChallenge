@@ -67,7 +67,7 @@ class TmdbMovieService:
             try:
                 params = {**BASE_PARAMS, "api_key": TMDB_API_KEY, "page": p}
                 if genre_id:
-                    params["with_genres"] = "|".join(str(g) for g in genre_id)
+                    params["with_genres"] = genre_id if isinstance(genre_id, str) else "|".join(map(str, genre_id)) 
 
                 r = requests.get(url, params=params, timeout=5)
                 r.raise_for_status()
