@@ -1,5 +1,7 @@
-import requests,random
+import requests, random, logging
 from decouple import config
+
+logger = logging.getLogger(__name__)
 
 # 準備: 環境変数からAPIキーの取得
 TMDB_API_KEY = config("TMDB_API_KEY")  
@@ -54,20 +56,50 @@ class TmdbMovieService:
         return {g["id"]: g["name"] for g in r.json().get("genres", [])}
 
     # 映画推薦機能 (代表作5作品の取得)
+
     @staticmethod
-    def discover_top5(genre_id=None):
+    def get_safe_genre_ids(category):
+        genre_ids = MOOD_TO_GENRES.get(category)
+        
+        if genre_ids is None:
+            logger.warning(f"[CATEGORY_NOT_FOUND] Category '{category}' is not defined in MOOD_TO_GENRES.")
+            return [] 
+            
+        return genre_ids
+        
+    @staticmethod
+    def discover_top5(genre_ids=None):
+
         url = f"{BASE_URL}discover/movie"
         
-        pages = random.sample(range(START_PAGE, MAX_PAGE + 1), k=PAGES_PER_FETCH) # PAGES_PER_FETCH 個のページランダム選択
+        # 1. 引数の安全な処理: どんな型が来てもTMDB用の文字列「10|12」に変換
+        if not genre_ids:
+            with_genres = ""
+        elif isinstance(genre_ids, list):
+            with_genres = "|".join(map(str, genre_ids))
+        else:
+            # 文字列や単一の数値が来ても動作を保証する
+            with_genres = str(genre_ids)
+
+        logger.info(f"[TMDB_FETCH] Start fetching movies. genres='{with_genres}'")
+
+        # 2. ジャンルマップの取得 (ここが失敗しても空リストで耐える)
+        try:
+            gmap = TmdbMovieService._genre_map()
+        except Exception as e:
+            logger.error(f"[TMDB_ERROR] Failed to fetch genre map: {e}")
+            return []
+
+        # 3. 検索対象ページのサンプリング
+        pages = random.sample(range(START_PAGE, MAX_PAGE + 1), k=PAGES_PER_FETCH)
         pool, seen_ids = [], set()
 
-        gmap = TmdbMovieService._genre_map()
-
+        # 4. APIリクエストループ
         for p in pages:
             try:
                 params = {**BASE_PARAMS, "api_key": TMDB_API_KEY, "page": p}
-                if genre_id:
-                    params["with_genres"] = genre_id if isinstance(genre_id, str) else "|".join(map(str, genre_id)) 
+                if with_genres:
+                    params["with_genres"] = with_genres
 
                 r = requests.get(url, params=params, timeout=5)
                 r.raise_for_status()
@@ -80,16 +112,20 @@ class TmdbMovieService:
                     pool.append(m)
 
             except requests.exceptions.RequestException as e:
-                print(f"[Discover取得] ページ{p}でエラー。続行: {e}")
+                # 途中のページが失敗しても、取得済みのデータで続行する
+                logger.warning(f"[TMDB_PAGE_ERROR] Page {p} fetch failed. Reason: {e}")
                 continue
 
+        # 5. 取得結果のチェック
         if not pool:
+            logger.info(f"[TMDB_NO_RESULTS] No movies found for genres: {with_genres}")
             return []
 
-        # 集約したpoolからランダムに5件抽出（足りなければ取得できた分だけ抽出)
+        # 6. ランダムに5件抽出
         k = min(5, len(pool))
-        items = random.sample(pool, k=k) if k else []
+        items = random.sample(pool, k=k)
 
+        # 7. データの整形
         formatted = []
         for m in items:
             ids = m.get("genre_ids", [])
@@ -105,6 +141,8 @@ class TmdbMovieService:
                 "genres": names,
                 "rating": round(float(m.get("vote_average", 0)) / 2, 1)
             })
+            
+        logger.info(f"[TMDB_SUCCESS] Formatted {len(formatted)} movies successfully.")
         return formatted
     
     # 映画作品検索機能 
@@ -121,13 +159,11 @@ class TmdbMovieService:
         }
 
         try:
-            response = requests.get(url, params=params, timeout=5)
-            response.raise_for_status()
             data = response.json()
-            print(f"APIレスポンス: {data}") 
+            logger.info(f"[TMDB_SEARCH] Query: {query}, Found: {len(data.get('results', []))}")
             return data.get("results", [])
         except requests.exceptions.RequestException as e:
-            print(f"APIエラー: {e}")
+            logger.error(f"[TMDB_SEARCH_ERROR] Query: {query}, Error: {e}")
             return []
 
     # 映画作品詳細表示
@@ -144,7 +180,7 @@ class TmdbMovieService:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f"[詳細取得] APIエラー: {e}")
+            logger.error(f"[TMDB_DETAIL_ERROR] ID: {movie_id}, Error: {e}")
             return None
         
     # 映画作品監督表示
@@ -165,7 +201,7 @@ class TmdbMovieService:
                     return crew_member.get("name")
             return None
         except requests.exceptions.RequestException as e:
-            print(f"[監督取得] APIエラー: {e}")
+            logger.error(f"[TMDB_DIRECTOR_ERROR] ID: {movie_id}, Error: {e}")
             return None
 
     # 映画記録作成 (「詳細情報」+「監督名」をテンプレート表示できるように整形)
