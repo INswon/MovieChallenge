@@ -11,7 +11,9 @@ from django.shortcuts import render,redirect, get_object_or_404
 from django.views.generic import TemplateView
 from .services import TmdbMovieService, MOOD_TO_GENRES
 from datetime import date
-import re
+import re, logging
+
+logger = logging.getLogger(__name__)
 
 #　補助関数　(UserMovieListView)
 def parse_mood_names(text: str):
@@ -285,23 +287,25 @@ class RecommendListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        category = self.kwargs["category"]
-        ctx["category"] = category
-        ctx["label"] = RECOMMEND_CATEGORY[category]["label"]
-       
-        # 感情 → ジャンルID に変換
-        genre_ids = MOOD_TO_GENRES.get(category)
-        with_genres = genre_ids if isinstance(genre_ids, str) else "|".join(map(str, genre_ids))
 
-        # サービスを呼び出して映画データ取得
-        movies = TmdbMovieService.discover_top5(with_genres)
+        # 1.対象カテゴリーを選択でき、ラベルデータの取得
+        category = self.kwargs.get("category")
+        category_info = RECOMMEND_CATEGORY.get(category, {"label": "おすすめ"})
+        ctx["label"] = category_info["label"]
 
-        # もしAPIで結果が0件/エラー時はフォールバック
+        # 2. 外部サービスへの処理委譲 (ジャンル変換やAPIリクエストの詳細はService層に記述)
+        genre_ids = TmdbMovieService.get_safe_genre_ids(category)
+        movies = TmdbMovieService.discover_top5(genre_ids)
+
+        # 3. API障害や検索結果なしの場合、安全にフォールバックデータへ切り替え
         if not movies:
+            logger.warning(f"[recommend] No movies from API. Using fallback for: {category}")
             movies = RECOMMEND_MOVIE.get(category, [])
 
+        ctx["category"] = category
         ctx["movies"] = movies
-        return ctx
+
+        return ctx    
     
 # 6. ユーザーによる映画レビューの投稿ビュー
 class ReviewPageView(LoginRequiredMixin,CreateView):
