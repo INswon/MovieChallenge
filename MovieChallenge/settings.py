@@ -2,7 +2,7 @@ from pathlib import Path
 from decouple import config
 import os
 
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 LOG_LEVEL = config('DJANGO_LOG_LEVEL', default='INFO')
 DEFAULT_CHARSET = 'utf-8'
 
