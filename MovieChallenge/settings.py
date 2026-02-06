@@ -159,7 +159,8 @@ LOGGING = {
     },
     "handlers":{
         "console": { 
-            "level": "DEBUG",
+            # ローカルは調査用にDEBUG、本番はLOG_LEVELでログ量を抑える
+            "level": "DEBUG" if DEBUG else LOG_LEVEL, 
             "class": "logging.StreamHandler",
             "formatter": "production",
         },
