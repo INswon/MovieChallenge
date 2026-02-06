@@ -3,6 +3,7 @@ from decouple import config
 import os
 
 DEBUG = config('DEBUG', default=True, cast=bool)
+LOG_LEVEL = config('DJANGO_LOG_LEVEL', default='INFO')
 DEFAULT_CHARSET = 'utf-8'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -138,7 +139,7 @@ LOGIN_URL = '/users/login/'
 # セキュリティ設定
 ALLOWED_HOSTS = [
     ".awsapprunner.com",  # 1. App Runner接続許可(本番環境)
-    "169.254.172.3" # App Runnerヘルスチェック用 IP
+    "169.254.172.3", # App Runnerヘルスチェック用 IP
     "localhost",  # 2. ローカル環境接続許可
     "127.0.0.1",
 ]
@@ -150,20 +151,39 @@ LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {message}",
+        "production": {
+            # {name} を入れることで「どのファイルのログか」を CloudWatch 上で特定しやすくする
+            "format": "[{levelname}] {asctime} {name} {message}",
             "style": "{",
         },
     },
-    "handlers": {
+    "handlers":{
         "console": { 
             "level": "DEBUG",
             "class": "logging.StreamHandler",
-            "formatter": "verbose",
+            "formatter": "production",
+        },
+    },
+    "loggers": {
+        "movies": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        "missions": {
+            "handlers": ["console"],
+            "level": LOG_LEVEL,
+            "propagate": False,
+        },
+        # RDS関連：DB接続エラー時情報を残す
+        "django.db.backends": {
+            "handlers": ["console"],
+            "level": "ERROR", 
+            "propagate": False,
         },
     },
     "root": {
-        "handlers": ["console"],  
-        "level": "DEBUG",
+        "handlers": ["console"],
+        "level": "WARNING", # 外部ライブラリ（urllib3など）のノイズを遮断
     },
 }
