@@ -1,27 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}映画鑑賞記録の削除{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
 
 {% block content %}
-
-<div class="container my-1">
-    <section class="jumbotron text-center">
-        <h1 class="jumbotron-heading">映画鑑賞記録の削除</h1>
-    </section>
-</div>
-
-<div class="container">
-    <p class="lead text-muted">以下の映画鑑賞記録を削除します。よろしいですか？</p>
-
-    <div class="alert alert-warning">
-        <h4>{{ object.title }}</h4>
-        <p><strong>鑑賞日:</strong> {{ object.date_watched }}</p>
-        <p><strong>評価:</strong> {{ object.rating }}</p>
+<div class="overlay-bg">
+  <section class="container py-5 record-section">
+    <div class="text-center mb-4">
+      <h1 class="record-title text-white font-weight-bold">映画鑑賞記録の削除</h1>
+      <p class="text-white-50">この記録を本当に削除しますか？</p>
     </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">削除する</button>
-        <a href="{% url 'movies:home' %}" class="btn btn-secondary">キャンセル</a>
-    </form>
+    <div class="card mb-4 mx-auto record-card" style="max-width: 700px;">
+      <div class="card-body record-body">
+        <h5 class="record-movie-title mb-3">{{ object.title }}</h5>
+        <p class="record-date mb-2">鑑賞日: {{ object.date_watched }}</p>
+        <p class="record-rating mb-3">評価: {{ object.rating }}</p>
+        <div class="d-flex justify-content-center gap-3">
+          <form method="post" class="mr-2">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">削除する</button>
+          </form>
+          <a href="{% url 'movies:detail' pk=object.pk %}" class="btn btn-secondary">キャンセル</a>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
-
 {% endblock %}

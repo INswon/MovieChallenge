@@ -1,0 +1,60 @@
+/* 全体の最大幅を制限して間延びを防ぐ */
+.recommend-wrapper .container {
+    max-width: 1100px;
+}
+
+/* カード全体 */
+.movie-card {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.movie-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.18);
+}
+
+/* ポスター画像 */
+.poster {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    display: block;
+}
+
+/* ポスターが無い場合のダミー */
+.poster.placeholder {
+    background: #ddd;
+}
+
+/* 映画情報部分 */
+.movie-info {
+    padding: 14px;
+}
+
+.movie-info .title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.movie-info .genres {
+    font-size: 0.85rem;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.movie-info .rating {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.movie-info .overview {
+    font-size: 0.85rem;
+    color: #444;
+    line-height: 1.4;
+}

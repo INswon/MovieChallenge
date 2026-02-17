@@ -1,2 +1,26 @@
-<h2>レビューを投稿しました。ありがとうございます！</h2>
-<a href="{% url 'movies:home' %}">ホームに戻る</a>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}コメント送信完了{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
+
+{% block content %}
+<div class="overlay-bg">
+  <section class="container py-5 record-section">
+    <div class="card mx-auto record-card" style="max-width: 600px;">
+      <div class="card-body record-body text-center">
+        <h2 class="text-white mb-3">コメントを投稿しました。ありがとうございます！</h2>
+        <p class="text-white-50 mb-4">あなたのコメントは記録の投稿者や他のユーザーの参考になります。</p>
+        <div class="d-flex justify-content-center">
+          <a href="{% url 'movies:home' %}" class="btn btn-primary mr-2">ホームに戻る</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

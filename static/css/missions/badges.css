@@ -1,0 +1,52 @@
+.badges-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 0;
+}
+
+.badge-container {
+    max-width: 900px;
+    width: 100%;
+    padding: 32px 40px 40px;
+    color: #fff;
+}
+
+.badge-page-title {
+    text-align: center;
+    margin-bottom: 32px;
+    font-size: 26px;
+}
+
+.badge-section {
+    margin-bottom: 32px;
+}
+
+.badge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 24px;
+    justify-items: center;
+}
+
+.badge-card {
+    text-align: center;
+    width: 180px;
+}
+
+.badge-img {
+    width: 150px;
+    height: auto;
+    border-radius: 12px;
+}
+
+.badge-title {
+    font-weight: bold;
+    margin-top: 8px;
+}
+
+.badge-unobtained .badge-img {
+    opacity: 0.5;
+    filter: grayscale(100%);
+}

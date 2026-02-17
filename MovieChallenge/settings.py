@@ -2,7 +2,7 @@ from pathlib import Path
 from decouple import config
 import os
 
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 LOG_LEVEL = config('DJANGO_LOG_LEVEL', default='INFO')
 DEFAULT_CHARSET = 'utf-8'
 
@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY', default='dev-insecure-secret-key')
 
 # Application definition
 
@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "movies.apps.MoviesConfig",
     "users",
-    "missions",
+    "missions.apps.MissionsConfig",
     "widget_tweaks",
 ]
 
@@ -114,8 +114,8 @@ USE_I18N = True
 USE_TZ = True
 
 # TMDb API設定
-TMDB_API_KEY = config('TMDB_API_KEY')  # .envファイルからAPIキーを取得
-TMDB_ACCESS_TOKEN = config('TMDB_ACCESS_TOKEN')  # .envファイルからアクセストークンを取得
+TMDB_API_KEY = config('TMDB_API_KEY', default='')
+TMDB_ACCESS_TOKEN = config('TMDB_ACCESS_TOKEN', default='')
 
 
 # 静的ファイル

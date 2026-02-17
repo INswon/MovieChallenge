@@ -69,11 +69,10 @@ class UserReviewForm(forms.ModelForm):
         fields = ["content"]
 
     def clean_content(self):
-        content = self.cleaned_content.get("content")
-        if (len(content) <= 5):
+        content = self.cleaned_data.get("content")
+        if content is not None and len(content) <= 5:
             raise forms.ValidationError("5文字以上で入力してください")
         return content
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs) 
-

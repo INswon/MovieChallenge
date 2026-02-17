@@ -1,46 +1,77 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block title %}映画を記録する{% endblock %}
 
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
+
 {% block content %}
-<h2>この映画を記録する</h2>
+<div class="overlay-bg">
+  <section class="container py-5 record-section">
+    <div class="text-center mb-4">
+      <h1 class="record-title text-white font-weight-bold">この映画を記録する</h1>
+      <p class="text-white-50">作品情報を確認して、ムードや感想を記録しましょう。</p>
+    </div>
 
-<div class="movie-summary">
-  <p>タイトル :  {{ title }}</p>
-  <p><img src="{{ poster }}" width="150" class="poster"></p>
-  <p>監督 : {{ director }}</p>
-  <p>ジャンル : {{ genres }}</p>
+    <div class="card mb-4 mx-auto record-card" style="max-width: 900px;">
+      <div class="row g-0">
+        <div class="col-md-5">
+          {% if poster %}
+            <img src="{{ poster }}" alt="{{ title }}" class="img-fluid record-img">
+          {% endif %}
+        </div>
+
+        <div class="col-md-7">
+          <div class="card-body record-body">
+            <h5 class="record-movie-title mb-3">{{ title }}</h5>
+            {% if director %}
+              <p class="mb-2"><span class="text-muted">監督:</span> {{ director }}</p>
+            {% endif %}
+            {% if genres %}
+              <p class="mb-3"><span class="text-muted">ジャンル:</span> {{ genres }}</p>
+            {% endif %}
+
+            <form method="post">
+              {% csrf_token %}
+
+              <input type="hidden" name="title" value="{{ title }}">
+              <input type="hidden" name="poster" value="{{ poster }}">
+              <input type="hidden" name="director" value="{{ director }}">
+              <input type="hidden" name="genres" value="{{ genres }}">
+
+              <div class="mb-3">
+                <label for="mood" class="form-label text-white">感情</label>
+                <textarea name="mood" id="mood" rows="2" class="form-control" placeholder="「#」をつけて映画を見た印象を簡単に記録できます 例:「#迫力、#涙、#胸が熱くなった」"></textarea>
+              </div>
+
+              <div class="mb-3">
+                <label for="rating" class="form-label text-white">評価（1〜5）</label>
+                <select name="rating" id="rating" class="form-select" required>
+                  <option value="">選択してください</option>
+                  {% for i in rating_choices %}
+                    <option value="{{ i }}">{{ i }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="comment" class="form-label text-white">感想</label>
+                <textarea name="comment" id="comment" rows="5" class="form-control" placeholder="感想を入力してください"></textarea>
+              </div>
+
+              <div class="text-center">
+                <button type="submit" class="btn btn-primary mr-2">記録する</button>
+                <a href="{% url 'movies:movie_search' %}" class="btn btn-secondary">検索に戻る</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 </div>
-
-
-<form method="post">
-  {% csrf_token %}
-
-  <input type="hidden" name="title" value="{{ title }}">
-  <input type="hidden" name="poster" value="{{ poster }}"> 
-  <input type="hidden" name="director" value="{{ director }}"> 
-  <input type="hidden" name="genres" value="{{ genres }}">
-
-  <!-- 感情タグ -->
-  <label for="mood">感情</label><br>
-  <textarea name="mood" id="mood" rows="2" cols="50" placeholder="「#」をつけて映画を見た印象を簡単に記録できます 例:「#迫力、#涙、#胸が熱くなった」"></textarea><br><br>
-  
-  <!-- 評価 -->
-  <label for="rating">評価（1〜5）</label><br>
-  <select name="rating" id="rating" required>
-    <option value="">選択してください</option>
-    {% for i in rating_choices %}
-      <option value="{{ i }}">{{ i }}</option>
-    {% endfor %}
-  </select>
-
-  <br></br>
-
-  <!-- 感想 -->
-  <label for="comment">感想</label><br>
-  <textarea name="comment" id="comment" rows="5" cols="40" placeholder="感想を入力してください"></textarea><br><br>
-
-  <button type="submit">記録する</button>
-</form>
-
-<a href="{% url 'movies:movie_search' %}">検索に戻る</a>
 {% endblock %}

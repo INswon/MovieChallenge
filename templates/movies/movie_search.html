@@ -1,28 +1,55 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}映画検索{% endblock %}
 
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
+
 {% block content %}
-    <!-- 検索フォームセクション -->
-    <form method="get" action="{% url 'movies:movie_search' %}">
-        <input type="text" name="query" placeholder="映画タイトルを入力">
-        <button type="submit">検索</button>
+<div class="overlay-bg">
+  <section class="container py-5">
+    <div class="text-center mb-4">
+      <h1 class="text-white font-weight-bold">作品名で探す</h1>
+      <p class="text-white-50">タイトルを入力して検索</p>
+    </div>
+
+    <form method="get" action="{% url 'movies:movie_search' %}" class="filter-form mb-4">
+      <div class="d-flex">
+        <input type="text" name="query" class="form-control filter-select" placeholder="映画タイトルを入力" value="{{ request.GET.query }}">
+        <button type="submit" class="btn btn-primary ml-2">検索</button>
+      </div>
     </form>
 
-{% if movies %}
-  <h3>検索結果</h3>
-  <ul>
-    {% for movie in movies %}
-      <li>
-        <strong>{{ movie.title }}</strong>（{{ movie.release_date }}）
-        <br>
-        <a href="{% url 'movies:movie_create' %}?movie_id={{ movie.id }}&lang=en-US">
-          <img src="https://image.tmdb.org/t/p/w200{{ movie.poster_path }}" width="100">
-        </a>
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>検索結果がありません</p>
-{% endif %}
+    {% if movies %}
+      <div class="row g-3">
+        {% for movie in movies %}
+          <div class="col-md-4 col-lg-3">
+            <div class="card h-100 record-card">
+              {% if movie.poster_path %}
+                <a href="{% url 'movies:movie_create' %}?movie_id={{ movie.id }}&lang=en-US">
+                  <img src="https://image.tmdb.org/t/p/w300{{ movie.poster_path }}" class="card-img-top record-img" alt="{{ movie.title }}">
+                </a>
+              {% endif %}
+              <div class="card-body record-body">
+                <h5 class="record-movie-title">{{ movie.title }}</h5>
+                {% if movie.release_date %}
+                  <p class="record-date">{{ movie.release_date }}</p>
+                {% endif %}
+                <a href="{% url 'movies:movie_create' %}?movie_id={{ movie.id }}&lang=en-US" class="btn btn-detail">記録を作成</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-light text-center py-5" role="alert">
+        <p class="mb-0 text-muted">検索結果がありません</p>
+      </div>
+    {% endif %}
+  </section>
+</div>
 {% endblock %}

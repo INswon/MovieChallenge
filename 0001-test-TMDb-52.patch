@@ -1,0 +1,75 @@
+From 19ca69f301056c080e6b37b3a78914725f82c2ad Mon Sep 17 00:00:00 2001
+From: Kenta Nakaya <kenta.nakaya.dev@gmail.com>
+Date: Mon, 6 Oct 2025 23:57:06 +0900
+Subject: [PATCH] =?UTF-8?q?test:=20TMDb=E3=82=B5=E3=83=BC=E3=83=93?=
+ =?UTF-8?q?=E3=82=B9=E3=81=AE=E3=83=91=E3=83=A9=E3=83=A1=E3=83=BC=E3=82=BF?=
+ =?UTF-8?q?=E6=A4=9C=E8=A8=BC=E3=83=86=E3=82=B9=E3=83=88=E3=82=92=E8=BF=BD?=
+ =?UTF-8?q?=E5=8A=A0=20#52?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- TMDb APIに渡す主要なパラメータ（言語・地域・年・成人除外・人気順・評価数500以上)が正しく設定されていることの確認
+- 複数回呼び出しが行われる実装にも対応し、with_genres=27|53 の呼び出しを対象に検証
+---
+ movies/tests/test_recommend_services.py | 47 +++++++++++++++++++++++++
+ 1 file changed, 47 insertions(+)
+ create mode 100644 movies/tests/test_recommend_services.py
+
+diff --git a/movies/tests/test_recommend_services.py b/movies/tests/test_recommend_services.py
+new file mode 100644
+index 0000000..704b167
+--- /dev/null
++++ b/movies/tests/test_recommend_services.py
+@@ -0,0 +1,47 @@
++from django.test import TestCase
++from unittest.mock import patch, Mock
++from movies.services import TmdbMovieService as tmdb 
++
++class TmdbServiceParamTests(TestCase):
++
++    # 主要なパラメータ（言語・地域・年・成人除外・人気順・評価数500以上・ジャンル指定）が揃っていること
++    @patch("movies.services.requests.get")
++    def test_all_base_params_are_included(self, mock_get):
++
++        # モックの設定 (API呼び出しが成功したかのように振る舞わせる)
++        mock_get.return_value = Mock(status_code=200, json=lambda: {"results": []})
++        
++        # 実行: 怖いジャンルID（[27, 53]）を直接渡してサービスを呼び出す
++        tmdb.discover_top5([27, 53]) 
++
++        # 呼び出し履歴から with_genres=27|53 の discover/movie 呼び出しを1件探す
++        found_correct_call = False
++        params = None
++        for args, kwargs in mock_get.call_args_list:
++            url = args[0] if args else kwargs.get("url")
++            if not url:
++                continue
++            if url.endswith("/discover/movie"):
++                cand = kwargs.get("params", {})
++                if cand.get("with_genres") == "27|53":
++                    params = cand
++                    found_correct_call = True
++                    break
++
++        # 最低1回は条件を満たす呼び出しがあること
++        self.assertTrue(found_correct_call, "with_genres=27|53 を含むAPI呼び出しが見つかりませんでした。")
++
++        # 該当呼び出しのパラメータを検証
++        expected = {
++            "language": "ja-JP", #言語
++            "region": "JP", #
++            "include_adult": "false",
++            "sort_by": "popularity.desc",
++            "with_genres": "27|53",
++        }
++        for k, v in expected.items():
++            self.assertEqual(params.get(k), v)
++
++        # 評価件数・公開年パラメータ
++        self.assertGreaterEqual(int(params["vote_count.gte"]), 500)
++        self.assertIn("primary_release_date.gte", params)
+\ No newline at end of file
+-- 
+2.43.0
+

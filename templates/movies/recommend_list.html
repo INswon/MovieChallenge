@@ -1,30 +1,49 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %} おすすめ作品 {% endblock %}
+{% block title %}おすすめ作品{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
 
 {% block content %}
-  <section class="container py-4">
-    <h1 class="text-center font-weight-bold mb-4">「{{ label }}」おすすめの作品はこちら</h1>
-    <div class="row g-3">  
+<div class="overlay-bg">
+  <section class="container py-5">
+    <div class="text-center mb-4">
+      <h1 class="text-white font-weight-bold">「{{ label }}」おすすめの作品はこちら</h1>
+      <p class="text-white-50">気になった作品はそのまま記録として保存できます。</p>
+    </div>
+
+    <div class="row row-cols-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-4 justify-content-center recommend-row">
       {% for mv in movies %}
-        <div class="col-auto"> 
-          <div class="card h-100" style="width:20rem;">
+        <div class="col d-flex">
+          <div class="card h-100 record-card w-100">
             {% if mv.poster_url %}
-              <img src="{{ mv.poster_url }}" class="card-img-top" alt="{{ mv.title }}">
+              <a href="{% url 'movies:movie_create' %}?movie_id={{ mv.id }}">
+                <img src="{{ mv.poster_url }}" class="card-img-top recommend-poster" alt="{{ mv.title }}">
+              </a>
             {% else %}
-              <img src="{% static 'images/default.jpg' %}" class="card-img-top" alt="No image">
+              <a href="{% url 'movies:movie_create' %}?movie_id={{ mv.id }}">
+                <img src="{% static 'images/default.jpg' %}" class="card-img-top recommend-poster" alt="No image">
+              </a>
             {% endif %}
 
-            <div class="card-body">
-              <h5 class="card-title mb-2">{{ mv.title }}</h5>
-              <p class="card-text text-muted mb-2">{{ mv.overview}}</p>
-              <p class="card-text mb-1"><small class="text-muted">ジャンル: {{ mv.genres|join:"," }}</small></p>
-              <p class="card-text">評価: {{ mv.rating }}</p>
+            <div class="card-body record-body">
+              <h5 class="record-movie-title mb-2">{{ mv.title }}</h5>
+              <p class="text-muted mb-2" style="max-height: 4.5rem; overflow: hidden;">
+                {{ mv.overview }}
+              </p>
+              <p class="mb-1"><small class="text-muted">ジャンル: {{ mv.genres|join:"," }}</small></p>
+              <p class="record-date mb-3">評価: {{ mv.rating }}</p>
+              <a href="{% url 'movies:movie_create' %}?movie_id={{ mv.id }}" class="btn btn-detail">記録を作成</a>
             </div>
           </div>
-        </div> 
+        </div>
       {% endfor %}
     </div>
   </section>
+</div>
 {% endblock %}

@@ -1,0 +1,126 @@
+Metadata-Version: 2.4
+Name: model-bakery
+Version: 1.20.5
+Summary: Smart object creation facility for Django.
+Project-URL: Homepage, https://github.com/model-bakers/model_bakery
+Author-email: berin <bernardoxhc@gmail.com>, amureki <amureki@hey.com>
+License: Apache License 2.0
+License-File: LICENSE
+Keywords: django,factory,python,testing
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: Framework :: Django
+Classifier: Framework :: Django :: 4.2
+Classifier: Framework :: Django :: 5.0
+Classifier: Framework :: Django :: 5.1
+Classifier: Framework :: Django :: 5.2
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Software Development
+Requires-Python: >=3.8
+Requires-Dist: django>=4.2
+Provides-Extra: docs
+Requires-Dist: myst-parser; extra == 'docs'
+Requires-Dist: sphinx; extra == 'docs'
+Requires-Dist: sphinx-rtd-theme; extra == 'docs'
+Provides-Extra: test
+Requires-Dist: black; extra == 'test'
+Requires-Dist: coverage; extra == 'test'
+Requires-Dist: mypy; extra == 'test'
+Requires-Dist: pillow; extra == 'test'
+Requires-Dist: pytest; extra == 'test'
+Requires-Dist: pytest-django; extra == 'test'
+Requires-Dist: ruff; extra == 'test'
+Description-Content-Type: text/markdown
+
+# Model Bakery: Smart fixtures for better tests
+
+[![Build](https://img.shields.io/github/actions/workflow/status/model-bakers/model_bakery/ci.yml?branch=main)](https://github.com/model-bakers/model_bakery/actions?workflow=Tests)
+[![Coverage](https://img.shields.io/badge/Coverage-97%25-success)](https://github.com/model-bakers/model_bakery/actions?workflow=Tests)
+[![Latest PyPI version](https://img.shields.io/pypi/v/model_bakery.svg)](https://pypi.python.org/pypi/model_bakery/)
+[![Documentation Status](https://readthedocs.org/projects/model-bakery/badge/?version=latest)](https://model-bakery.readthedocs.io/en/latest/?badge=latest)
+
+*Model Bakery* offers you a smart way to create fixtures for testing in Django. With a simple and powerful API, you can create many objects with a single line of code.
+
+> **Note:** Model Bakery is a rename of the legacy [Model Mommy project](https://pypi.org/project/model_mommy/).
+
+## Installation
+
+```bash
+pip install model-bakery
+```
+
+## Basic usage
+
+```python
+# models.py
+from django.db import models
+
+class Customer(models.Model):
+    name = models.CharField(max_length=30)
+    email = models.EmailField()
+    age = models.IntegerField()
+    is_jards_macale_fan = models.BooleanField()
+    bio = models.TextField()
+    birthday = models.DateField()
+    last_shopping = models.DateTimeField()
+
+# test_models.py
+from django.test import TestCase
+from model_bakery import baker
+
+class TestCustomerModel(TestCase):
+    def setUp(self):
+        self.customer = baker.make('shop.Customer')
+        print(self.customer.__dict__)
+
+"""
+{'_state': <django.db.models.base.ModelState object at 0x1129a3240>,
+ 'age': 3841,
+ 'bio': 'vUFzMUMyKzlnTyiCxfgODIhrnkjzgQwHtzIbtnVDKflqevczfnaOACkDNqvCHwvtWdLwoiKrCqfppAlogSLECtMmfleeveyqefkGyTGnpbkVQTtviQVDESpXascHAluGHYEotSypSiHvHzFteKIcUebrzUVigiOacfnGdvijEPrZdSCIIBjuXZMaWLrMXyrsUCdKPLRBRYklRdtZhgtxuASXdhNGhDsrnPHrYRClhrSJSVFojMkUHBvSZhoXoCrTfHsAjenCEHvcLeCecsXwXgWJcnJPSFdOmOpiHRnhSgRF',
+ 'birthday': datetime.date(2019, 12, 3),
+ 'email': 'rpNATNsxoj@example.com',
+ 'is_jards_macale_fan': True,
+ 'id': 1,
+ 'last_shopping': datetime.datetime(2019, 12, 3, 21, 42, 34, 77019),
+ 'name': 'qiayYnESvqcYLLBzxpFOcGBIfnQEPx'}
+"""
+```
+
+## Documentation
+
+For more detailed information, check out the [full documentation](https://model-bakery.readthedocs.io/).
+
+## Contributing
+
+As an open-source project, Model Bakery welcomes contributions of many forms:
+
+- Code patches
+- Documentation improvements
+- Bug reports
+
+Take a look at our [contribution guidelines](CONTRIBUTING.md) for instructions
+on how to set up your local environment.
+
+## Maintainers
+
+- [Bernardo Fontes](https://github.com/berinhard/)
+- [Rustem Saiargaliev](https://github.com/amureki/)
+- [Tim Klein](https://github.com/timjklein36)
+
+## Creator
+
+- [Vanderson Mota](https://github.com/vandersonmota/)
+
+## License
+
+Model Bakery is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for more information.

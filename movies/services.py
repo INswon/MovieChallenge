@@ -4,7 +4,7 @@ from decouple import config
 logger = logging.getLogger(__name__)
 
 # 準備: 環境変数からAPIキーの取得
-TMDB_API_KEY = config("TMDB_API_KEY")  
+TMDB_API_KEY = config("TMDB_API_KEY", default="")  
 BASE_URL = "https://api.themoviedb.org/3/"
 
 # 映画推薦機能 (ページ取得の制御定数)
@@ -159,6 +159,8 @@ class TmdbMovieService:
         }
 
         try:
+            response = requests.get(url, params=params, timeout=5)
+            response.raise_for_status()
             data = response.json()
             logger.info(f"[TMDB_SEARCH] Query: {query}, Found: {len(data.get('results', []))}")
             return data.get("results", [])

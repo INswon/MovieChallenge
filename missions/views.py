@@ -46,13 +46,17 @@ class UserMissionProgressView(LoginRequiredMixin, ListView):
 # バッチ一覧表示リストビュー
 class BatchListTemplateView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        return render(request, "missons/user_batch_list.html")
+        return render(request, "missions/user_batch_list.html")
     
 
-# バッチ一覧表示リストビュー
-class BatchListView(View):
+# バッチ一覧取得APIビュー
+class BatchListView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         user = request.user
+
+        MissionService.check_and_complete_mission(user, "3本の映画達成")
+        MissionService.check_and_assign_genre_batch(user)
+
         obtained_batches = UserBatch.objects.filter(user=user)
         
         obtained_list = []
@@ -62,7 +66,7 @@ class BatchListView(View):
                 "id": batch.id,
                 "name": batch.name,
                 "description": batch.description,
-                "icon": batch.icon.url if batch.icon else ""  
+                "icon": ""
             })
 
         all_batch_ids = Batch.objects.values_list('id', flat=True)
@@ -73,7 +77,7 @@ class BatchListView(View):
                 "id": b.id,
                 "name": b.name,
                 "description": b.description,
-                "icon": b.icon.url if b.icon else ""
+                "icon": ""
             })
 
         response_data = {
