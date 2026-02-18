@@ -51,10 +51,21 @@ class TmdbMovieService:
     def _genre_map():
         url = f"{BASE_URL}genre/movie/list"
         params = {"api_key": TMDB_API_KEY, "language": "ja-JP"}
-        r = requests.get(url, params=params, timeout=5)
-        r.raise_for_status()
-        return {g["id"]: g["name"] for g in r.json().get("genres", [])}
+        
+        try:
+            r = requests.get(url, params=params, timeout=5)
+            r.raise_for_status()
+            return {g["id"]: g["name"] for g in r.json().get("genres", [])}
+        except requests.exceptions.RequestException as e:
 
+            # エラーの種類のみを記録（URLやAPIキーを含めない）
+            logger.error(
+                f"[TMDB_ERROR] Failed to fetch genre map. "
+                f"Error type: {type(e).__name__}, "
+                f"Status: Connection failed"
+            )
+            return {}
+        
     # 映画推薦機能 (代表作5作品の取得)
 
     @staticmethod
@@ -87,7 +98,10 @@ class TmdbMovieService:
         try:
             gmap = TmdbMovieService._genre_map()
         except Exception as e:
-            logger.error(f"[TMDB_ERROR] Failed to fetch genre map: {e}")
+            logger.error(
+                f"[TMDB_ERROR] Failed to fetch genre map. "
+                f"Error type: {type(e).__name__}"
+            )
             return []
 
         # 3. 検索対象ページのサンプリング
@@ -113,7 +127,10 @@ class TmdbMovieService:
 
             except requests.exceptions.RequestException as e:
                 # 途中のページが失敗しても、取得済みのデータで続行する
-                logger.warning(f"[TMDB_PAGE_ERROR] Page {p} fetch failed. Reason: {e}")
+                logger.warning(
+                    f"[TMDB_PAGE_ERROR] Page {p} fetch failed. "
+                    f"Error type: {type(e).__name__}"
+                )
                 continue
 
         # 5. 取得結果のチェック
@@ -164,9 +181,14 @@ class TmdbMovieService:
             data = response.json()
             logger.info(f"[TMDB_SEARCH] Query: {query}, Found: {len(data.get('results', []))}")
             return data.get("results", [])
+        
         except requests.exceptions.RequestException as e:
-            logger.error(f"[TMDB_SEARCH_ERROR] Query: {query}, Error: {e}")
-            return []
+            logger.error(
+                f"[TMDB_SEARCH_ERROR] Query: {query}, "
+                f"Error type: {type(e).__name__}"
+            )
+            return [] 
+
 
     # 映画作品詳細表示
     @staticmethod
@@ -182,7 +204,10 @@ class TmdbMovieService:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            logger.error(f"[TMDB_DETAIL_ERROR] ID: {movie_id}, Error: {e}")
+            logger.error(
+                f"[TMDB_DETAIL_ERROR] ID: {movie_id}, "
+                f"Error type: {type(e).__name__}"
+            )
             return None
         
     # 映画作品監督表示
@@ -203,7 +228,10 @@ class TmdbMovieService:
                     return crew_member.get("name")
             return None
         except requests.exceptions.RequestException as e:
-            logger.error(f"[TMDB_DIRECTOR_ERROR] ID: {movie_id}, Error: {e}")
+            logger.error(
+                f"[TMDB_DIRECTOR_ERROR] ID: {movie_id}, "
+                f"Error type: {type(e).__name__}"
+            )
             return None
 
     # 映画記録作成 (「詳細情報」+「監督名」をテンプレート表示できるように整形)
