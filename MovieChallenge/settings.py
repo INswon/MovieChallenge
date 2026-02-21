@@ -2,22 +2,26 @@ from pathlib import Path
 from decouple import config
 import os
 
-DEBUG = config('DEBUG', default=True, cast=bool)
-LOG_LEVEL = config('DJANGO_LOG_LEVEL', default='INFO')
+ENVIRONMENT = config('ENVIRONMENT', default='local')
+if ENVIRONMENT == 'local':
+    DEBUG = True
+else:
+    DEBUG = False  
+
+LOG_LEVEL = config('DJANGO_LOG_LEVEL', default='DEBUG' if DEBUG else 'INFO')
 DEFAULT_CHARSET = 'utf-8'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+if ENVIRONMENT == 'production':
+    SECRET_KEY = config('SECRET_KEY')  # 本番では必須
+else:
+    SECRET_KEY = config('SECRET_KEY', default='dev-insecure-secret-key')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY', default='dev-insecure-secret-key')
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -65,24 +69,24 @@ WSGI_APPLICATION = "MovieChallenge.wsgi.application"
 
 
 # データベース設定
-if DEBUG:
+if ENVIRONMENT == 'production':
+    # 本番環境: PostgreSQL設定
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",   
+            "NAME": config("DB_NAME"),           # DB名
+            "USER": config("DB_USER"),           # ユーザー名
+            "PASSWORD": config("DB_PASSWORD"),   # パスワード
+            "HOST": config("DB_HOST"),           # エンドポイント
+            "PORT": "5432",                             
+        }
+    }    
+else:
     # ローカル環境: SQLite3
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
-else:
-    # 本番環境: PostgreSQL設定
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",   
-            "NAME": os.environ.get("DB_NAME"),           # DB名
-            "USER": os.environ.get("DB_USER"),           # ユーザー名
-            "PASSWORD": os.environ.get("DB_PASSWORD"),   # パスワード
-            "HOST": os.environ.get("DB_HOST"),           # エンドポイント
-            "PORT": "5432",                             
         }
     }
 
@@ -137,14 +141,12 @@ LOGIN_REDIRECT_URL = '/movies/home/'
 LOGIN_URL = '/users/login/'
 
 # セキュリティ設定
-ALLOWED_HOSTS = [
-    ".awsapprunner.com",  # 1. App Runner接続許可(本番環境)
-    "169.254.172.3", # App Runnerヘルスチェック用 IP
-    "localhost",  # 2. ローカル環境接続許可
-    "127.0.0.1",
-]
-CSRF_TRUSTED_ORIGINS = ["https://g6qqzffsxu.ap-northeast-1.awsapprunner.com"]
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+if ENVIRONMENT == 'production':
+    ALLOWED_HOSTS = [".awsapprunner.com", "169.254.172.3"]
+    CSRF_TRUSTED_ORIGINS = ["https://g6qqzffsxu.ap-northeast-1.awsapprunner.com"]
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 LOGGING = {
