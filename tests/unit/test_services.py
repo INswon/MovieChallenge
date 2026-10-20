@@ -20,7 +20,8 @@ class MissionServiceTestCase(TestCase):
         self.batch = Batch.objects.create(
             name="3本の映画達成バッチ",
             description="映画を3本視聴しました！",
-            mission=self.mission  # 関連するミッションを指定
+            mission=self.mission,
+            condition={},  # JSONField 用の空条件
         )
 
         # テスト用映画視聴記録作成

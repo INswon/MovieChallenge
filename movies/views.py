@@ -30,7 +30,7 @@ class UserMovieListView(LoginRequiredMixin, ListView):
 
     #感情タグの検索フィルタリング
     def get_queryset(self):
-        qs = UserMovieRecord.objects.filter(user=self.request.user)
+        qs = UserMovieRecord.objects.filter(user=self.request.user).annotate(review_count=Count("review"))
         moods = self.request.GET.get("mood", "")
         tags = parse_mood_names(moods)
         if tags:
@@ -75,6 +75,35 @@ class UserMovieListView(LoginRequiredMixin, ListView):
 # 2. 映画記録
 class RecordView(LoginRequiredMixin, TemplateView):
     template_name = "movies/movie_record.html"
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        qs = UserMovieRecord.objects.filter(user=user, is_deleted=False)
+        genre = self.request.GET.get("genre") or ""
+        order = self.request.GET.get("order") or "date_desc"
+        period = self.request.GET.get("period") or "all"
+        qs = qs.annotate(review_count=Count("review"))
+        if genre:
+            qs = qs.filter(genres__name=genre)
+        today = date.today()
+        if period == "this_month":
+            qs = qs.filter(date_watched__year=today.year, date_watched__month=today.month)
+        if order == "date_asc":
+            qs = qs.order_by("date_watched", "id")
+        elif order == "rating_desc":
+            qs = qs.order_by("-rating", "-date_watched", "-id")
+        elif order == "rating_asc":
+            qs = qs.order_by("rating", "-date_watched", "-id")
+        else:
+            qs = qs.order_by("-date_watched", "-id")
+        total_count = UserMovieRecord.objects.filter(user=user, is_deleted=False).count()
+        month_count = UserMovieRecord.objects.filter(user=user, is_deleted=False, date_watched__year=today.year, date_watched__month=today.month).count()
+        context["records"] = qs
+        context["total_count"] = total_count
+        context["month_count"] = month_count
+        context["genres"] = Genre.objects.filter(usermovierecord__user=user, usermovierecord__is_deleted=False).distinct().order_by("name")
+        context["selected"] = {"genre": genre, "order": order, "period": period}
+        return context
 
 # 2. 映画鑑賞記録詳細表示機能
 class MovieRecordDetailView(LoginRequiredMixin, DetailView):
@@ -98,8 +127,12 @@ class MovieRecordDetailView(LoginRequiredMixin, DetailView):
 
         context["movie_data"] = movie_data
 
-       # 他のユーザーのレビュー 一覧（作成日時順）
-        other_reviews = Review.objects.filter(movie=record).exclude(user=self.request.user).order_by("created_at")
+        other_reviews = (
+            Review.objects.filter(movie=record)
+            .exclude(user=self.request.user)
+            .annotate(num_likes=Count("like"))
+            .order_by("-num_likes", "-created_at")
+        )
 
         #「ログイン中ユーザーがいいね済みかどうか」のフラグを付与 (テンプレート側で「❤️ / 🤍」の表示切り替えに使用)
         for review in other_reviews:
@@ -316,9 +349,16 @@ class ReviewPageView(LoginRequiredMixin,CreateView):
 
     def dispatch(self, request, *args, **kwargs):
         self.movie = get_object_or_404(UserMovieRecord, pk=kwargs["pk"])
+        if self.movie.user == request.user:
+            return HttpResponseForbidden("自分の記録にはレビューを投稿できません。")
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        existing = Review.objects.filter(user=self.request.user, movie=self.movie).first()
+        if existing:
+            existing.content = form.cleaned_data.get("content", existing.content)
+            existing.save()
+            return redirect("movies:thanks")
         form.instance.user = self.request.user
         form.instance.movie = self.movie
         return super().form_valid(form)
@@ -359,4 +399,3 @@ class ReviewLikeView(AjaxLoginRequiredMixin,View):
 
         count = review.like_set.count()
         return JsonResponse({"liked": liked, "count": count})
-

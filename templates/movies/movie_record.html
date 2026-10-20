@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}記録一覧{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
+
+{% block content %}
+<div class="overlay-bg">
+<section class="container py-5 record-section">
+  <div class="text-center mb-5">
+    <h1 class="mb-2 record-title text-white font-weight-bold">あなたの映画記録</h1>
+    <p class="text-white-50 mb-4">合計: {{ total_count }}本　今月: {{ month_count }}本</p>
+  </div>
+
+  <form method="get" class="row g-2 mb-4 filter-form">
+    <div class="col-auto">
+      <select name="genre" class="form-select filter-select">
+        <option value="">ジャンル</option>
+        {% for g in genres %}
+          <option value="{{ g.name }}" {% if selected.genre == g.name %}selected{% endif %}>{{ g.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-auto">
+      <select name="order" class="form-select filter-select">
+        <option value="date_desc" {% if selected.order == 'date_desc' %}selected{% endif %}>新着順</option>
+        <option value="date_asc" {% if selected.order == 'date_asc' %}selected{% endif %}>古い順</option>
+        <option value="rating_desc" {% if selected.order == 'rating_desc' %}selected{% endif %}>評価が高い順</option>
+        <option value="rating_asc" {% if selected.order == 'rating_asc' %}selected{% endif %}>評価が低い順</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <select name="period" class="form-select filter-select">
+        <option value="all" {% if selected.period == 'all' %}selected{% endif %}>全期間</option>
+        <option value="this_month" {% if selected.period == 'this_month' %}selected{% endif %}>今月</option>
+      </select>
+    </div>
+    <div class="col-auto">
+      <button type="submit" class="btn btn-primary">適用</button>
+    </div>
+  </form>
+
+  {% if records %}
+    <div class="row g-3">
+      {% for r in records %}
+        <div class="col-md-4 col-lg-3">
+          <div class="card h-100 record-card">
+            {% if r.poster_url %}
+              <img src="{{ r.poster_url }}" class="card-img-top record-img" alt="{{ r.title }}">
+            {% elif r.poster %}
+              <img src="{{ r.poster.url }}" class="card-img-top record-img" alt="{{ r.title }}">
+            {% else %}
+              <img src="{% static 'images/default.jpg' %}" class="card-img-top record-img" alt="{{ r.title }}">
+            {% endif %}
+            <div class="card-body record-body">
+              <h5 class="card-title record-movie-title">{{ r.title }}</h5>
+              <p class="card-text record-date">視聴日: {{ r.date_watched|date:"Y年n月j日" }}</p>
+              <p class="card-text record-rating">評価: ★{{ r.rating }}</p>
+              <p class="card-text text-muted small">コメント: {{ r.review_count }}件</p>
+              
+              <div class="mb-2">
+                {% for g in r.genres.all %}
+                  <span class="badge badge-genre">{{ g.name }}</span>
+                {% endfor %}
+              </div>
+              <div class="mb-3">
+                {% for m in r.mood.all %}
+                  <span class="badge badge-mood">#{{ m.name }}</span>
+                {% endfor %}
+              </div>
+              
+              {% if r.comment %}
+                <p class="small text-muted mb-3">{{ r.comment|truncatechars:30 }}</p>
+              {% endif %}
+
+              <a href="{% url 'movies:detail' r.id %}" class="btn btn-detail">詳細を見る</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="alert alert-light text-center py-5" role="alert">
+      <p class="mb-0 text-muted">条件に一致する記録が見つかりませんでした。</p>
+    </div>
+  {% endif %}
+</section>
+</div>
+{% endblock %}

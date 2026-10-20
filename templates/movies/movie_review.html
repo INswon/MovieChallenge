@@ -1,7 +1,54 @@
-<h1>レビューを投稿する</h1>
+{% extends 'base.html' %}
+{% load static %}
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">送信</button>
-</form>
+{% block title %}コメントを投稿する{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
+
+{% block content %}
+<div class="overlay-bg">
+  <section class="container py-5 record-section">
+    <div class="text-center mb-4">
+      <h1 class="record-title text-white font-weight-bold">コメントを投稿する</h1>
+      <p class="text-white-50">この記録を見た感想を投稿者に伝えましょう。</p>
+      <p class="text-white-50">コメントは他のユーザーにも公開されます。</p>
+      <p class="text-white-50">自分用のメモは詳細画面の「感想」欄にどうぞ。</p>
+    </div>
+
+    <div class="card mb-4 mx-auto record-card" style="max-width: 700px;">
+      <div class="card-body record-body">
+        {% if movie %}
+          <h5 class="record-movie-title mb-3">{{ movie.title }}</h5>
+          {% if movie.date_watched %}
+            <p class="record-date mb-3">鑑賞日: {{ movie.date_watched }}</p>
+          {% endif %}
+        {% endif %}
+
+        <form method="post">
+          {% csrf_token %}
+          {{ form.non_field_errors }}
+
+          <div class="mb-3">
+            {{ form.content.label_tag }}
+            {{ form.content }}
+            {{ form.content.errors }}
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary mr-2">送信</button>
+            {% if movie %}
+              <a href="{% url 'movies:detail' pk=movie.pk %}" class="btn btn-secondary">戻る</a>
+            {% else %}
+              <a href="{% url 'movies:home' %}" class="btn btn-secondary">戻る</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

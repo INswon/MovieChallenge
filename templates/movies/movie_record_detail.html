@@ -1,106 +1,121 @@
 {% extends 'base.html' %}
 {% load static %} 
 
+{% block title %}詳細記録{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/movies/movie_record.css' %}">
+{% endblock %}
+
+{% block page_bg_wrapper_class %}home-bg{% endblock %}
+
 {% block content %}
-
-    <div class="container my-1">
-        <section class="jumbotron text-center">
-            <h1 class="jumbotron-heading">詳細記録</h1>
-        </section>
+<div class="overlay-bg">
+  <section class="container py-5 record-section">
+    <div class="text-center mb-4">
+      <h1 class="record-title text-white font-weight-bold">詳細記録</h1>
     </div>
 
-    <!-- 映画詳細表示 -->
-    <div class="card mb-3 mx-auto" style="width: 1000px;">
-        <div class="row g-0">
-            <div class="col-md-5">
-                {% if movie_data.poster_url %}
-                    <img src="{{ movie_data.poster_url }}" alt="{{ movie_data.title }}" class="img-fluid">
-                {% else %}
-                    <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid">
-                {% endif %}
-            </div>
-
-            <div class="col-md-7">
-                <div class="card-body">
-                    <h5 class="card-title">{{ record.title }}</h5>
-
-                    {% if movie_data.genres %}
-                    <p class="card-text">
-                        ジャンル: 
-                        {% if movie_data.genres.0 %}  {# API取得時（list型） #}
-                            {{ movie_data.genres|join:", " }}
-                        {% else %}  {# 手動登録時（QuerySet） #}
-                            {% for genre in movie_data.genres %}
-                                {{ genre.name }}{% if not forloop.last %}, {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    </p>
-                    {% endif %}
-
-                    {% if movie_data.director %}
-                        <p class="card-text">監督: {{ movie_data.director }}</p>
-                    {% endif %}
-
-                    <p>ムード:
-                        {% for mood in record.mood.all %}
-                            #{{ mood.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            なし
-                        {% endfor %}
-                    </p>
-
-                    <p class="card-text">評価: 
-                        {% if record.rating == 1 %}★☆☆☆☆
-                        {% elif record.rating == 2 %}★★☆☆☆
-                        {% elif record.rating == 3 %}★★★☆☆
-                        {% elif record.rating == 4 %}★★★★☆
-                        {% else %}★★★★★
-                        {% endif %}
-                    </p>
-                  
-                    {% if record.comment %}
-                        <p class="card-text">感想: {{ record.comment }}</p>
-                    {% endif %}
-
-                    <p class="card-text">鑑賞日: {{ record.date_watched }}</p>
-                    <div class="text-center">
-                        <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
-                        <a href="{% url 'movies:review' record.pk %}" class="btn btn-primary">レビューを書く</a>
-                    </div>
-                </div>
-            </div>
+    <div class="card mb-4 mx-auto record-card" style="max-width: 900px;">
+      <div class="row g-0">
+        <div class="col-md-5">
+          {% if movie_data.poster_url %}
+            <img src="{{ movie_data.poster_url }}" alt="{{ movie_data.title }}" class="img-fluid record-img">
+          {% else %}
+            <img src="{% static 'images/default_poster.jpg' %}?v={{ STATIC_VERSION }}" alt="No image available" class="img-fluid record-img">
+          {% endif %}
         </div>
+
+        <div class="col-md-7">
+          <div class="card-body record-body">
+            <h5 class="record-movie-title mb-3">{{ record.title }}</h5>
+
+            {% if movie_data.genres %}
+              <p class="mb-2">
+                <span class="text-muted">ジャンル:</span>
+                {% if movie_data.genres.0 %}
+                  {{ movie_data.genres|join:", " }}
+                {% else %}
+                  {% for genre in movie_data.genres %}
+                    {{ genre.name }}{% if not forloop.last %}, {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </p>
+            {% endif %}
+
+            {% if movie_data.director %}
+              <p class="mb-2"><span class="text-muted">監督:</span> {{ movie_data.director }}</p>
+            {% endif %}
+
+            <p class="mb-2">
+              <span class="text-muted">ムード:</span>
+              {% for mood in record.mood.all %}
+                <span class="badge badge-mood">#{{ mood.name }}</span>
+              {% empty %}
+                <span class="text-muted">なし</span>
+              {% endfor %}
+            </p>
+
+            <p class="record-rating mb-2">
+              評価:
+              {% if record.rating == 1 %}★☆☆☆☆
+              {% elif record.rating == 2 %}★★☆☆☆
+              {% elif record.rating == 3 %}★★★☆☆
+              {% elif record.rating == 4 %}★★★★☆
+              {% else %}★★★★★
+              {% endif %}
+            </p>
+          
+            {% if record.comment %}
+              <p class="mb-2">{{ record.comment }}</p>
+            {% endif %}
+
+            <p class="record-date mb-3">鑑賞日: {{ record.date_watched }}</p>
+            <div class="text-center">
+              {% if record.user == user %}
+                <a href="{% url 'movies:delete' pk=record.pk %}" class="btn btn-danger">削除</a>
+              {% else %}
+                <a href="{% url 'movies:review' record.pk %}" class="btn btn-primary">コメントを書く</a>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <h3>ユーザーのレビュー</h3>
-    {% if other_reviews %}
-        <ul>
-            {% for review in other_reviews %}
-            <li>
-                <strong>{{ review.user.username }}</strong>：{{ review.content }}<br>
-                <small>{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
+    <div class="mt-4">
+      <h3 class="text-white mb-3">みんなのコメント</h3>
+      {% if other_reviews %}
+        <ul class="list-unstyled">
+          {% for review in other_reviews %}
+            <li class="mb-3">
+              <strong class="text-white">{{ review.user.username }}</strong>：
+              <span class="text-white">{{ review.content }}</span><br>
+              <small class="text-muted">{{ review.created_at|date:"Y年m月d日 H:i" }}</small>
 
-                <button type="submit"
-                        class="btn btn-outline-primary btn-sm like-button"
-                        data-review-id="{{ review.id }}">
-                    <span class="icon">
-                        {% if review.is_liked_by_user %}
-                            ❤️
-                        {% else %}
-                            🤍
-                        {% endif %}
-                    </span>
-                    <span class="count">{{ review.like_set.count }}</span>  
-                </button>
+              <button type="button"
+                      class="btn btn-outline-primary btn-sm like-button ml-2"
+                      data-review-id="{{ review.id }}">
+                <span class="icon">
+                  {% if review.is_liked_by_user %}
+                    ❤️
+                  {% else %}
+                    🤍
+                  {% endif %}
+                </span>
+                <span class="count">{{ review.like_set.count }}</span>  
+              </button>
             </li>
-            {% endfor %}
+          {% endfor %}
         </ul>
-    {% else %}
-        <p>この映画にはまだ他のユーザーのレビューがありません。</p>
-    {% endif %}
-
-    <div class="container text-center mb-4">
-        <button type="button" class="btn-new" onclick="location.href='{% url 'movies:create' %}'">新規作成</button>
+      {% else %}
+        <p class="text-muted">この記録にはまだコメントがありません。</p>
+      {% endif %}
     </div>
 
+    <div class="container text-center mb-4 mt-4">
+      <button type="button" class="btn btn-detail" onclick="location.href='{% url 'movies:movie_search' %}'">新しい作品を記録する</button>
+    </div>
+  </section>
+</div>
 {% endblock %}

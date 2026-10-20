@@ -7,12 +7,30 @@ window.updateUI = function () {
 
     if (!obtainedBadgesElement || !unobtainedBadgesElement) return;
 
+    const resolveIcon = (badge) => {
+        if (badge.icon) return badge.icon;
+
+        const name = badge.name || "";
+
+        if (name.includes("1日3") || name.includes("1日に3本")) {
+            return "/static/images/missions/badges/daily_three_movie_badge.jpg";
+        }
+        if (name.includes("3本の映画視聴達成") || name.includes("3本の映画") || name.includes("3作品")) {
+            return "/static/images/missions/badges/three_watch_movie_badge.jpg";
+        }
+        if (name.includes("3ジャンル制覇") || name.includes("3ジャンル制覇バッジ")) {
+            return "/static/images/missions/badges/three_genres_watch_badge.jpg";
+        }
+
+        return "/static/images/missions/badges/three_watch_movie_badge.jpg";
+    };
+
     // 取得済みバッジのリストを更新
     obtainedBadgesElement.innerHTML =
         window.apiData.obtained_batches.length > 0
             ? window.apiData.obtained_batches.map(badge => `
                 <div class="badge-item">
-                    <img src="${badge.icon || '/static/images/default_badge.png'}" class="badge-img" alt="${badge.name}">
+                    <img src="${resolveIcon(badge)}" class="badge-img" alt="${badge.name}">
                     <p class="badge-title">${badge.name}</p>
                 </div>
             `).join("")
@@ -23,7 +41,7 @@ window.updateUI = function () {
         window.apiData.unobtained_batches.length > 0
             ? window.apiData.unobtained_batches.map(badge => `
                 <div class="badge-item badge-unobtained">
-                    <img src="${badge.icon || '/static/images/default_badge.png'}" class="badge-img" alt="${badge.name}">
+                    <img src="${resolveIcon(badge)}" class="badge-img" alt="${badge.name}">
                     <p class="badge-title">${badge.name}</p>
                 </div>
             `).join("")
@@ -39,7 +57,7 @@ function showError(message) {
 // APIからバッジデータを取得する関数
 async function loadBatches() {
     try {
-        const response = await fetch("/missions/user_batches", {
+        const response = await fetch("/missons/user_batches/", {
             method: "GET",
             credentials: "include",
             headers: {
