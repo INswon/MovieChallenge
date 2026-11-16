@@ -1,7 +1,6 @@
 from unittest.mock import patch, Mock
 from django.test import SimpleTestCase
-from movies.services import TmdbMovieService
-
+from movies.services import TmdbMovieService, TMDB_API_KEY 
 
 class TmdbMovieServiceTests(SimpleTestCase):
 
@@ -22,6 +21,26 @@ class TmdbMovieServiceTests(SimpleTestCase):
 
         self.service.discover_top5()
 
-
         actual_url = mock_get.call_args.args[0]
         self.assertEqual(actual_url, self.expected_url)
+
+    #　APIキーの送信ができていることの検証
+    @patch("movies.services.requests.get")
+    def test_request_key_is_correct(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.retrun_value = {"results": []}
+        mock_get.return_value = mock_response
+
+        expected_api_key = TMDB_API_KEY
+
+        self.service.discover_top5()
+
+        # MockのリクエストからAPIキーの取得
+        actual_params = mock_get.call_args.kwargs["params"]
+        actual_api_key = actual_params["api_key"]
+
+        self.assertEqual(actual_api_key, expected_api_key)
+
+ 
+
