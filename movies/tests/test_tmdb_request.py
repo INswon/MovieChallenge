@@ -29,7 +29,7 @@ class TmdbMovieServiceTests(SimpleTestCase):
     def test_request_key_is_correct(self, mock_get):
         mock_response = Mock()
         mock_response.status_code = 200
-        mock_response.json.retrun_value = {"results": []}
+        mock_response.json.return_value = {"results": []}
         mock_get.return_value = mock_response
 
         expected_api_key = TMDB_API_KEY
@@ -42,5 +42,20 @@ class TmdbMovieServiceTests(SimpleTestCase):
 
         self.assertEqual(actual_api_key, expected_api_key)
 
- 
+    # ジャンルIDの送信ができていることの検証
+    @patch("movies.services.requests.get")
+    def test_request_genre_params_are_correct(self, mock_get):
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"genres": []}
+        mock_get.return_value = mock_response
 
+        expected_genre_ids = "10751|16"
+
+        self.service.discover_top5([10751, 16])
+
+        # Mockのリクエストからパラメータを取得
+        actual_params = mock_get.call_args_list[1].kwargs["params"]
+        actual_genre_ids = actual_params["with_genres"]
+
+        self.assertEqual(actual_genre_ids, expected_genre_ids)
